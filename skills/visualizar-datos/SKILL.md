@@ -18,8 +18,9 @@ Una grafica de datos sale siempre de los datos reales via un script reproducible
 | Contexto de la peticion | Modo |
 |---|---|
 | Explorar o depurar datos durante desarrollo (salida de un paso ETL, celda de notebook, pipeline en construccion) | **Interactivo** |
-| Reporte/documento final, o el contexto no da ninguna senal | **Estatico** |
-| Genuinamente ambiguo (ej. "grafica esto" sin mas contexto) | **Pregunta** cual de los dos quiere |
+| Chart o dashboard embebido en una app o frontend (independiente de si el proyecto esta en desarrollo o ya en produccion) | **Interactivo** |
+| Reporte o documento final con contexto claro de que es para eso (aunque no de mas detalle) | **Estatico** |
+| Peticion sin ninguna senal de formato (ej. "grafica esto" a secas, sin mencionar documento, app ni exploracion) | **Pregunta** cual de los dos quiere |
 
 ## 2. Modo estatico (matplotlib / seaborn / ggplot2)
 
