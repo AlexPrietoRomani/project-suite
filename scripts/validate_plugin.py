@@ -25,6 +25,8 @@ check_json(".claude-plugin/marketplace.json", ["name", "plugins"])
 # .mcp.json is bundled; validate it parses if present
 if (ROOT / ".mcp.json").exists():
     check_json(".mcp.json", ["mcpServers"])
+if (ROOT / "opencode.json").exists():
+    check_json("opencode.json", ["mcp"])
 
 FM = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 def frontmatter(p):
@@ -69,6 +71,12 @@ EXPECTED_SKILLS = {
     "python-standards", "r-standards"}
 for s in sorted(EXPECTED_SKILLS - skill_names):
     err(f"missing skill: skills/{s}/SKILL.md")
+
+oc_skills = ROOT / ".opencode" / "skills"
+if oc_skills.exists():
+    oc_names = {p.parent.name for p in oc_skills.glob("*/SKILL.md")}
+    if oc_names != skill_names:
+        err(f".opencode/skills out of sync with skills/ (run scripts/sync_opencode.py): {sorted(skill_names ^ oc_names)}")
 
 if errors:
     print("VALIDATION FAILED:")

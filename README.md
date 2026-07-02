@@ -50,7 +50,11 @@ flowchart LR
 
 ## Instalación
 
-Marketplace local (mismo patrón que otros plugins de este equipo):
+Repo local por ahora, instalable en **Claude Code** y **opencode**.
+
+### Claude Code
+
+Marketplace local:
 
 ```
 /plugin marketplace add C:\Users\aprieto\Github\project-suite
@@ -58,6 +62,19 @@ Marketplace local (mismo patrón que otros plugins de este equipo):
 ```
 
 Al instalar se pregunta el idioma de documentación por defecto (`es | en`).
+
+### opencode
+
+El repo trae un árbol compatible con opencode, generado desde la fuente canónica:
+- `.opencode/skills/` — las 19 skills (formato SKILL.md nativo de opencode)
+- `.opencode/command/` — los comandos (`/init`, `/nueva-fase`, sin el prefijo del plugin)
+- `opencode.json` — el server MCP `codegraphcontext` en formato opencode
+
+Cómo usarlo:
+- **En el propio repo:** abre opencode dentro del repo; lee `.opencode/` y `opencode.json` automáticamente.
+- **Global:** copia `.opencode/*` a `~/.config/opencode/` y fusiona el bloque `mcp` de `opencode.json` en tu `~/.config/opencode/opencode.json`; o apunta `OPENCODE_CONFIG_DIR` al repo.
+
+> El árbol `.opencode/` y `opencode.json` son **generados** — no los edites a mano. Tras cambiar `skills/`, `commands/` o `.mcp.json`, regenéralos con `python scripts/sync_opencode.py` (ver [AGENTS.md](AGENTS.md)).
 
 ## Método
 
