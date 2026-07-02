@@ -1,0 +1,8 @@
+{
+  "name": "project-suite-hooks",
+  "private": true,
+  "description": "Node test runner config for project-suite's hook logic. No runtime dependencies.",
+  "scripts": {
+    "test": "node --test tests/hooks/*.test.js"
+  }
+}
