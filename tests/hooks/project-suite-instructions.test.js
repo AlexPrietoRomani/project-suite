@@ -31,3 +31,11 @@ test('ESTRICTO_TEXT uses blocking language and mentions the 3 gates', () => {
 test('RELAJADO_TEXT uses suggestion language ("considera")', () => {
   assert.match(RELAJADO_TEXT, /considera/);
 });
+
+test('ESTRICTO_TEXT and RELAJADO_TEXT are distinguishable by content (catches an accidental swap)', () => {
+  assert.notEqual(ESTRICTO_TEXT, RELAJADO_TEXT);
+  // "auditar-coherencia" only appears in the blocking (estricto) text.
+  assert.doesNotMatch(RELAJADO_TEXT, /auditar-coherencia/);
+  // "considera" (soft-suggestion language) only appears in the relajado text.
+  assert.doesNotMatch(ESTRICTO_TEXT, /\bconsidera\b/);
+});

@@ -34,14 +34,23 @@ if (ROOT / "hooks" / "hooks.json").exists():
 else:
     err("missing hooks/hooks.json")
 if hooks_cfg:
-    for event, entries in hooks_cfg.get("hooks", {}).items():
-        for entry in entries:
-            for h in entry.get("hooks", []):
-                for key in ("command", "commandWindows"):
-                    cmd = h.get(key, "")
-                    m = re.search(r'hooks[/\\]([a-zA-Z0-9_.-]+\.js)', cmd)
-                    if m and not (ROOT / "hooks" / m.group(1)).exists():
-                        err(f"hooks/hooks.json: {event} references missing hooks/{m.group(1)}")
+    try:
+        for event, entries in hooks_cfg.get("hooks", {}).items():
+            if not isinstance(entries, list):
+                err(f"hooks/hooks.json: '{event}' should be a list"); continue
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    err(f"hooks/hooks.json: '{event}' has a non-object entry"); continue
+                for h in entry.get("hooks", []):
+                    if not isinstance(h, dict):
+                        err(f"hooks/hooks.json: '{event}' has a non-object hook"); continue
+                    for key in ("command", "commandWindows"):
+                        cmd = h.get(key, "")
+                        m = re.search(r'hooks[/\\]([a-zA-Z0-9_.-]+\.js)', cmd)
+                        if m and not (ROOT / "hooks" / m.group(1)).exists():
+                            err(f"hooks/hooks.json: {event} references missing hooks/{m.group(1)}")
+    except Exception as e:
+        err(f"hooks/hooks.json: unexpected structure: {e}")
 
 if not (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists():
     err("missing .opencode/plugins/project-suite.mjs (opencode mode bridge)")
