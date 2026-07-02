@@ -1,5 +1,13 @@
 # project-suite — repo guide for agents
 
+See [CLAUDE.md](./CLAUDE.md) — the canonical operating rules for maintaining this repository (the project-suite plugin itself).
+
+## Versioning (strict)
+Any new skill/command/agent/MCP/dependency → bump MINOR in `.claude-plugin/plugin.json`; any fix → PATCH. See `VERSIONING.md`. The `check-version-bump` pre-commit hook enforces this.
+
+## Commit hygiene
+No LLM co-authorship. Never mix `docs/superpowers/` changes with functional changes in the same commit.
+
 This repository **is** the `project-suite` plugin (a spec-driven project scaffolder/governor). It targets multiple agent tools from one source: Claude Code and opencode (for now).
 
 ## Canonical source — edit these
