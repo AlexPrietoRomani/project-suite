@@ -11,6 +11,12 @@
       "title": "Idioma por defecto de la documentacion",
       "description": "Idioma en que se generan los documentos del proyecto (docs/). Valores: es | en. Se puede reconfirmar por proyecto en el comando init.",
       "required": true
+    },
+    "version_working_files": {
+      "type": "string",
+      "title": "Versionar archivos de trabajo",
+      "description": "Si se versionan (commit) los archivos de trabajo: docs/task/, docs/plan/, docs/logs/, CLAUDE.md y AGENTS.md. Valores: no | yes. Por defecto 'no' (van a .gitignore y quedan locales). Se reconfirma por proyecto en init.",
+      "required": true
     }
   }
 }

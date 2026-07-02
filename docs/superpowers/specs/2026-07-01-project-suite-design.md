@@ -55,7 +55,7 @@ docs/
 └── superpowers/specs/           # design specs (this file lives here in the plugin repo)
 ```
 
-- **`.gitignore`:** `init` adds `docs/` to `.gitignore` **by default** (docs are a local, auditable working artifact), and asks one question: *version the planning docs, or keep them local? [default: local]*. Tradeoff noted to the user: for team work you usually want the plan versioned. `CLAUDE.md`/`AGENTS.md` are always versioned and reference `docs/`; locally everything resolves even when `docs/` is ignored.
+- **`.gitignore`:** controlled by `userConfig.version_working_files` (`no | yes`, default `no`), reconfirmed per project in `init` like the language. **Working files** — `docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md` — are gitignored by default (local, never committed unless the user opts in). The **shareable spec** — `docs/description_proyecto.md`, `docs/architecture/`, `docs/db/`, `docs/ejecucion.md` — is always committed. Rationale: the task board, plan, incident log and per-tool agent-rule files are working/local state; the spec is the shareable contract. Tradeoff: for team work you may want the plan and rules versioned too — set `version_working_files: yes`. If files were already tracked and become ignored, `init` runs `git rm --cached` to untrack without deleting.
 
 ## 4. Plugin repo layout
 
@@ -109,7 +109,7 @@ Templates are packaged once as **structure exemplars**; skills read the relevant
 3. Design interview (the design questions from `plantilla_description_proyecto`): system type, problem, components, data flows, business rules, UI.
 4. Generate `docs/` tree from templates in the chosen language (skip sections that don't apply — e.g. no UI → no §6).
 5. Generate enforcement file(s) — see §7.
-6. Generate `.gitignore` (language-appropriate) and add `docs/` unless the user opted to version it.
+6. Generate `.gitignore` (language-appropriate). By default (`version_working_files: no`) gitignore the working files (`docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`); keep the shareable spec committed. `git rm --cached` any that were already tracked.
 7. Offer `git init` + first semantic commit (via `semantic-commit`).
 
 ### 5.2 `nueva-fase` — spec-driven change gate

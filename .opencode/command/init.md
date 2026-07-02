@@ -14,7 +14,8 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 
 1. **Confirmar idioma y archivos de reglas (AskUserQuestion).**
    - Idioma de la documentación: proponer como default el valor de `userConfig.default_doc_language` del plugin (`es` | `en`). Todos los docs de `docs/` se generarán en ese idioma. Guardar la elección como `DOC_LANG`.
-   - Archivos de reglas a generar: `CLAUDE.md`, `AGENTS.md`, o ambos (default: **ambos**).
+   - Archivos de reglas a generar: `CLAUDE.md`, `AGENTS.md`, o ambos (default: **ambos**). `AGENTS.md` es el que lee opencode.
+   - **Versionado de archivos de trabajo:** default = `userConfig.version_working_files` (`no`). Con `no`, los archivos de trabajo (`docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`) van a `.gitignore` y quedan locales; con `yes` se versionan. Guardar como `VERSION_WORK`.
    - Si `$ARGUMENTS` trae nombre/idea, úsalo como `PROJECT_NAME` provisional; si viene vacío, pregúntalo aquí.
 
 2. **Especificar (skill `especificar`).**
@@ -39,10 +40,12 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
    - `AGENTS.md` desde `templates/generated/AGENTS.tmpl.md` (puntero de una línea a `CLAUDE.md`).
    Si el usuario pidió solo uno de los dos, escribir únicamente ese.
 
-6. **Versionado de `docs/` y `.gitignore` (AskUserQuestion).**
-   Preguntar: ¿versionar `docs/` o mantenerlo local? (default: **local**).
-   - Escribir o actualizar `.gitignore`: si el usuario elige mantenerlo local, añadir la línea `docs/`; si elige versionar, no ignorar `docs/`.
-   - Añadir además los ignores estándar por lenguaje según el stack detectado (p. ej. Python: `__pycache__/`, `.venv/`, `*.pyc`; Node/TS/Astro: `node_modules/`, `dist/`, `.astro/`; R: `.Rhistory`, `.RData`; y siempre `.env`).
+6. **`.gitignore` (según `VERSION_WORK`).**
+   Siempre añade los ignores estándar por lenguaje del stack detectado (Python: `__pycache__/`, `.venv/`, `*.pyc`; Node/TS/Astro: `node_modules/`, `.next/`, `.expo/`, `dist/`; R: `.Rhistory`, `.RData`) y `.env`.
+   - **Archivos de trabajo** = `docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`. La **spec compartible** (`docs/description_proyecto.md`, `docs/architecture/`, `docs/db/`, `docs/ejecucion.md`) NUNCA se ignora.
+   - Si `VERSION_WORK` = `no` (por defecto): añade los archivos de trabajo a `.gitignore` (quedan locales, no se commitean nunca).
+   - Si `VERSION_WORK` = `yes`: no los ignora (se versionan).
+   - Si el repo ya tenía esos archivos trackeados y pasan a ignorados, retíralos del índice con `git rm --cached` (sin borrarlos del disco).
 
 7. **MCP por proyecto (solo apps web/UI).**
    Si el tipo de proyecto detectado en el paso 2 es **app web/UI**, escribir un `.mcp.json` en el repo destino con el server `playwright`, para habilitar los tests de simulación de usuario:
