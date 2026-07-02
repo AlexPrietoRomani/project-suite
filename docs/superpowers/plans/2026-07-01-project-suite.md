@@ -208,6 +208,29 @@ git add -A && git -c commit.gpgsign=false commit -m "test: add structural plugin
 git add -A && git -c commit.gpgsign=false commit -m "docs: add README"
 ```
 
+### Task 0.4: `.mcp.json` (bundled codegraphcontext)
+
+**Files:**
+- Create: `.mcp.json`
+
+- [ ] **Step 1: Write `.mcp.json`**
+```json
+{
+  "mcpServers": {
+    "codegraphcontext": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--with", "kuzu", "codegraphcontext", "mcp", "start"]
+    }
+  }
+}
+```
+- [ ] **Step 2: Verify it parses**
+Run: `python -c "import json; json.load(open('.mcp.json')); print('mcp json OK')"`
+Expected: `mcp json OK`
+- [ ] **Step 3: Document the Windows setup** — in `README.md` (and later in generated `ejecucion.md`) add a "MCP: codegraphcontext" note: `uvx --with kuzu` auto-installs on first launch; FalkorDB Lite is Unix-only so Windows uses **KuzuDB** (Python 3.12+); if the backend isn't auto-selected run once `codegraphcontext config db` → KuzuDB. Mention `context7` is intentionally NOT bundled (use the global one) and `playwright` is added per-project by `init` for web/UI projects.
+- [ ] **Step 4: Commit** `git add -A && git -c commit.gpgsign=false commit -m "feat: bundle codegraphcontext MCP (kuzu backend for Windows)"`
+
 ---
 
 ## Phase 1 — Bundled assets (mechanical copies)
@@ -465,7 +488,8 @@ See [CLAUDE.md](./CLAUDE.md) — the canonical operating rules for this reposito
   4. Invocar skill `ejecucion` (→ `ejecucion.md`). Crear `docs/logs/log.md` desde template (semilla vacía).
   5. Escribir `CLAUDE.md`/`AGENTS.md` desde `templates/generated/*` rellenando `{{PROJECT_NAME}}`/`{{DOC_LANG}}`.
   6. Preguntar: ¿versionar `docs/` o mantenerlo local? (default local) → escribir/actualizar `.gitignore` (añadir `docs/` salvo que elija versionar; añadir ignores por lenguaje).
-  7. Ofrecer `git init` + primer commit vía `semantic-commit`.
+  7. **MCP por proyecto:** si el tipo de proyecto es app web/UI, escribir un `.mcp.json` en el repo destino con el server `playwright` (`{"mcpServers":{"playwright":{"type":"stdio","command":"npx","args":["-y","@playwright/mcp@latest"]}}}`) para habilitar los tests de simulación de usuario. Para proyectos no-web, omitirlo. (codegraphcontext ya viene del plugin, global.)
+  8. Ofrecer `git init` + primer commit vía `semantic-commit`.
   - Regla dura: no escribir código de features en `init`; solo scaffolding + docs.
 - [ ] **Step 2: Validate** `python scripts/validate_plugin.py` (command frontmatter OK). [ ] **Step 3: Commit** `-m "feat(cmd): init (scaffold spec-driven project)"`
 

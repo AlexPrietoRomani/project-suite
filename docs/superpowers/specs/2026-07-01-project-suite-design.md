@@ -64,6 +64,7 @@ project-suite/
 ├── .claude-plugin/
 │   ├── plugin.json          # userConfig.default_doc_language, name, version
 │   └── marketplace.json
+├── .mcp.json                # bundled MCP servers (codegraphcontext) — see §11
 ├── commands/
 │   ├── init.md              # scaffold new project
 │   └── nueva-fase.md        # spec-driven change gate
@@ -189,3 +190,29 @@ Rejected as duplicates/redundant: `generar-tests`, `migracion-db`, `cobertura-ga
 ## 10. Open questions
 
 - None blocking. `both`-language bilingual docs are out of scope for v1 (achievable by re-running a skill per language).
+
+## 11. MCP servers
+
+The plugin ships a `.mcp.json` so its MCP servers install/register when the plugin is enabled.
+
+### 11.1 Bundled by default
+- **`codegraphcontext`** — indexes the local codebase into a graph DB to give a project-wide structural overview (feeds `especificar`/`auditar-coherencia` and general navigation). Embedded backend, no API key.
+  ```json
+  {
+    "mcpServers": {
+      "codegraphcontext": {
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["--with", "kuzu", "codegraphcontext", "mcp", "start"]
+      }
+    }
+  }
+  ```
+  Install: `uvx` fetches `codegraphcontext` + `kuzu` on first launch (no manual pip). **Windows caveat:** the default FalkorDB Lite backend is Unix-only; bundling `--with kuzu` makes KuzuDB (Windows-native, Python 3.12+) available so it falls back to it. If auto-detection doesn't pick KuzuDB, run once: `codegraphcontext config db` → KuzuDB. Documented in `ejecucion`/README.
+
+### 11.2 Opt-in, added per project by `init` (NOT plugin-global)
+- **`playwright`** (`npx -y @playwright/mcp@latest`) — drives the mandated **user-simulation / E2E** test tier for web/UI projects (`testear`). Not bundled plugin-wide because it pulls browser binaries (~hundreds of MB) and most non-web projects don't need it. When `init` detects a web/UI project type, it writes a **project-level `.mcp.json`** in the target repo with this server.
+
+### 11.3 Deliberately NOT bundled
+- **`context7`** — the user already runs a single global HTTP+key context7 server. Bundling a second definition inside a plugin is exactly what previously caused connect/disconnect churn (documented incident: three competing context7 definitions, including a plugin one). Standards/spec skills may *use* the global context7 to verify current library APIs, but the plugin must not define its own. Keep one context7 server.
+- **GitHub / database / memory MCPs** — `gh` CLI already covers PR/issue flows; DB access is project-specific (introspect via the project's own `.mcp.json` or `sqlite3`/`psql` CLIs in `auditar-coherencia`); memory/sequential-thinking are speculative. YAGNI for v1.
