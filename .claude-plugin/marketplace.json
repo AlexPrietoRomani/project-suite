@@ -1,0 +1,11 @@
+{
+  "name": "project-suite-marketplace",
+  "owner": { "name": "Alex Prieto Romani" },
+  "plugins": [
+    {
+      "name": "project-suite",
+      "source": "./",
+      "description": "Spec-driven project scaffolder/governor: init + nueva-fase, especificar/planificar/bitacora/ejecucion, testear/verificar-dod/auditar-coherencia/construir, language standards, and generated CLAUDE.md/AGENTS.md."
+    }
+  ]
+}

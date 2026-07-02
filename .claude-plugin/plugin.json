@@ -1,0 +1,16 @@
+{
+  "name": "project-suite",
+  "version": "0.1.0",
+  "description": "Spec-driven project scaffolder and governor: plan first in documents (description, architecture, DB design), build in phases (Fases/Sub fases/Tareas) via subagents, with enforced quality gates (semantic commits, PRs, mandatory tests, incident log, doc<->code coherence). Generates CLAUDE.md/AGENTS.md and language standards for python, R, rust, astro, sql, typescript and web apps.",
+  "author": { "name": "Alex Prieto Romani" },
+  "license": "MIT",
+  "keywords": ["spec-driven", "scaffolding", "planning", "tareas", "architecture", "testing", "standards", "semantic-commit", "pull-request"],
+  "userConfig": {
+    "default_doc_language": {
+      "type": "string",
+      "title": "Idioma por defecto de la documentacion",
+      "description": "Idioma en que se generan los documentos del proyecto (docs/). Valores: es | en. Se puede reconfirmar por proyecto en el comando init.",
+      "required": true
+    }
+  }
+}

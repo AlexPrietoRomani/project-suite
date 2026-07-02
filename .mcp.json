@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "codegraphcontext": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--with", "kuzu", "codegraphcontext", "mcp", "start"]
+    }
+  }
+}
