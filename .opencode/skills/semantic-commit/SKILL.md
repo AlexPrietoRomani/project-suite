@@ -44,6 +44,13 @@ Para evitar errores de consola con saltos de línea, DEBES usar múltiples flags
 git commit -m "fix(metrics): corrige almacenamiento de métricas en MLflow" -m "Se consolidó la estructura de bloque de MLflow en b2_1_evaluator_models.py. Antes las métricas de accuracy por clase no se guardaban debido a llamadas múltiples al start_run. Todo se unificó en una misma sesión."
 ```
 
+# 2.1 Autoría y coautoría (por defecto: SIN coautoría LLM)
+
+* **Autor del commit:** usa la identidad git configurada en el repo (`git config user.name` / `user.email`). No la cambies salvo que el usuario lo pida. Si `CLAUDE.md` o `AGENTS.md` tiene una sección de **Authorship/Autoría**, esa es la fuente de verdad del autor.
+* **Coautoría de modelos LLM — DESACTIVADA por defecto:** **NO** añadas ningún trailer `Co-Authored-By:` (ni de Claude/Anthropic ni de ningún otro modelo). Los commits llevan solo al autor humano.
+* **Opt-in explícito:** agrega coautoría LLM **solo si** (a) la sección de autoría de `CLAUDE.md`/`AGENTS.md` la habilita, o (b) el usuario la pide en `$ARGUMENTS`. En ese caso añade un trailer por el modelo/proveedor realmente usado, p. ej. `Co-Authored-By: <modelo> <noreply@<proveedor>>` — proveedores válidos: anthropic, openai, deepseek, minimax, u otro indicado por el usuario.
+* Ante la menor duda, NO agregues coautoría.
+
 # 3. Flujo de Ejecución (Paso a Paso)
 
 Debes ejecutar el trabajo siguiendo estrictamente este orden:

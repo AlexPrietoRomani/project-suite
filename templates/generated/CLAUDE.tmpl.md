@@ -2,6 +2,10 @@
 
 > Spec-driven project. Docs are the source of truth. Doc language: {{DOC_LANG}}.
 
+## Authorship
+- **Author (docs + commits):** {{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>. Use this identity for git commits (`git config user.name`/`user.email`) and for the `author:` field in generated docs. Do not change it unless the user says so.
+- **LLM co-authorship:** {{COAUTHOR_POLICY}}. Default is **none** — commits carry NO `Co-Authored-By` trailer. Only add one (for the model/provider actually used: anthropic / openai / deepseek / minimax / …) if this line enables it or the user explicitly asks.
+
 ## Before doing anything
 1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md`. Plan lives in documents; code follows the plan.
 
@@ -13,7 +17,7 @@
 4. Every Tarea needs unit + user-simulation tests (`testear`). Close it with `verificar-dod` before marking `[X]`. A checkbox `[X]` means its DoD passed.
 
 ## Committing & PRs (strict)
-5. **Every commit** goes through `/semantic-commit`. **Every PR** goes through `/pull-request`. Never bypass hooks or signing unless explicitly told.
+5. **Every commit** goes through `/semantic-commit`. **Every PR** goes through `/pull-request`. Never bypass hooks or signing unless explicitly told. Commits use the **Author** above with **no LLM co-authorship** unless the Authorship section enables it.
 
 ## Coherence & incidents
 6. After implementing/refactoring, run `auditar-coherencia` so `architecture.md`/`diseno_db.md` stay true to the code.

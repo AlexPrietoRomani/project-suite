@@ -15,6 +15,8 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 1. **Confirmar idioma y archivos de reglas (AskUserQuestion).**
    - Idioma de la documentación: proponer como default el valor de `userConfig.default_doc_language` del plugin (`es` | `en`). Todos los docs de `docs/` se generarán en ese idioma. Guardar la elección como `DOC_LANG`.
    - Archivos de reglas a generar: `CLAUDE.md`, `AGENTS.md`, o ambos (default: **ambos**). `AGENTS.md` es el que lee opencode.
+   - **Autoría (docs + commits):** determina el autor por defecto desde la identidad git del repo (`git config user.name` / `git config user.email`; si el repo está conectado a GitHub, es ese usuario, y ese mismo va como autor). Si es repo local sin identidad —o el usuario quiere otra—, **pregúntala** (nombre + email). Guarda `AUTHOR_NAME` / `AUTHOR_EMAIL`; se usan para los commits y para el campo `author:` de la documentación. Aplica igual a repos `fork`/`clone`/iniciales.
+   - **Coautoría LLM:** por defecto **ninguna** (los commits NO llevan `Co-Authored-By`). Pregunta si el usuario quiere registrar coautoría del modelo LLM (anthropic / openai / deepseek / minimax / …); guarda la decisión como `COAUTHOR_POLICY` (default: `none`).
    - **Versionado de archivos de trabajo:** default = `userConfig.version_working_files` (`no`). Con `no`, los archivos de trabajo (`docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`) van a `.gitignore` y quedan locales; con `yes` se versionan. Guardar como `VERSION_WORK`.
    - Si `$ARGUMENTS` trae nombre/idea, úsalo como `PROJECT_NAME` provisional; si viene vacío, pregúntalo aquí.
 
@@ -34,11 +36,12 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
    - Invocar la skill `ejecucion`, que escribe `docs/ejecucion.md` (desde `templates/plantilla_ejecucion.md`) dejando solo los bloques de tipo de proyecto que apliquen según lo detectado en el paso 2.
    - Crear `docs/logs/log.md` copiando `templates/plantilla_log.md` como semilla vacía (aún sin incidentes; se irá llenando con la skill `bitacora`).
 
-5. **Escribir reglas de operación (CLAUDE.md / AGENTS.md).**
-   Según lo elegido en el paso 1, escribir en la raíz del proyecto:
-   - `CLAUDE.md` desde `templates/generated/CLAUDE.tmpl.md`, reemplazando `{{PROJECT_NAME}}` por `PROJECT_NAME` y `{{DOC_LANG}}` por `DOC_LANG`.
-   - `AGENTS.md` desde `templates/generated/AGENTS.tmpl.md` (puntero de una línea a `CLAUDE.md`).
-   Si el usuario pidió solo uno de los dos, escribir únicamente ese.
+5. **Escribir reglas de operación + fijar autoría (CLAUDE.md / AGENTS.md).**
+   Según lo elegido en el paso 1, escribir en la raíz del proyecto, reemplazando `{{PROJECT_NAME}}`→`PROJECT_NAME`, `{{DOC_LANG}}`→`DOC_LANG`, `{{AUTHOR_NAME}}`→`AUTHOR_NAME`, `{{AUTHOR_EMAIL}}`→`AUTHOR_EMAIL`, `{{COAUTHOR_POLICY}}`→`COAUTHOR_POLICY`:
+   - `CLAUDE.md` desde `templates/generated/CLAUDE.tmpl.md` (reglas canónicas + sección de autoría).
+   - `AGENTS.md` desde `templates/generated/AGENTS.tmpl.md` (puntero a `CLAUDE.md` + sección de autoría, para opencode).
+   Si el usuario pidió solo uno, escribir únicamente ese (con su sección de autoría).
+   Además aplica la identidad al repo: `git config user.name "AUTHOR_NAME"` y `git config user.email "AUTHOR_EMAIL"`. La autoría queda persistida en el/los archivo(s) de reglas para no re-preguntar en sesiones futuras.
 
 6. **`.gitignore` (según `VERSION_WORK`).**
    Siempre añade los ignores estándar por lenguaje del stack detectado (Python: `__pycache__/`, `.venv/`, `*.pyc`; Node/TS/Astro: `node_modules/`, `.next/`, `.expo/`, `dist/`; R: `.Rhistory`, `.RData`) y `.env`.

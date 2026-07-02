@@ -106,11 +106,12 @@ Templates are packaged once as **structure exemplars**; skills read the relevant
 ### 5.1 `init` — scaffold a spec-driven project
 1. Confirm doc language (default from `userConfig`).
 2. Ask which enforcement file(s) to generate: `CLAUDE.md`, `AGENTS.md`, or both (default both).
-3. Design interview (the design questions from `plantilla_description_proyecto`): system type, problem, components, data flows, business rules, UI.
-4. Generate `docs/` tree from templates in the chosen language (skip sections that don't apply — e.g. no UI → no §6).
-5. Generate enforcement file(s) — see §7.
-6. Generate `.gitignore` (language-appropriate). By default (`version_working_files: no`) gitignore the working files (`docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`); keep the shareable spec committed. `git rm --cached` any that were already tracked.
-7. Offer `git init` + first semantic commit (via `semantic-commit`).
+3. **Authorship:** default author from the repo's git identity (`git config user.name`/`user.email` — the connected GitHub user if any); if local/unknown or the user wants another, ask (name + email). This author is used for commits and the docs `author:` field, on fork/clone/initial repos alike. Also ask the LLM co-authorship preference (default **none**). Persist both in the generated `CLAUDE.md`/`AGENTS.md` (Authorship section) so they are not asked again.
+4. Design interview (the design questions from `plantilla_description_proyecto`): system type, problem, components, data flows, business rules, UI.
+5. Generate `docs/` tree from templates in the chosen language (skip sections that don't apply — e.g. no UI → no §6).
+6. Generate enforcement file(s) with the Authorship section filled — see §7 — and apply `git config user.name`/`user.email`.
+7. Generate `.gitignore` (language-appropriate). By default (`version_working_files: no`) gitignore the working files (`docs/task/`, `docs/plan/`, `docs/logs/`, `CLAUDE.md`, `AGENTS.md`); keep the shareable spec committed. `git rm --cached` any that were already tracked.
+8. Offer `git init` + first semantic commit (via `semantic-commit`).
 
 ### 5.2 `nueva-fase` — spec-driven change gate
 The core "plan first" enforcement. On any requested change/feature:
@@ -143,9 +144,10 @@ New: **`rust-standards`, `astro-standards`, `sql-standards`, `ts-standards`, `we
 
 ## 7. Generated `CLAUDE.md` / `AGENTS.md`
 
-`init` generates **`CLAUDE.md` as canonical** (all hard rules) and **`AGENTS.md` as a one-line pointer** to it, so different agents read their own file with no divergent source of truth. If the user wants only one, `init` generates only that one.
+`init` generates **`CLAUDE.md` as canonical** (all hard rules) and **`AGENTS.md` as a pointer to it plus a duplicated Authorship section** (so opencode, which reads `AGENTS.md`, gets the author identity without following the pointer). No divergent source of truth for the rules. If the user wants only one, `init` generates only that one. Both carry the **Authorship** section (author for docs+commits; LLM co-authorship policy, default none).
 
 Hard rules embedded:
+0. **Authorship:** commit and doc author = the configured identity; **no LLM `Co-Authored-By`** by default (opt-in per provider in the Authorship section).
 1. Read `docs/` before working; plan in documents first.
 2. New change → evaluate a **new Fase** with `nueva-fase` before writing code.
 3. **Strict** use of `semantic-commit` for every commit and `pull-request` for every PR.
