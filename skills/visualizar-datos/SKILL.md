@@ -46,7 +46,7 @@ Si la visualizacion es para **publicacion/journal** (tamanos de figura, fuentes,
 
 1. Detecta si el proyecto usa el stack Shiny for Python (`webapp-standards`): busca `shiny` en `requirements.txt`/`pyproject.toml`, o un entrypoint tipo `backend/dashboard.py`.
 2. Carga [references/interactivo-web.md](references/interactivo-web.md) para los detalles de integracion:
-   - **Si hay Shiny:** Plotly nativo via `render.plotly`/`output_widget` -- un solo lenguaje (Python) de punta a punta.
+   - **Si hay Shiny:** Plotly nativo via `render_widget`/`output_widget` -- un solo lenguaje (Python) de punta a punta.
    - **Si no hay Shiny:** Plotly.js standalone (HTML/JS embebible) para cualquier frontend (Astro, React, estatico).
 
 ## 4. Estandares comunes (ambos modos)
