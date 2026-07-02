@@ -11,6 +11,20 @@ It packages a documentation method (7 chained templates) plus the skills to auth
 
 **Non-goals:** it is not a code generator, not a CI service, not language-specific. It scaffolds and governs; the human/agent still writes the code.
 
+### 0.1 Relationship to superpowers
+
+`project-suite` is a domain-specific, **document-anchored** version of the superpowers dev workflow. It adapts (not copies) several superpowers process skills, tuned to our 7-template docs, our Spanish/English output, and `docs/` as the source of truth:
+
+| superpowers skill | project-suite counterpart |
+|---|---|
+| `brainstorming` | `especificar` opens with its discipline (one question at a time, propose approaches, approval gate) feeding the templates' "Preguntas de diseño" |
+| `writing-plans` | `planificar` (Fases → Sub fases → Tareas, our IDs + mandatory tests) |
+| `subagent-driven-development` / `executing-plans` | `construir` (chains each Fase/Tarea through subagents) |
+| `test-driven-development` | `testear` (authors + runs the mandated test tiers) |
+| `verification-before-completion` | `verificar-dod` (Definition-of-Done gate before `[X]`) |
+
+Other superpowers skills (`systematic-debugging`, `requesting-code-review`) stay available as-is; we do not fork what we don't need to retune.
+
 ## 1. Naming & location
 
 - **Name:** `project-suite`
@@ -61,6 +75,7 @@ project-suite/
 │   ├── testear/             # author + run unit + user-simulation tests
 │   ├── verificar-dod/       # Definition-of-Done gate per Tarea
 │   ├── auditar-coherencia/  # doc↔code drift audit
+│   ├── construir/           # execute plan phases via subagents (adapts subagent-driven-development)
 │   ├── rust-standards/      # NEW
 │   ├── astro-standards/     # NEW
 │   ├── sql-standards/       # NEW
@@ -106,7 +121,7 @@ The core "plan first" enforcement. On any requested change/feature:
 ## 6. Skills
 
 ### 6.1 Core doc skills (grouped, per user's choice)
-- **`especificar`** → `description_proyecto.md` + `architecture/architecture.md` + `db/diseno_db.md`. Design-questions-first; uses `generar-diagramas` for Mermaid with the canonical palette.
+- **`especificar`** → `description_proyecto.md` + `architecture/architecture.md` + `db/diseno_db.md`. Opens with a brainstorming discipline **adapted from `superpowers:brainstorming`** (one question at a time, propose 2–3 approaches, approval gate) that feeds the templates' "Preguntas de diseño"; its terminal state is the written spec docs, not a generic design doc. Uses `generar-diagramas` for Mermaid with the canonical palette.
 - **`planificar`** → `plan/plan_maestro.md` + `task/tareas.md`. Enforces Fases→Sub fases→Tareas→Acciones IDs, mandatory unit + user-simulation tests, 🧠+💡 blocks, Definition of Done.
 - **`bitacora`** → appends incidents to `logs/log.md` (symptom → hypothesis → root cause → resolution → verification → lessons; reverse-chronological).
 - **`ejecucion`** → `ejecucion.md` (project-type selector, env setup, run, deploy, troubleshooting).
@@ -116,10 +131,13 @@ The core "plan first" enforcement. On any requested change/feature:
 - **`verificar-dod`** — Definition-of-Done gate for one Tarea by ID: runs declared tests (+ coverage vs reference threshold), runs linter/formatter with zero warnings, confirms DB-schema/env-var changes are reflected in `diseno_db.md`/`.env.example`/`architecture.md`. Reports pass/fail per DoD item before `[X]`/commit. Composes with `testear`.
 - **`auditar-coherencia`** — diffs `architecture.md` (flows, ADRs, per-flow script paths, deployment bundle) and `diseno_db.md` (ER, column dictionary, PK meanings, write policies, CRUD matrix) against real code (migrations/DDL, ORM models, repository read/write functions); emits a ranked drift report.
 
-### 6.3 Language-standards skills
+### 6.3 Execution skill
+- **`construir`** — **adapts `superpowers:subagent-driven-development`**. Reads `plan/plan_maestro.md` + `task/tareas.md` and drives implementation phase by phase: for each Fase → Sub fase → Tarea it dispatches a **subagent** that implements the Tarea per the applicable `*-standards`, then runs `testear` and `verificar-dod`, and only on green updates the `tareas.md` checkbox (respecting the roll-up invariant). Phases chain through subagents so the main context stays clean. Stops on a red gate and reports.
+
+### 6.4 Language-standards skills
 New: **`rust-standards`, `astro-standards`, `sql-standards`, `ts-standards`, `webapp-standards`** — each mirrors the existing `python-standards`/`r-standards` structure (architecture, naming, docs, testing). `webapp-standards` distills the `replication_app_astro_shiny` lessons (SPA-only for ShinyApps-style deploy, strictly relative paths, inline CSS, `uv`+`pnpm`, consolidated API endpoints, vectorized pandas) as a reusable standard — not a template.
 
-### 6.4 Bundled skills (copied for a self-contained plugin)
+### 6.5 Bundled skills (copied for a self-contained plugin)
 `generar-diagramas`, `semantic-commit`, `pull-request`, `caveman`, `python-standards`, `r-standards`.
 
 ## 7. Generated `CLAUDE.md` / `AGENTS.md`
@@ -139,9 +157,10 @@ Hard rules embedded:
 
 ```mermaid
 flowchart LR
-    INIT["init"]:::cmd --> ESP["especificar"]:::doc
+    INIT["init"]:::cmd --> ESP["especificar (brainstorm-first)"]:::doc
     ESP --> PLAN["planificar"]:::doc
-    PLAN --> TEST["testear"]:::loop
+    PLAN --> CONSTR["construir (subagent per Tarea)"]:::loop
+    CONSTR --> TEST["testear"]:::loop
     TEST --> DOD["verificar-dod"]:::loop
     DOD --> COH["auditar-coherencia"]:::loop
     COH --> COMMIT["semantic-commit → pull-request"]:::git
