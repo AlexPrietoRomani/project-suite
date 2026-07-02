@@ -13,10 +13,11 @@ Cambia o consulta la intensidad del recordatorio ambiental de project-suite (iny
 1. **Ubica la raíz del repo:** `git rev-parse --show-toplevel` (si falla, usa el directorio actual).
 2. **Ubica el archivo de estado:** `<raiz>/.project-suite/mode`.
 3. **Sin `$ARGUMENTS` (consulta):**
+   - Si `$ARGUMENTS` está vacío o contiene solo espacios en blanco, procede como consulta (pasos siguientes).
    - Si el archivo existe, léelo y reporta: "Modo activo: `<valor>`".
    - Si no existe, reporta: "Modo activo: `estricto` (default; aún no se ha creado `.project-suite/mode` en este repo)".
 4. **Con `$ARGUMENTS` (cambio):**
-   - Valida que sea exactamente uno de `estricto`, `relajado`, `off` (sin distinguir mayúsculas). Si no es válido, reporta el error y los valores permitidos; no escribas nada.
+   - Recorta espacios en blanco de `$ARGUMENTS` y conviértelo a minúsculas; valida que el resultado sea EXACTAMENTE uno de `estricto`, `relajado` u `off`. Cualquier texto adicional (ej. "estricto por favor") o valor que no calce exacto es inválido — no hay coincidencias parciales ni interpretación de intención. Si no es válido, reporta: "Modo inválido: `<argumento>`. Valores permitidos: `estricto`, `relajado`, `off`." y no hagas nada más.
    - Crea el directorio `.project-suite/` si no existe.
    - Escribe el valor normalizado (minúsculas) en `.project-suite/mode`.
    - Confirma: "Modo project-suite cambiado a `<valor>`. Se aplicará automáticamente desde la próxima sesión (o ahora mismo, vía el recordatorio de este mismo turno)."
