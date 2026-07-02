@@ -28,6 +28,27 @@ if (ROOT / ".mcp.json").exists():
 if (ROOT / "opencode.json").exists():
     check_json("opencode.json", ["mcp"])
 
+hooks_cfg = None
+if (ROOT / "hooks" / "hooks.json").exists():
+    hooks_cfg = check_json("hooks/hooks.json", ["hooks"])
+else:
+    err("missing hooks/hooks.json")
+if hooks_cfg:
+    for event, entries in hooks_cfg.get("hooks", {}).items():
+        for entry in entries:
+            for h in entry.get("hooks", []):
+                for key in ("command", "commandWindows"):
+                    cmd = h.get(key, "")
+                    m = re.search(r'hooks[/\\]([a-zA-Z0-9_.-]+\.js)', cmd)
+                    if m and not (ROOT / "hooks" / m.group(1)).exists():
+                        err(f"hooks/hooks.json: {event} references missing hooks/{m.group(1)}")
+
+if not (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists():
+    err("missing .opencode/plugins/project-suite.mjs (opencode mode bridge)")
+
+if not (ROOT / "templates" / "generated" / "rules-body.tmpl.md").exists():
+    err("missing templates/generated/rules-body.tmpl.md")
+
 FM = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.S)
 def frontmatter(p):
     m = FM.match(p.read_text(encoding="utf-8"))
@@ -50,10 +71,16 @@ for skill in (sorted(skills_dir.glob("*/SKILL.md")) if skills_dir.exists() else 
     skill_names.add(d)
 
 cmd_dir = ROOT / "commands"
+cmd_names = set()
 for cmd in (sorted(cmd_dir.glob("*.md")) if cmd_dir.exists() else []):
     fm = frontmatter(cmd); rel = cmd.relative_to(ROOT)
     if fm is None: err(f"{rel}: no frontmatter"); continue
     if "description" not in fm: err(f"{rel}: missing 'description'")
+    cmd_names.add(cmd.name)
+
+EXPECTED_COMMANDS = {"init.md", "nueva-fase.md", "modo.md"}
+for c in sorted(EXPECTED_COMMANDS - cmd_names):
+    err(f"missing command: commands/{c}")
 
 expected_templates = {
     "plantilla_description_proyecto.md", "plantilla_architecture.md", "plantilla_db.md",
