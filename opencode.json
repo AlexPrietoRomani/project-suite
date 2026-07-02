@@ -13,5 +13,8 @@
       ],
       "enabled": true
     }
-  }
+  },
+  "plugin": [
+    "./.opencode/plugins/project-suite.mjs"
+  ]
 }

@@ -54,6 +54,8 @@ def gen_opencode_json():
             if cfg.get("headers"):
                 entry["headers"] = cfg["headers"]
         out["mcp"][name] = entry
+    if (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists():
+        out["plugin"] = ["./.opencode/plugins/project-suite.mjs"]
     (ROOT / "opencode.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return list(out["mcp"].keys())
 
