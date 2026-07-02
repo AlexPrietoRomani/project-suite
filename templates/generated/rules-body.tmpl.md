@@ -1,7 +1,3 @@
-# {{PROJECT_NAME}} — Agent operating rules
-
-> Spec-driven project. Docs are the source of truth. Doc language: {{DOC_LANG}}.
-
 ## Authorship
 - **Author (docs + commits):** {{AUTHOR_NAME}} <{{AUTHOR_EMAIL}}>. Use this identity for git commits (`git config user.name`/`user.email`) and for the `author:` field in generated docs. Do not change it unless the user says so.
 - **LLM co-authorship:** {{COAUTHOR_POLICY}}. Default is **none** — commits carry NO `Co-Authored-By` trailer. Only add one (for the model/provider actually used: anthropic / openai / deepseek / minimax / …) if this line enables it or the user explicitly asks.
@@ -25,3 +21,9 @@
 
 ## Diagrams
 8. Diagrams via `generar-diagramas` (Mermaid, canonical palette). No image generation in `.md`.
+
+## Mode (ambient discipline reminder)
+9. An ambient reminder of the active mode (**estricto** by default, or **relajado**) is injected automatically each session via a hook — it re-affirms the rules above at the start of every session, including after `/clear`/`/compact`. Check or change it with `/project-suite:modo [estricto|relajado|off]`.
+
+## Keeping this file in sync
+If you edit this rules section by hand, mirror the change into the other rules file too (`CLAUDE.md`/`AGENTS.md`), if it also exists in this repo — both are generated from the same source and are expected to stay identical.
