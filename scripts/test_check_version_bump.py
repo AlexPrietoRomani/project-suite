@@ -41,6 +41,13 @@ def test_classify_patch_on_script_fix():
     assert classify([("M", "scripts/validate_plugin.py")]) == "patch"
 
 
+def test_classify_minor_on_renamed_new_skill():
+    # git rename status lines look like "R100" -- staged_files() normalizes
+    # rename to "A" using the new path, so classify() should treat it like
+    # a freshly-added skill file.
+    assert classify([("A", "skills/renamed-skill/SKILL.md")]) == "minor"
+
+
 def test_bump_level():
     assert bump_level((0, 1, 0), (0, 1, 1)) == "patch"
     assert bump_level((0, 1, 0), (0, 2, 0)) == "minor"

@@ -33,7 +33,10 @@ def staged_files():
     for line in out.splitlines():
         if not line.strip():
             continue
-        status, path = line.split("\t", 1)
+        parts = line.split("\t")
+        status, path = parts[0], parts[-1]
+        if status.startswith("R"):
+            status = "A"
         files.append((status, path))
     return files
 
