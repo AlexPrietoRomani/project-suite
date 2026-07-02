@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check-version-bump
+        name: Enforce VERSIONING.md semver policy
+        entry: python scripts/check_version_bump.py
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
