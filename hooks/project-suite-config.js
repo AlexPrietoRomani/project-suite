@@ -65,8 +65,12 @@ function setMode(mode, repoRoot) {
   const normalized = normalizeMode(mode);
   if (!normalized) return null;
   const modePath = getModePath(repoRoot);
-  fs.mkdirSync(path.dirname(modePath), { recursive: true });
-  fs.writeFileSync(modePath, normalized);
+  try {
+    fs.mkdirSync(path.dirname(modePath), { recursive: true });
+    fs.writeFileSync(modePath, normalized);
+  } catch (e) {
+    return null;
+  }
   return normalized;
 }
 

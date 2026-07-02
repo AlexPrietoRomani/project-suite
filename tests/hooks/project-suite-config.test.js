@@ -108,3 +108,13 @@ test('setMode rejects an invalid mode and returns null without writing', () => {
   assert.equal(result, null);
   assert.equal(fs.existsSync(getModePath(repo)), false);
 });
+
+test('setMode returns null instead of throwing when a file blocks the .project-suite directory path', () => {
+  const repo = mkTempRepo();
+  fs.writeFileSync(path.join(repo, '.project-suite'), 'blocking file');
+  let result;
+  assert.doesNotThrow(() => {
+    result = setMode('estricto', repo);
+  });
+  assert.equal(result, null);
+});

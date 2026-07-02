@@ -38,3 +38,14 @@ test('ensureModeFile does not overwrite an existing mode file', () => {
   assert.equal(created, false);
   assert.equal(getMode(repo), 'relajado');
 });
+
+test('ensureModeFile repairs a mode file that exists but contains invalid content', () => {
+  const repo = mkTempRepo();
+  fs.mkdirSync(path.join(repo, 'docs', 'plan'), { recursive: true });
+  fs.writeFileSync(path.join(repo, 'docs', 'plan', 'plan_maestro.md'), '# plan');
+  fs.mkdirSync(path.dirname(getModePath(repo)), { recursive: true });
+  fs.writeFileSync(getModePath(repo), 'GARBAGE_VALUE');
+  const created = ensureModeFile(repo);
+  assert.equal(created, true);
+  assert.equal(fs.readFileSync(getModePath(repo), 'utf8'), DEFAULT_MODE);
+});
