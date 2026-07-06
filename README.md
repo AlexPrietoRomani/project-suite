@@ -100,7 +100,7 @@ Pregunta al instalar: idioma de documentación por defecto (`es | en`) y si vers
 **Desde npm (recomendado):**
 
 ```json
-{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+{ "plugin": ["@alexprietoromani/project-suite"] }
 ```
 
 **Desde checkout local:**
@@ -130,7 +130,7 @@ Abre opencode dentro del repo (lee `.opencode/` + `opencode.json`), o copia `.op
 
 ## Publicar en npm
 
-Para que `opencode` pueda resolver `@AlexPrietoRomani/project-suite` desde el registry (igual que ponytail con `@dietrichgebert/ponytail`):
+Para que `opencode` pueda resolver `@alexprietoromani/project-suite` desde el registry (igual que ponytail con `@dietrichgebert/ponytail`):
 
 ```bash
 # 1. Login (una vez)
@@ -143,7 +143,7 @@ npm publish --access public
 Después, cualquier usuario puede instalar con:
 
 ```json
-{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+{ "plugin": ["@alexprietoromani/project-suite"] }
 ```
 
 Si el paquete es privado, usa un registry interno y cambia `publishConfig.access` a `"restricted"` en `package.json`.

@@ -173,7 +173,7 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     SRC[("Repo fuente\ngithub.com/AlexPrietoRomani/project-suite")]
-    NPM[("npm registry\n@AlexPrietoRomani/project-suite")]
+    NPM[("npm registry\n@alexprietoromani/project-suite")]
     CACHE[("Cache de Claude Code\n~/.claude/plugins/cache/<marketplace>/project-suite/<version>/")]
     SESSION["Sesion activa de Claude Code / opencode"]
 
@@ -189,7 +189,7 @@ flowchart LR
 
 **Notas de despliegue:**
 - **Claude Code:** marketplace local, caché versionada por `plugin.json`.
-- **opencode:** desde npm (`@AlexPrietoRomani/project-suite`) o checkout local (`.opencode/plugins/project-suite.mjs`).
+- **opencode:** desde npm (`@alexprietoromani/project-suite`) o checkout local (`.opencode/plugins/project-suite.mjs`).
 - La caché se indexa por número de versión — sin bump de `plugin.json`, `/plugin marketplace update` puede no detectar cambios.
 - No hay build/compilación — el plugin es Markdown + JS/Python interpretados directamente.
 

@@ -21,7 +21,7 @@
 ### opencode — Desde npm (recomendado)
 
 ```json
-{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+{ "plugin": ["@alexprietoromani/project-suite"] }
 ```
 
 ### opencode — Desde checkout local
@@ -61,7 +61,7 @@ python scripts/sync_opencode.py
 
 ## 5. Despliegue
 
-No aplica un "despliegue" tradicional — se distribuye como marketplace local (`/plugin marketplace add <ruta>`) o, a futuro, vía npm (`@AlexPrietoRomani/project-suite`).
+No aplica un "despliegue" tradicional — se distribuye como marketplace local (`/plugin marketplace add <ruta>`) o, a futuro, vía npm (`@alexprietoromani/project-suite`).
 
 Para publicar en npm:
 ```bash
