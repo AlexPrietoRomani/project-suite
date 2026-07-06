@@ -1,37 +1,53 @@
-# project-suite — repo guide for agents
+# project-suite — Agent operating rules
 
-See [CLAUDE.md](./CLAUDE.md) — the canonical operating rules for maintaining this repository (the project-suite plugin itself).
+> Spec-driven project. Docs are the source of truth. Doc language: es.
 
-## Versioning (strict)
-Any new skill/command/agent/MCP/dependency → bump MINOR in `.claude-plugin/plugin.json`; any fix → PATCH. See `VERSIONING.md`. The `check-version-bump` pre-commit hook enforces this.
+## Before doing anything
+1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md`. Plan lives in documents; code follows the plan.
 
-## Commit hygiene
-No LLM co-authorship. Never mix `docs/superpowers/` changes with functional changes in the same commit.
+## Any new change is a planning decision first
+2. Before writing code for a new change/feature, evaluate whether it needs a **new Fase**. If so, run `/nueva-fase` to draft Fase + Sub fases + Tareas in `plan_maestro.md` and `tareas.md` **before** coding. No unplanned features.
 
-This repository **is** the `project-suite` plugin (a spec-driven project scaffolder/governor). It targets multiple agent tools from one source: Claude Code and opencode (for now).
+## Building
+3. Implement plan phases with `construir` (subagent per Tarea). Follow the language standard per file type: `.py`→python-standards, `.R`→r-standards, `.rs`→rust-standards, `.astro`→astro-standards, `.sql`→sql-standards, `.ts`/`.tsx`→ts-standards, web apps→webapp-standards.
+4. Every Tarea needs unit + user-simulation tests (`testear`). Close it with `verificar-dod` before marking `[X]`. A checkbox `[X]` means its DoD passed.
 
-## Canonical source — edit these
+## Committing & PRs (strict)
+5. **Every commit** goes through `semantic-commit`. **Every PR** goes through `pull-request`. Never bypass hooks or signing unless explicitly told.
 
-- `skills/<name>/SKILL.md` — the 19 skills (single source of truth).
-- `commands/*.md` — the 2 commands (`init`, `nueva-fase`).
-- `.mcp.json` — bundled MCP servers (`codegraphcontext`).
-- `templates/` — the 7 doc templates + `templates/generated/` (the CLAUDE/AGENTS templates `init` writes into target projects).
-- `.claude-plugin/` — Claude Code plugin manifest + local marketplace.
+## Coherence & incidents
+6. After implementing/refactoring, run `auditar-coherencia` so `architecture.md`/`diseno_db.md` stay true to the code.
+7. On any bug/blocker: consult `docs/logs/log.md` first; record the resolution with `bitacora`.
 
-## Generated — do NOT hand-edit
+## Diagrams
+8. Diagrams via `generar-diagramas` (Mermaid, canonical palette). No image generation in `.md`.
 
-- `.opencode/skills/`, `.opencode/command/`, `opencode.json` — the opencode-compatible tree, produced from the canonical source by `scripts/sync_opencode.py`.
+## Commands
+- `/init [idea]` — scaffold a new spec-driven project
+- `/nueva-fase [cambio]` — gate: draft new Fase before coding
+- `/modo [estricto|relajado|off]` — change ambient reminder intensity
+- `/review [commit]` — diff vs plan coherence check
+- `/audit` — full repo drift audit vs architecture.md and diseno_db.md
+- `/help` — quick reference
 
-## Workflow when changing the plugin
+## Skills (20)
+**Docs:** especificar, planificar, bitacora, ejecucion
+**Quality loop:** construir, testear, verificar-dod, auditar-coherencia
+**Standards:** python, r, rust, astro, sql, ts, webapp
+**Packaged:** generar-diagramas, semantic-commit, pull-request, caveman, visualizar-datos
 
-1. Edit only the canonical source above.
-2. Regenerate the opencode tree: `python scripts/sync_opencode.py`.
-3. Validate: `python scripts/validate_plugin.py` — must print `OK`.
-4. Commit (semantic message).
+---
 
-## Layout by tool
+## Maintainer notes (plugin repo only)
 
-- **Claude Code:** install via the local marketplace (`.claude-plugin/`). Skills/commands/`.mcp.json` load from the plugin root.
-- **opencode:** reads `.opencode/skills`, `.opencode/command` and `opencode.json`. Commands are invoked without the plugin namespace (`/init`, `/nueva-fase`); skills load via the native `skill` tool.
+This repository **is** the `project-suite` plugin. Canonical source:
+- `skills/<name>/SKILL.md` — the 20 skills (single source of truth)
+- `commands/*.md` — the 6 commands
+- `.mcp.json` — bundled MCP servers
+- `templates/` — the 7 doc templates + `templates/generated/`
+- `.claude-plugin/` — Claude Code plugin manifest
 
-Design and plan: `docs/superpowers/specs/` and `docs/superpowers/plans/`.
+Generated (do NOT hand-edit):
+- `.opencode/skills/`, `.opencode/command/`, `opencode.json` — produced by `scripts/sync_opencode.py`
+
+Workflow: edit canonical → `python scripts/sync_opencode.py` → `python scripts/validate_plugin.py` → commit.

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.0.1-111111?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.0-111111?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20opencode-111111?style=flat-square" alt="Works with Claude Code and opencode">
   <img src="https://img.shields.io/badge/skills-20-111111?style=flat-square" alt="20 skills">
   <img src="https://img.shields.io/badge/commands-6-111111?style=flat-square" alt="6 commands">
@@ -120,6 +120,24 @@ Abre opencode dentro del repo (lee `.opencode/` + `opencode.json`), o copia `.op
 
 > `.opencode/` y `opencode.json` son **generados**, no los edites a mano. Tras tocar `skills/`, `commands/` o `.mcp.json`: `python scripts/sync_opencode.py`. Verifica con `python scripts/validate_plugin.py`.
 
+### Gemini CLI
+
+```
+gemini extensions install https://github.com/AlexPrietoRomani/project-suite
+```
+
+Carga las reglas como contexto siempre activo cada sesión y registra los comandos `/init`, `/nueva-fase`, `/modo`, `/review`, `/audit`, `/help`. Las skills se cargan cuando la tarea lo requiere. El adaptador de Gemini no incluye un `hooks/hooks.json` raíz: Gemini auto-carga esa ruta, y los hooks de lifecycle de project-suite usan los nombres de eventos de Claude Code.
+
+### Antigravity CLI
+
+Antigravity CLI (el binario `agy`) es la renombrbración de Gemini CLI; la misma extensión funciona ahí:
+
+```
+agy plugin install https://github.com/AlexPrietoRomani/project-suite
+```
+
+Reutiliza el `gemini-extension.json` de este repo. Una diferencia: Antigravity convierte los comandos en skills, así que se escriben en el chat (ej. `/review` como mensaje) en vez de seleccionarlos de un menú de slash. Hasta que la migración se complete, `gemini extensions install` también funciona.
+
 ## MCP servers
 
 | Server | Alcance | Por qué |
@@ -154,12 +172,12 @@ Si el paquete es privado, usa un registry interno y cambia `publishConfig.access
 
 ## Agentes soportados
 
-| Agente | Estado | Notas |
+| Agente | Estado | Instalación |
 |---|---|---|
-| Claude Code | ✅ Funciona | Marketplace local, hooks + plugin completo |
-| opencode | ✅ Funciona | Plugin `.mjs` con config hook, skills y comandos |
-| Gemini CLI | 🔜 Próximamente | Requiere `gemini-extension.json` (similar a ponytail) |
-| Antigravity CLI | 🔜 Próximamente | Reutilizará el adaptador de Gemini CLI |
+| Claude Code | ✅ | `/plugin marketplace add AlexPrietoRomani/project-suite` |
+| opencode | ✅ | `{ "plugin": ["@alexprietoromani/project-suite"] }` |
+| Gemini CLI | ✅ | `gemini extensions install https://github.com/AlexPrietoRomani/project-suite` |
+| Antigravity CLI | ✅ | `agy plugin install https://github.com/AlexPrietoRomani/project-suite` |
 | Codex | 🔜 Próximamente | Requiere `.codex-plugin/` |
 | Cursor / Windsurf | 🔜 Próximamente | Requiere `.cursor/rules/` y `.windsurf/rules/` |
 
