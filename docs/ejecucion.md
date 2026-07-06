@@ -14,9 +14,11 @@
 ### Claude Code
 
 ```
-/plugin marketplace add C:\Users\aprieto\Github\project-suite
+/plugin marketplace add AlexPrietoRomani/project-suite
 /plugin install project-suite@project-suite-marketplace
 ```
+
+(Envía los dos comandos como prompts separados)
 
 ### opencode — Desde npm (recomendado)
 

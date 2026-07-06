@@ -89,9 +89,13 @@ Los documentos viven en `docs/` dentro de tu repo (auditables), en el idioma que
 ### Claude Code
 
 ```
-/plugin marketplace add C:\Users\aprieto\Github\project-suite
+/plugin marketplace add AlexPrietoRomani/project-suite
 /plugin install project-suite@project-suite-marketplace
 ```
+
+(Envía los dos comandos como prompts separados)
+
+La app de escritorio no tiene `/plugin`. Instálalo desde la UI: Customize → el + junto a personal plugins → Create plugin and add marketplace → Add from repository → pega la URL del repo.
 
 Pregunta al instalar: idioma de documentación por defecto (`es | en`) y si versionar los archivos de trabajo (`version_working_files`, por defecto **no**).
 
