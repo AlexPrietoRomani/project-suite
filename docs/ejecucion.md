@@ -18,7 +18,13 @@
 /plugin install project-suite@project-suite-marketplace
 ```
 
-### opencode
+### opencode — Desde npm (recomendado)
+
+```json
+{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+```
+
+### opencode — Desde checkout local
 
 Abre opencode dentro del repo (lee `.opencode/` + `opencode.json` automáticamente), o copia `.opencode/*` a `~/.config/opencode/`.
 
@@ -55,7 +61,13 @@ python scripts/sync_opencode.py
 
 ## 5. Despliegue
 
-No aplica un "despliegue" tradicional — se distribuye como marketplace local (`/plugin marketplace add <ruta>`) o, a futuro, un repo público de GitHub.
+No aplica un "despliegue" tradicional — se distribuye como marketplace local (`/plugin marketplace add <ruta>`) o, a futuro, vía npm (`@AlexPrietoRomani/project-suite`).
+
+Para publicar en npm:
+```bash
+npm login
+npm publish --access public
+```
 
 ## 6. Troubleshooting
 

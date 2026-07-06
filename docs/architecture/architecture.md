@@ -70,11 +70,13 @@ Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgado
 
 | # | Flujo | Entrada | Proceso | Salida |
 |---|---|---|---|---|
-| 1 | Scaffold inicial | `/project-suite:init` | Entrevista + genera desde `templates/` | `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore` |
-| 2 | Gate de cambio nuevo | `/project-suite:nueva-fase` | Evalúa y redacta Fase antes de codear | `plan_maestro.md` + `tareas.md` actualizados |
+| 1 | Scaffold inicial | `/init` | Entrevista + genera desde `templates/` | `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore` |
+| 2 | Gate de cambio nuevo | `/nueva-fase` | Evalúa y redacta Fase antes de codear | `plan_maestro.md` + `tareas.md` actualizados |
 | 3 | Recordatorio ambiental | `SessionStart` / `UserPromptSubmit` | Resuelve modo, emite texto | Contexto de sesión / `.project-suite/mode` |
-| 4 | Ejecución del plan | `/project-suite:construir` | Subagente por Tarea + `testear` + `verificar-dod` | Checkboxes `[X]` en `tareas.md`, commits |
+| 4 | Ejecución del plan | `construir` | Subagente por Tarea + `testear` + `verificar-dod` | Checkboxes `[X]` en `tareas.md`, commits |
 | 5 | Sync multi-herramienta | `scripts/sync_opencode.py` | Espeja `skills/`/`commands/`/`.mcp.json` | `.opencode/`, `opencode.json` |
+| 6 | Revision de diff | `/review` | Compara diff contra plan y spec | Reporte de desviaciones (sin modificar archivos) |
+| 7 | Auditoria global | `/audit` | Recorre TODO el repo contra architecture/diseno_db | Reporte de drift (sin modificar archivos) |
 
 ## 3. Flujo 1 — Scaffold inicial (`init`)
 
@@ -170,18 +172,24 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    SRC[("Repo fuente\nC:\\Users\\aprieto\\Github\\project-suite")]
+    SRC[("Repo fuente\ngithub.com/AlexPrietoRomani/project-suite")]
+    NPM[("npm registry\n@AlexPrietoRomani/project-suite")]
     CACHE[("Cache de Claude Code\n~/.claude/plugins/cache/<marketplace>/project-suite/<version>/")]
     SESSION["Sesion activa de Claude Code / opencode"]
 
+    SRC -->|"npm publish"| NPM
     SRC -->|"/plugin marketplace add + install\n(copia versionada)"| CACHE
+    NPM -->|"opencode: { plugin: [...] }"| SESSION
     CACHE -->|"carga al iniciar"| SESSION
     SRC -.->|"cambios de fuente NO se reflejan solos"| CACHE
 
     style CACHE fill:#2a2500,stroke:#f5c842,color:#fff
+    style NPM fill:#0a0a2a,stroke:#4dabf7,color:#74c0fc
 ```
 
 **Notas de despliegue:**
+- **Claude Code:** marketplace local, caché versionada por `plugin.json`.
+- **opencode:** desde npm (`@AlexPrietoRomani/project-suite`) o checkout local (`.opencode/plugins/project-suite.mjs`).
 - La caché se indexa por número de versión — sin bump de `plugin.json`, `/plugin marketplace update` puede no detectar cambios.
 - No hay build/compilación — el plugin es Markdown + JS/Python interpretados directamente.
 

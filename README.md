@@ -7,7 +7,8 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0-111111?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20opencode-111111?style=flat-square" alt="Works with Claude Code and opencode">
-  <img src="https://img.shields.io/badge/skills-19-111111?style=flat-square" alt="19 skills">
+  <img src="https://img.shields.io/badge/skills-20-111111?style=flat-square" alt="20 skills">
+  <img src="https://img.shields.io/badge/commands-6-111111?style=flat-square" alt="6 commands">
   <img src="https://img.shields.io/badge/license-MIT-111111?style=flat-square" alt="MIT license">
 </p>
 
@@ -66,8 +67,12 @@ Los documentos viven en `docs/` dentro de tu repo (auditables), en el idioma que
 
 | Comando | Qué hace |
 |---|---|
-| `/project-suite:init [idea]` | Arranca un proyecto: entrevista de diseño → `docs/` → reglas → `.gitignore` → autoría. |
-| `/project-suite:nueva-fase [cambio]` | Gate spec-driven: evalúa si un cambio amerita una nueva Fase y la redacta **antes** de codear. |
+| `/init [idea]` | Arranca un proyecto: entrevista de diseño → `docs/` → reglas → `.gitignore` → autoría. |
+| `/nueva-fase [cambio]` | Gate spec-driven: evalúa si un cambio amerita una nueva Fase y la redacta **antes** de codear. |
+| `/modo [estricto/relajado/off]` | Cambia o consulta la intensidad del recordatorio ambiental. |
+| `/review [commit]` | Revisa el diff actual contra el plan: detecta código sin planificar o que contradice la spec. |
+| `/audit` | Audita TODO el repo contra `architecture.md` y `diseno_db.md`: detecta drift global. |
+| `/help` | Referencia rápida de comandos y skills. |
 
 ## Skills
 
@@ -77,7 +82,7 @@ Los documentos viven en `docs/` dentro de tu repo (auditables), en el idioma que
 
 **Estándares de lenguaje:** `python`, `r`, `rust`, `astro`, `sql`, `ts`, `webapp`.
 
-**Empaquetadas:** `generar-diagramas` (Mermaid), `semantic-commit`, `pull-request`, `caveman`.
+**Empaquetadas:** `generar-diagramas` (Mermaid), `semantic-commit`, `pull-request`, `caveman`, `visualizar-datos`.
 
 ## Install
 
@@ -92,10 +97,19 @@ Pregunta al instalar: idioma de documentación por defecto (`es | en`) y si vers
 
 ### opencode
 
+**Desde npm (recomendado):**
+
+```json
+{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+```
+
+**Desde checkout local:**
+
 El repo trae un árbol generado desde la misma fuente:
 
-- `.opencode/skills/` — las 19 skills (SKILL.md nativo de opencode)
-- `.opencode/command/` — `/init`, `/nueva-fase` (sin prefijo)
+- `.opencode/skills/` — las 20 skills (SKILL.md nativo de opencode)
+- `.opencode/command/` — `/init`, `/nueva-fase`, `/modo`, `/review`, `/audit`, `/help`
+- `.opencode/plugins/project-suite.mjs` — plugin que registra comandos, skills y el system prompt
 - `opencode.json` — el server `codegraphcontext`
 
 Abre opencode dentro del repo (lee `.opencode/` + `opencode.json`), o copia `.opencode/*` a `~/.config/opencode/` y fusiona el bloque `mcp`.
@@ -113,6 +127,37 @@ Abre opencode dentro del repo (lee `.opencode/` + `opencode.json`), o copia `.op
 ## Autoría
 
 `init` fija el autor de docs y commits desde tu identidad git (el usuario de GitHub conectado, si lo hay) o preguntándolo en repos locales — y lo persiste en `CLAUDE.md`/`AGENTS.md` para no volver a preguntar. **Sin coautoría LLM por defecto**: ningún commit lleva `Co-Authored-By` salvo que lo habilites explícitamente en esa sección o lo pidas.
+
+## Publicar en npm
+
+Para que `opencode` pueda resolver `@AlexPrietoRomani/project-suite` desde el registry (igual que ponytail con `@dietrichgebert/ponytail`):
+
+```bash
+# 1. Login (una vez)
+npm login
+
+# 2. Publicar
+npm publish --access public
+```
+
+Después, cualquier usuario puede instalar con:
+
+```json
+{ "plugin": ["@AlexPrietoRomani/project-suite"] }
+```
+
+Si el paquete es privado, usa un registry interno y cambia `publishConfig.access` a `"restricted"` en `package.json`.
+
+## Agentes soportados
+
+| Agente | Estado | Notas |
+|---|---|---|
+| Claude Code | ✅ Funciona | Marketplace local, hooks + plugin completo |
+| opencode | ✅ Funciona | Plugin `.mjs` con config hook, skills y comandos |
+| Gemini CLI | 🔜 Próximamente | Requiere `gemini-extension.json` (similar a ponytail) |
+| Antigravity CLI | 🔜 Próximamente | Reutilizará el adaptador de Gemini CLI |
+| Codex | 🔜 Próximamente | Requiere `.codex-plugin/` |
+| Cursor / Windsurf | 🔜 Próximamente | Requiere `.cursor/rules/` y `.windsurf/rules/` |
 
 ## FAQ
 

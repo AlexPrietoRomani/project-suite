@@ -7,9 +7,11 @@
 - **Propósito:** scaffolding y gobierno de proyectos spec-driven — planificar en documentos antes de codear, construir por Fases con gates de calidad forzados.
 - **Usuarios objetivo:** desarrolladores usando Claude Code u opencode que quieran disciplina de planificación en sus propios proyectos.
 - **Casos de uso principales:**
-  1. Un usuario corre `/project-suite:init` en un repo nuevo → obtiene `docs/` completo (especificación, arquitectura, DB, plan, tareas) + reglas de operación (`CLAUDE.md`/`AGENTS.md`) + `.gitignore`.
-  2. Un usuario pide un cambio nuevo → `/project-suite:nueva-fase` evalúa si amerita una Fase nueva y la redacta antes de que se escriba código.
-  3. Un usuario corre `/project-suite:construir` → el plan se ejecuta Fase por Fase, un subagente por Tarea, cerrando cada una con `testear` + `verificar-dod`.
+  1. Un usuario corre `/init` en un repo nuevo → obtiene `docs/` completo (especificación, arquitectura, DB, plan, tareas) + reglas de operación (`CLAUDE.md`/`AGENTS.md`) + `.gitignore`.
+  2. Un usuario pide un cambio nuevo → `/nueva-fase` evalúa si amerita una Fase nueva y la redacta antes de que se escriba código.
+  3. Un usuario corre `construir` → el plan se ejecuta Fase por Fase, un subagente por Tarea, cerrando cada una con `testear` + `verificar-dod`.
+  4. Un usuario corre `/review` → se revisa el diff actual contra el plan para detectar código sin planificar.
+  5. Un usuario corre `/audit` → se audita TODO el repo contra architecture.md y diseno_db.md para detectar drift.
 
 ## 1. Arquitectura de componentes
 
@@ -19,6 +21,9 @@ flowchart LR
         INIT["init"]
         NF["nueva-fase"]
         MODO["modo"]
+        REVIEW["review"]
+        AUDIT["audit"]
+        HELP["help"]
     end
 
     subgraph SKILLS["⚙️ Skills"]
@@ -49,7 +54,7 @@ flowchart LR
 
 | Componente | Responsabilidad | ¿Escribe o solo lee? |
 |---|---|---|
-| Comandos (`init`, `nueva-fase`, `modo`) | Orquestan flujos completos invocando skills | Ambas |
+| Comandos (`init`, `nueva-fase`, `modo`, `review`, `audit`, `help`) | Orquestan flujos completos invocando skills | Ambas |
 | Skills de documentos (`especificar`, `planificar`, `bitacora`, `ejecucion`) | Generan/actualizan `docs/` del proyecto destino | Escribe |
 | Skills de loop (`testear`, `verificar-dod`, `auditar-coherencia`, `construir`) | Cierran el ciclo de calidad de cada Tarea | Ambas |
 | Skills de estándar (`*-standards`, `visualizar-datos`) | Guían la implementación por tipo de archivo/necesidad | Solo lee (guía, no ejecuta) |
