@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0-111111?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.0.1-111111?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20opencode-111111?style=flat-square" alt="Works with Claude Code and opencode">
   <img src="https://img.shields.io/badge/skills-20-111111?style=flat-square" alt="20 skills">
   <img src="https://img.shields.io/badge/commands-6-111111?style=flat-square" alt="6 commands">
@@ -173,8 +173,6 @@ Son estado de proceso, no el contrato compartible del proyecto. La spec (`descri
 ## Método
 
 7 plantillas encadenadas (`templates/`): `description_proyecto` → `architecture` → `diseno_db` → `plan_maestro` → `tareas` → `log` → `ejecucion`. Es una versión domain-specific, anclada a documentos, del flujo de `superpowers` (brainstorming → writing-plans → subagent-driven-development → TDD → verification).
-
-Diseño y plan completos: [`docs/superpowers/specs/2026-07-01-project-suite-design.md`](docs/superpowers/specs/2026-07-01-project-suite-design.md) · [`docs/superpowers/plans/2026-07-01-project-suite.md`](docs/superpowers/plans/2026-07-01-project-suite.md).
 
 ## Licencia
 
