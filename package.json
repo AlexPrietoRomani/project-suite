@@ -1,8 +1,40 @@
 {
-  "name": "project-suite-hooks",
-  "private": true,
-  "description": "Node test runner config for project-suite's hook logic. No runtime dependencies.",
+  "name": "@AlexPrietoRomani/project-suite",
+  "version": "0.1.0",
+  "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 20 skills, 6 commands, works with Claude Code and opencode.",
+  "keywords": ["opencode-plugin", "claude-code-plugin", "spec-driven", "planning", "testing", "project-management", "skills"],
+  "license": "MIT",
+  "author": {
+    "name": "Alex Prieto Romani"
+  },
+  "homepage": "https://github.com/AlexPrietoRomani/project-suite",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlexPrietoRomani/project-suite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AlexPrietoRomani/project-suite/issues"
+  },
+  "main": "./.opencode/plugins/project-suite.mjs",
+  "exports": {
+    ".": "./.opencode/plugins/project-suite.mjs",
+    "./plugin": "./.opencode/plugins/project-suite.mjs"
+  },
+  "files": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "hooks/",
+    "skills/",
+    "commands/",
+    ".opencode/",
+    ".claude-plugin/",
+    "templates/",
+    "LICENSE"
+  ],
   "scripts": {
     "test": "node --test tests/hooks/*.test.js"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
