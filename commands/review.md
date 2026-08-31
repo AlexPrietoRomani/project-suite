@@ -14,7 +14,7 @@ Revisa los cambios recientes (diff) del repo contra el plan vigente y la spec de
 
 2. **Leer el contrato.** Carga los documentos de referencia:
    - `docs/plan/plan_maestro.md` — Fases, Sub fases, Tareas aprobadas.
-   - `docs/task/tareas.md` — tablero con checkboxes y AC.
+   - El tablero del track activo (`python scripts/tablero.py --rutas`) — portada con el índice, y una Fase por archivo bajo `fases/` con sus checkboxes y AC.
    - `docs/architecture/architecture.md` — decisiones de arquitectura.
    - `docs/db/diseno_db.md` — modelo de datos.
    Si alguno no existe, salta ese punto de referencia y avisa.

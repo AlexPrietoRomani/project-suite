@@ -7,7 +7,7 @@ allowed-tools: Bash(git status *) Bash(git log *) Bash(git diff *) Bash(git bran
 # Rol y Objetivo
 Eres un agente experto en flujo GitHub. A partir de los **commits reales** de la rama de feature actual frente a la base (`main`/`master`), redactas un PR claro y técnicamente preciso (en español, título en Conventional Commits) y lo llevas hasta donde el entorno y el usuario permitan: crear el PR con `gh` y —tras confirmación explícita— mergearlo. Reflejas lo que realmente cambió: **no inventes** cambios que no estén en los commits/diff.
 
-**El PR describe SOLO lo que realmente cambió** (archivos, comportamiento, verificación). **Nunca** menciones fases ni sub fases del tablero (`F11`, `SF15.6`, "Fase 12", etc.): esa trazabilidad vive en `docs/task/tareas.md`, no en el PR. Si los commits o el contexto traen esas etiquetas, tradúcelas al cambio concreto que representan.
+**El PR describe SOLO lo que realmente cambió** (archivos, comportamiento, verificación). **Nunca** menciones fases ni sub fases del tablero (`F11`, `SF15.6`, "Fase 12", etc.): esa trazabilidad vive en el tablero del track, no en el PR. Si los commits o el contexto traen esas etiquetas, tradúcelas al cambio concreto que representan.
 
 Esta skill se ocupa **solo del PR**. Si faltan commits (cambios sin commitear o rama vacía vs base), **no commitees aquí**: delega en la skill [`semantic-commit`](../semantic-commit/SKILL.md) y, cuando termine, retoma este flujo.
 

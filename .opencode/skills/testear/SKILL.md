@@ -12,7 +12,7 @@ Escribe y ejecuta los **dos niveles de test obligatorios** de una Tarea o Sub fa
 ## Flujo
 
 1. **Identifica el objetivo.** La entrada es un **ID de Tarea/Sub fase** (ej. `T1.1.1`, `SF2.1`) o el contexto de trabajo actual. Si no se te da un ID y el contexto es ambiguo, pídelo antes de continuar.
-2. **Lee la especificación de los tests.** Abre `docs/task/tareas.md` y `docs/plan/plan_maestro.md` y localiza, para ese ID, los bloques **"Test Unitario"** y **"Test de Simulación de Usuario"**, junto con el **Objetivo**, el **Entregable** y los **AC** de la Tarea (y sus bloques 🧠 Explicación / 💡 Cómo hacerlo si existen).
+2. **Lee la especificación de los tests.** Abre el tablero y el Plan Maestro del track activo (`python scripts/tablero.py --rutas`; en un repo de un solo plan son `docs/task/tareas.md` y `docs/plan/plan_maestro.md`) y localiza, para ese ID, los bloques **"Test Unitario"** y **"Test de Simulación de Usuario"**, junto con el **Objetivo**, el **Entregable** y los **AC** de la Tarea (y sus bloques 🧠 Explicación / 💡 Cómo hacerlo si existen).
 3. **Lee los Golden Data.** Consulta la sección **§4 "Datos de Referencia (Fixtures)"** de `docs/plan/plan_maestro.md`: los Inputs Canónicos y las Salidas Esperadas (Golden Data) son la fuente de verdad para los asserts. No inventes valores esperados.
 4. **Detecta stack y runner.** Inspecciona el repo (manifiestos y archivos) para elegir el runner correcto:
    - `pyproject.toml`/`.py` → **pytest**

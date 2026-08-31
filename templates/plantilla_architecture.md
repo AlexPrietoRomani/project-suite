@@ -2,7 +2,7 @@
 
 > **Uso:** copia este archivo a `docs/architecture/` con el nombre apropiado, completa los placeholders `[...]` y elimina las instrucciones en cursiva. El modelo canónico completo es [`docs/architecture/architecture.md`](../architecture/architecture.md) — úsalo como referencia y ejemplo vivo.
 >
-> **Estructura:** el documento se organiza por **Flujos de datos** (cómo fluye el dato desde las APIs hasta el gráfico), no por fases de desarrollo. Las fases viven en `docs/task/tareas.md`.
+> **Estructura:** el documento se organiza por **Flujos de datos** (cómo fluye el dato desde las APIs hasta el gráfico), no por fases de desarrollo. Las fases viven en el tablero (`docs/task/tareas.md` y `docs/task/fases/`, o `docs/task/<track>/` en repos con varios planes).
 
 ---
 
@@ -390,7 +390,7 @@ flowchart LR
 
 | Tipo de contenido | Archivo |
 |---|---|
-| Historia de construcción por fase / sprint | `docs/task/tareas.md` |
+| Historia de construcción por fase / sprint | `docs/task/fases/FNN-*.md` |
 | Flujos de datos y arquitectura viva | `docs/architecture/architecture.md` |
 | Diccionario completo de columnas de BD | `docs/db/diseno_db.md` |
 | Incidentes, diagnósticos, refactors | `docs/logs/log.md` |

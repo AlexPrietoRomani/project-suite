@@ -82,4 +82,4 @@ pub fn extract_spatial_metadata(image_path: &str, confidence: f64) -> Result<Spa
 
 ## 8. Integración con project-suite
 - Este estándar se aplica automáticamente a archivos `.rs` durante la construcción por subagentes (ver la skill `construir`); cada Tarea que toque Rust DEBE cumplirlo antes de pasar el gate `verificar-dod`.
-- Los tests obligatorios (unitario + simulación de usuario) declarados en `docs/plan/plan_maestro.md` y `docs/task/tareas.md` se materializan y corren con la skill `testear` usando `cargo test` como runner.
+- Los tests obligatorios (unitario + simulación de usuario) declarados en el Plan Maestro y el tablero del track activo se materializan y corren con la skill `testear` usando `cargo test` como runner.

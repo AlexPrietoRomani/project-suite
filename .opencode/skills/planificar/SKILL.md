@@ -36,7 +36,7 @@ Convierte la especificación técnica del proyecto en un plan de construcción a
      - **Test de Simulación de Usuario:** comportamiento/E2E/integración que valide el flujo desde la perspectiva del usuario final.
    Deriva las Fases de los flujos de `architecture.md` (incluye siempre una Fase de setup/tooling y una Fase de Base de Datos y Persistencia derivada de `db/diseno_db.md`, tal como indica §5 de la plantilla). **El Plan Maestro solo baja hasta el nivel de Tarea**: las Acciones atómicas NO se escriben aquí, viven en `tareas.md`.
 
-5. **Deriva `docs/task/tareas.md`** siguiendo `templates/plantilla_tareas.md`:
+5. **Deriva el tablero, partido en un archivo por Fase.** Pide las rutas con `python scripts/tablero.py --rutas` (en un repo de un solo plan son `docs/task/tareas.md` y `docs/task/fases/`; en un repo con varios planes, las del track activo). Escribe la **portada** en `tareas.md` —convenciones, fuentes de contexto obligatorias, bitácora y el par de marcadores `<!-- indice-tareas:inicio -->` / `<!-- indice-tareas:fin -->` donde va el índice— y **cada Fase completa en su propio archivo** `fases/FNN-slug.md`. El nombre lo da el script, no lo inventes. Al terminar, regenera el índice con `python scripts/tablero.py --indice`. Todo lo demás sigue `templates/plantilla_tareas.md`:
    - Reproduce el bloque de **Fuentes de contexto obligatorias**, la nota de **Bitácora de Incidentes** (`docs/logs/log.md`) y las **Convenciones de Checkboxes** (`[ ]` pendiente, `[/]` en progreso, `[X]` completado).
    - Usa los **identificadores** correlativos: Fase `F{n}`, Sub fase `SF{f}.{n}`, Tarea `T{f}.{sf}.{n}`, Acción `A{f}.{sf}.{t}.{n}`.
    - Respeta el **invariante de progreso (roll-up):** una Tarea se marca `[X]` solo si todas sus Acciones están `[X]` y sus AC/tests pasan limpios; una Sub fase se completa cuando todas sus Tareas lo están; una Fase, cuando todas sus Sub fases lo están.
@@ -52,7 +52,7 @@ Convierte la especificación técnica del proyecto en un plan de construcción a
 
 ## Reglas / Salida
 
-- **Genera dos archivos:** `docs/plan/plan_maestro.md` (desde `templates/plantilla_plan.md`) y `docs/task/tareas.md` (desde `templates/plantilla_tareas.md`). Deben ser trazables entre sí: cada `F/SF/T` del tablero corresponde a una entrada del Plan Maestro.
+- **Genera el Plan Maestro y el tablero partido:** `plan_maestro.md` (desde `templates/plantilla_plan.md`) y el tablero del track —portada `tareas.md` + una Fase por archivo bajo `fases/` (desde `templates/plantilla_tareas.md`)—. **`tareas.md` nunca contiene Fases:** un tablero monolítico llega a decenas de miles de líneas, y entonces mirar una Sub fase carga todo y dos sesiones que lo editan se pisan. El índice se regenera con `python scripts/tablero.py --indice`, nunca a mano. Deben ser trazables entre sí: cada `F/SF/T` del tablero corresponde a una entrada del Plan Maestro.
 - **Niveles de anidamiento estrictos:** el Plan Maestro llega **solo hasta Tarea**; las **Acciones atómicas** (`A{...}`) existen únicamente en `tareas.md`.
 - **Tests obligatorios en TODOS los niveles:** cada Fase, Sub fase, Tarea y Acción declara sus **Test Unitario** y **Test de Simulación de Usuario**. Nunca omitas ninguno de los dos niveles; sin ellos el nivel está incompleto.
 - **Definition of Done:** el Plan Maestro incluye el Apéndice A (DoD global) como contrato de cierre de cada Tarea; el gate operativo lo aplica luego la skill `verificar-dod`.

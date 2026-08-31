@@ -11,7 +11,7 @@ Ejecuta el Definition of Done (DoD) de una Tarea del Plan Maestro y reporta pass
 
 ## Flujo
 
-1. **Entrada.** Recibe un ID de Tarea (ej. `T1.1.1`) o toma la Tarea del contexto actual. Localiza su definición en `docs/task/tareas.md` y en `docs/plan/plan_maestro.md` (macro-objetivo, Entregable, Criterios de Aceptación, y sus bloques `Test Unitario` + `Test de Simulación de Usuario`). Lee el **Apéndice A — Definition of Done (DoD) Global** del `plan_maestro.md` (derivado de `templates/plantilla_plan.md`), que fija los 5 requerimientos innegociables.
+1. **Entrada.** Recibe un ID de Tarea (ej. `T1.1.1`) o toma la Tarea del contexto actual. Localiza su definición en el tablero del track activo —en el archivo de su Fase, `fases/FNN-*.md`— y en su `plan_maestro.md` (rutas: `python scripts/tablero.py --rutas`) (macro-objetivo, Entregable, Criterios de Aceptación, y sus bloques `Test Unitario` + `Test de Simulación de Usuario`). Lee el **Apéndice A — Definition of Done (DoD) Global** del `plan_maestro.md` (derivado de `templates/plantilla_plan.md`), que fija los 5 requerimientos innegociables.
 
 2. **Item 1 — Tests unitarios + simulación de usuario en verde.** Delega en la skill `testear` (Skill tool) para materializar/correr los dos niveles obligatorios de la Tarea. Confirma que **todos** los tests declarados en los bloques `Test Unitario` y `Test de Simulación de Usuario` corren y pasan, y que cubren casos óptimos y de error.
 
@@ -23,11 +23,15 @@ Ejecuta el Definition of Done (DoD) de una Tarea del Plan Maestro y reporta pass
 
 6. **Item 5 — Cambios de DB/env documentados.** Si la Tarea tocó esquema de datos o variables de entorno, verifica que quedaron reflejados: nuevas tablas/columnas/índices/migraciones en `docs/db/diseno_db.md` (diccionario de tablas, ER, matriz de accesos), nuevas variables en `.env.example`, y flujos/scripts/ADRs afectados en `docs/architecture/architecture.md`. Detecta drift comparando lo declarado en los docs contra los archivos reales de migración/DDL/config; ante divergencias sugiere invocar `auditar-coherencia` para el análisis profundo.
 
-7. **Veredicto.** Consolida el resultado por item y decide si la Tarea puede cerrarse.
+7. **Item 6 — Tablero coherente.** Corre `python scripts/tablero.py --verificar`: el índice de la portada tiene que reflejar las Fases y Sub fases reales de `fases/`. Un índice viejo hace que el estado que se lee no sea el estado que hay.
+
+8. **Item 7 — Plan sincronizado (solo en worktree).** Si el trabajo ocurre en una worktree creada con `/fase`, corre `python scripts/tablero.py --sync` y exige que no queden divergencias pendientes. Los documentos del plan están gitignorados: el merge no los lleva, el sync sí.
+
+9. **Veredicto.** Consolida el resultado por item y decide si la Tarea puede cerrarse.
 
 ## Reglas / Salida
 
-- **Reporta pass/fail por cada uno de los 5 items del DoD** (Apéndice A del plan), con evidencia concreta: comando ejecutado, salida relevante, porcentaje de cobertura vs umbral, y ruta del doc actualizado. Nada de "todo OK" genérico.
+- **Reporta pass/fail por cada item del DoD**: los 5 del Apéndice A del plan, más los dos del tablero (índice al día y plan sincronizado), con evidencia concreta: comando ejecutado, salida relevante, porcentaje de cobertura vs umbral, y ruta del doc actualizado. Nada de "todo OK" genérico.
 - **Si cualquier item falla, NO habilita el `[X]`** de la Tarea y enumera exactamente qué falta para pasar el gate (ej. "cobertura 71% < umbral 80%", "3 warnings de ruff en `src/logic/pricing.py`", "columna `orders.discount_pct` no está en `diseno_db.md`").
 - **No commitea.** El commit es responsabilidad de la skill `semantic-commit`; `verificar-dod` es el gate previo. Tampoco marca checkboxes: el `[X]` lo aplica `construir` (o el usuario) **solo** tras un veredicto verde.
 - **No inventa criterios.** Se ciñe al DoD del `plan_maestro.md`; si un item no es determinable (ej. no hay umbral de cobertura definido, o no hay CI), lo declara como faltante/no-aplica en lugar de aprobarlo o inventarlo.

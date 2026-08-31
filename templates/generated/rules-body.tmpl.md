@@ -3,7 +3,7 @@
 - **LLM co-authorship:** {{COAUTHOR_POLICY}}. Default is **none** — commits carry NO `Co-Authored-By` trailer. Only add one (for the model/provider actually used: anthropic / openai / deepseek / minimax / …) if this line enables it or the user explicitly asks.
 
 ## Before doing anything
-1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md`. Plan lives in documents; code follows the plan.
+1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, and the active track's plan and board (`python scripts/tablero.py --rutas`). Plan lives in documents; code follows the plan.
 
 ## Any new change is a planning decision first
 2. Before writing code for a new change/feature, evaluate whether it needs a **new Fase**. If so, run `/project-suite:nueva-fase` to draft Fase + Sub fases + Tareas in `plan_maestro.md` and `tareas.md` **before** coding. No unplanned features.

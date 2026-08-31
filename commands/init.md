@@ -30,7 +30,7 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 3. **Planificar (skill `planificar`).**
    Invocar la skill `planificar`, que lee los tres docs anteriores y deriva:
    - `docs/plan/plan_maestro.md` (desde `templates/plantilla_plan.md`): Fases → Sub fases → Tareas con tests obligatorios y Definition of Done.
-   - `docs/task/tareas.md` (desde `templates/plantilla_tareas.md`): tablero con IDs `F/SF/T/A`, checkboxes y bloques 🧠 + 💡 por Tarea.
+   - `docs/task/tareas.md` (desde `templates/plantilla_tareas.md`): la **portada** del tablero —convenciones, fuentes de contexto y el par de marcadores `<!-- indice-tareas:inicio -->` / `<!-- indice-tareas:fin -->` donde va el índice—, más `docs/task/fases/` vacío: las Fases se escriben una por archivo ahí, nunca dentro de `tareas.md`.
 
 4. **Ejecución + semilla de bitácora.**
    - Invocar la skill `ejecucion`, que escribe `docs/ejecucion.md` (desde `templates/plantilla_ejecucion.md`) dejando solo los bloques de tipo de proyecto que apliquen según lo detectado en el paso 2.
@@ -66,4 +66,4 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 - **Regla dura:** `init` NO escribe código de features ni lógica de aplicación. Solo produce scaffolding: estructura `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore` y, cuando corresponde, `.mcp.json`.
 - Todos los documentos de `docs/` se generan en `DOC_LANG`; las etiquetas, nombres de tools y rutas se mantienen en inglés/tal cual.
 - Ninguna sección de los docs generados queda en blanco: las skills delegadas borran las secciones opcionales de las plantillas que no apliquen (regla de las plantillas).
-- **Salida esperada** al terminar: `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md`, `docs/ejecucion.md`, `docs/logs/log.md`, más `CLAUDE.md`/`AGENTS.md` (según elección, cada uno con el cuerpo completo de reglas), `.project-suite/mode` (modo `estricto` por defecto), `.gitignore` actualizado y `.mcp.json` (solo apps web/UI). Sugerir continuar con `/project-suite:construir` para empezar a implementar el plan, y mencionar que `/project-suite:modo` cambia la intensidad del recordatorio ambiental en cualquier momento.
+- **Salida esperada** al terminar: `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md` + `docs/task/fases/`, `docs/ejecucion.md`, `docs/logs/log.md`, más `CLAUDE.md`/`AGENTS.md` (según elección, cada uno con el cuerpo completo de reglas), `.project-suite/mode` (modo `estricto` por defecto), `.gitignore` actualizado y `.mcp.json` (solo apps web/UI). Sugerir continuar con `/project-suite:construir` para empezar a implementar el plan, y mencionar que `/project-suite:modo` cambia la intensidad del recordatorio ambiental en cualquier momento.

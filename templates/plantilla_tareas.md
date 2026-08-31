@@ -22,6 +22,8 @@
 > - **Tarea:** `T{f}.{sf}.{n}` — ej. `T1.1.2` (Fase 1, Sub fase 1, Tarea 2)
 > - **Acción:** `A{f}.{sf}.{t}.{n}` — ej. `A1.1.2.3` (Fase 1, Sub fase 1, Tarea 2, Acción 3)
 >
+> **Reajuste dinámico:** el plan se corrige sobre la marcha. Al cerrar una Sub fase, lo aprendido puede reescribir las Sub fases pendientes de la misma Fase; el trabajo correctivo entra como **Tareas dentro de la Fase en curso**, nunca como una Fase nueva al final. Todo bloque que la ejecución haya corregido lleva `> ⟳ Ajustado en SF{x.y} — <motivo>` al inicio.
+>
 > **Regla Maestra de Calidad:** Cada Fase, Sub fase, Tarea y Acción debe detallar y ejecutar obligatoriamente **Tests Unitarios** (aislados del sistema) y **Tests de Simulación de Usuario** (comportamiento/E2E/integración que replique la experiencia del usuario interactuando con el entregable). Una Tarea solo se marca completada si todas sus Acciones están en `[X]` y sus AC se cumplen; una Fase solo se marca completada si todas sus sub Fases lo están.
 >
 > **Estructura obligatoria de cada Tarea (didáctica y reproducible):** además de Objetivo / Entregable / AC / Tests, **toda Tarea debe incluir** dos bloques que la hagan autoexplicativa:
@@ -34,14 +36,20 @@
 
 ## Índice de Fases y Sub fases
 
-- [ ] [Fase 0 — Setup e Infraestructura Base](#fase-0--setup-e-infraestructura-base)
-  - [ ] [Sub fase 0.1 — Inicialización de Entornos](#sub-fase-01--inicializacion-de-entornos)
-- [ ] [Fase 1 — Modelado de Dominio y Core de Negocio](#fase-1--modelado-de-dominio-y-core-de-negocio)
-  - [ ] [Sub fase 1.1 — Tipos y Validación de Datos](#sub-fase-11--tipos-y-validacion-de-datos)
-- [ ] [Fase 2 — Base de Datos y Persistencia](#fase-2--base-de-datos-y-persistencia)
-  - [ ] [Sub fase 2.1 — Modelado Físico y Migraciones](#sub-fase-21--modelado-fisico-y-migraciones)
+<!-- indice-tareas:inicio -->
+<!-- indice-tareas:fin -->
+
+> El bloque de arriba lo **genera** `python scripts/tablero.py --indice` leyendo `fases/`; no se
+> edita a mano. `--verificar` avisa si quedó viejo. Los marcadores llevan `-tareas` a propósito:
+> este documento cita sus propias herramientas, así que su marcador tiene que ser distinto de
+> cualquier cadena que pueda aparecer citada más abajo.
 
 ---
+
+> **Las Fases de aquí en adelante son un ejemplo del contenido de un archivo de Fase.** En un
+> proyecto real cada una vive en su propio `fases/FNN-slug.md` y este documento termina en el
+> índice: un tablero monolítico llega a decenas de miles de líneas, y entonces abrirlo para mirar
+> una Sub fase carga todo y dos sesiones que lo editan se pisan.
 
 ## [ ] Fase 0 — Setup e Infraestructura Base (Macro-objetivos)
 
