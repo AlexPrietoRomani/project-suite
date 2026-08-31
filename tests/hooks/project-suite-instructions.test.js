@@ -39,3 +39,16 @@ test('ESTRICTO_TEXT and RELAJADO_TEXT are distinguishable by content (catches an
   // "considera" (soft-suggestion language) only appears in the relajado text.
   assert.doesNotMatch(ESTRICTO_TEXT, /\bconsidera\b/);
 });
+
+test('the estricto text names the active track when there is one', () => {
+  const text = getInstructions('estricto', 'cartilla_1065');
+  assert.match(text, /cartilla_1065/);
+});
+
+test('the estricto text omits the track line when there is none', () => {
+  assert.doesNotMatch(getInstructions('estricto', null), /Track activo/);
+});
+
+test('off returns an empty string regardless of the track', () => {
+  assert.equal(getInstructions('off', 'cartilla_1065'), '');
+});

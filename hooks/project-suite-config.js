@@ -41,6 +41,22 @@ function getModePath(repoRoot) {
   return path.join(getModeDir(repoRoot), 'mode');
 }
 
+function getTrackPath(repoRoot) {
+  return path.join(getModeDir(repoRoot), 'track');
+}
+
+// The active track, or null. The full resolution (flat layout, single track,
+// several tracks) lives in scripts/tablero.py — one implementation only. Here we
+// just read the file so the mode message can name it.
+function getTrack(repoRoot) {
+  try {
+    const value = fs.readFileSync(getTrackPath(repoRoot), 'utf8').trim();
+    return value || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 function isProjectSuiteRepo(repoRoot) {
   const root = repoRoot || findRepoRoot();
   return fs.existsSync(getModeDir(root)) ||
@@ -81,6 +97,8 @@ module.exports = {
   findRepoRoot,
   getModeDir,
   getModePath,
+  getTrackPath,
+  getTrack,
   isProjectSuiteRepo,
   getMode,
   setMode,

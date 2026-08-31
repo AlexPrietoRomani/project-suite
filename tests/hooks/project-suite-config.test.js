@@ -11,6 +11,8 @@ const {
   getMode,
   setMode,
   getModePath,
+  getTrack,
+  getTrackPath,
   DEFAULT_MODE,
 } = require('../../hooks/project-suite-config');
 
@@ -117,4 +119,23 @@ test('setMode returns null instead of throwing when a file blocks the .project-s
     result = setMode('estricto', repo);
   });
   assert.equal(result, null);
+});
+
+test('getTrack returns null when no track file exists', () => {
+  const dir = mkTempRepo();
+  assert.equal(getTrack(dir), null);
+});
+
+test('getTrack reads and trims .project-suite/track', () => {
+  const dir = mkTempRepo();
+  fs.mkdirSync(path.dirname(getTrackPath(dir)), { recursive: true });
+  fs.writeFileSync(getTrackPath(dir), 'cartilla_1065\n');
+  assert.equal(getTrack(dir), 'cartilla_1065');
+});
+
+test('getTrack returns null for an empty track file', () => {
+  const dir = mkTempRepo();
+  fs.mkdirSync(path.dirname(getTrackPath(dir)), { recursive: true });
+  fs.writeFileSync(getTrackPath(dir), '   \n');
+  assert.equal(getTrack(dir), null);
 });

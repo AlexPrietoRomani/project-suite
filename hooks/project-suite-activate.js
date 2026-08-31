@@ -6,7 +6,7 @@
 //   2. Otherwise, self-heal a missing/deleted .project-suite/mode (default estricto).
 //   3. Emit the mode's ruleset text as SessionStart context (empty for 'off').
 
-const { findRepoRoot, isProjectSuiteRepo, getMode } = require('./project-suite-config');
+const { findRepoRoot, isProjectSuiteRepo, getMode, getTrack } = require('./project-suite-config');
 const { ensureModeFile, writeHookOutput } = require('./project-suite-runtime');
 const { getInstructions } = require('./project-suite-instructions');
 
@@ -19,4 +19,4 @@ if (!isProjectSuiteRepo(repoRoot)) {
 
 ensureModeFile(repoRoot);
 const mode = getMode(repoRoot);
-writeHookOutput(getInstructions(mode));
+writeHookOutput(getInstructions(mode, getTrack(repoRoot)));
