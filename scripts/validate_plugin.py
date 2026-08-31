@@ -87,7 +87,7 @@ for cmd in (sorted(cmd_dir.glob("*.md")) if cmd_dir.exists() else []):
     if "description" not in fm: err(f"{rel}: missing 'description'")
     cmd_names.add(cmd.name)
 
-EXPECTED_COMMANDS = {"init.md", "nueva-fase.md", "modo.md"}
+EXPECTED_COMMANDS = {"init.md", "nueva-fase.md", "modo.md", "track.md", "fase.md"}
 for c in sorted(EXPECTED_COMMANDS - cmd_names):
     err(f"missing command: commands/{c}")
 
