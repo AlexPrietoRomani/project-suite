@@ -18,7 +18,7 @@ pre-commit install
 3. Implement, following the existing skill/command authoring conventions (frontmatter shape, `allowed-tools` scoping — see any existing `SKILL.md` as a template).
 4. Bump `.claude-plugin/plugin.json`'s `version` per `VERSIONING.md` — the pre-commit hook will block your commit otherwise.
 5. If you touched `skills/`, `commands/`, `agents/`, or `.mcp.json`: run `python scripts/sync_opencode.py`.
-6. Run `python scripts/validate_plugin.py` and `npm test` — both must pass.
+6. Run `python scripts/validate_plugin.py`, `python scripts/test_tablero.py` and `npm test` — all three must pass.
 7. Commit with `/semantic-commit` if you have Claude Code active, or manually with a Conventional Commits message otherwise. **No LLM co-authorship trailers.**
 
 ## Opening a PR

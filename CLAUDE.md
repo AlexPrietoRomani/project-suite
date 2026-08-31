@@ -17,3 +17,5 @@
 6. After changing `skills/`, `commands/`, `agents/` (research-suite only), or `.mcp.json`: run `python scripts/sync_opencode.py`.
 7. Before committing: run `python scripts/validate_plugin.py` — must print `OK`.
 8. After changing hook logic (`hooks/*.js`): run `npm test` — must be all-green.
+9. After changing `scripts/tablero.py`: run `python scripts/test_tablero.py` — must be all-green.
+10. Board paths are never hardcoded. A repo can hold several plans (tracks); resolve paths with `python scripts/tablero.py --rutas`, and write one file per Fase under `fases/` — `tareas.md` is cover and index only, regenerated with `--indice`.

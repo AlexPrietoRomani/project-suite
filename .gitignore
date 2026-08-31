@@ -1,3 +1,6 @@
 __pycache__/
 *.pyc
 node_modules/
+/docs/superpowers
+/docs/plan
+/docs/task

@@ -3,10 +3,10 @@
 > Spec-driven project. Docs are the source of truth. Doc language: es.
 
 ## Before doing anything
-1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md`. Plan lives in documents; code follows the plan.
+1. Read `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, and the active track's plan and board (`python scripts/tablero.py --rutas`). Plan lives in documents; code follows the plan.
 
 ## Any new change is a planning decision first
-2. Before writing code for a new change/feature, evaluate whether it needs a **new Fase**. If so, run `/nueva-fase` to draft Fase + Sub fases + Tareas in `plan_maestro.md` and `tareas.md` **before** coding. No unplanned features.
+2. Before writing code for a new change/feature, evaluate whether it needs a **new Fase**. If so, run `/nueva-fase` to draft Fase + Sub fases + Tareas in `plan_maestro.md` and in the Fase's own file under `fases/` **before** coding. No unplanned features. A repo can hold several plans (tracks); `tareas.md` is cover and index only, regenerated with `tablero.py --indice`.
 
 ## Building
 3. Implement plan phases with `construir` (subagent per Tarea). Follow the language standard per file type: `.py`→python-standards, `.R`→r-standards, `.rs`→rust-standards, `.astro`→astro-standards, `.sql`→sql-standards, `.ts`/`.tsx`→ts-standards, web apps→webapp-standards.
