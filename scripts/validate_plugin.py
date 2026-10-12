@@ -103,6 +103,7 @@ EXPECTED_SKILLS = {
     "especificar", "planificar", "bitacora", "ejecucion",
     "testear", "verificar-dod", "auditar-coherencia", "construir",
     "rust-standards", "astro-standards", "sql-standards", "ts-standards", "webapp-standards",
+    "frontend-standards", "backend-standards",
     "generar-diagramas", "semantic-commit", "pull-request", "caveman",
     "python-standards", "r-standards", "visualizar-datos"}
 for s in sorted(EXPECTED_SKILLS - skill_names):

@@ -27,12 +27,31 @@ Ejecuta el Definition of Done (DoD) de una Tarea del Plan Maestro y reporta pass
 
 8. **Item 7 — Plan sincronizado (solo en worktree).** Si el trabajo ocurre en una worktree creada con `/fase`, corre `python scripts/tablero.py --sync` y exige que no queden divergencias pendientes. Los documentos del plan están gitignorados: el merge no los lleva, el sync sí.
 
-9. **Veredicto.** Consolida el resultado por item y decide si la Tarea puede cerrarse.
+9. **Item 8 — Recibo de Evidencia (Receipt auditable).** Para mantener el tablero (`tareas.md` y `fases/FNN-*.md`) limpio y sin contaminación de logs extensos, ante un veredicto VERDE emite y persiste un **Recibo de DoD** auditable en `docs/logs/recibos/dod-receipts.jsonl`.
+   El recibo registra:
+   ```json
+   {
+     "timestamp": "<ISO 8601>",
+     "tarea_id": "<ID_TAREA>",
+     "status": "PASS",
+     "items": {
+       "tests": "PASS",
+       "cobertura": "<porcentaje_o_umbral>",
+       "lint": "0 warnings",
+       "db_env": "OK",
+       "tablero": "OK"
+     },
+     "agente": "<modelo_activo>"
+   }
+   ```
+
+10. **Veredicto.** Consolida el resultado por item y decide si la Tarea puede cerrarse.
 
 ## Reglas / Salida
 
-- **Reporta pass/fail por cada item del DoD**: los 5 del Apéndice A del plan, más los dos del tablero (índice al día y plan sincronizado), con evidencia concreta: comando ejecutado, salida relevante, porcentaje de cobertura vs umbral, y ruta del doc actualizado. Nada de "todo OK" genérico.
+- **Tablero limpio:** El tablero (`tareas.md`) y el archivo de la fase (`fases/FNN-*.md`) solo mantienen checkboxes limpios y concisos. Toda la evidencia detallada de auditoría se guarda en `docs/logs/recibos/dod-receipts.jsonl`.
+- **Reporta pass/fail por cada item del DoD**: los 5 del Apéndice A del plan, más los del tablero (índice al día, plan sincronizado y emisión de recibo), con evidencia concreta: comando ejecutado, salida relevante, porcentaje de cobertura vs umbral, y ruta del doc actualizado. Nada de "todo OK" genérico.
 - **Si cualquier item falla, NO habilita el `[X]`** de la Tarea y enumera exactamente qué falta para pasar el gate (ej. "cobertura 71% < umbral 80%", "3 warnings de ruff en `src/logic/pricing.py`", "columna `orders.discount_pct` no está en `diseno_db.md`").
 - **No commitea.** El commit es responsabilidad de la skill `semantic-commit`; `verificar-dod` es el gate previo. Tampoco marca checkboxes: el `[X]` lo aplica `construir` (o el usuario) **solo** tras un veredicto verde.
 - **No inventa criterios.** Se ciñe al DoD del `plan_maestro.md`; si un item no es determinable (ej. no hay umbral de cobertura definido, o no hay CI), lo declara como faltante/no-aplica en lugar de aprobarlo o inventarlo.
-- **Terminal state:** entrega el reporte pass/fail. En verde, sugiere marcar la Tarea `[X]` (vía `construir`) y continuar con `semantic-commit`. En rojo, entrega la lista accionable de bloqueos y, si hay drift docs↔código, deriva a `auditar-coherencia`; ante un bloqueo recurrente, sugiere registrar el incidente con `bitacora`.
+- **Terminal state:** entrega el reporte pass/fail. En verde, emite el recibo, sugiere marcar la Tarea `[X]` (vía `construir`) y continuar con `semantic-commit`. En rojo, entrega la lista accionable de bloqueos y, si hay drift docs↔código, deriva a `auditar-coherencia`; ante un bloqueo recurrente, sugiere registrar el incidente con `bitacora`.

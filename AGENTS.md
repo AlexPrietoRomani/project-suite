@@ -30,10 +30,10 @@
 - `/audit` — full repo drift audit vs architecture.md and diseno_db.md
 - `/help` — quick reference
 
-## Skills (20)
+## Skills (22)
 **Docs:** especificar, planificar, bitacora, ejecucion
 **Quality loop:** construir, testear, verificar-dod, auditar-coherencia
-**Standards:** python, r, rust, astro, sql, ts, webapp
+**Standards:** frontend, backend, python, r, rust, astro, sql, ts, webapp
 **Packaged:** generar-diagramas, semantic-commit, pull-request, caveman, visualizar-datos
 
 ---

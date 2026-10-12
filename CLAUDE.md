@@ -11,7 +11,7 @@
 ## Commit hygiene
 3. Never mix `docs/superpowers/` (specs/plans) changes with functional file changes in the same commit.
 4. Every commit uses `/semantic-commit`. Every PR uses `/pull-request` (yes, this repo's own bundled copy — see `CONTRIBUTING.md`).
-5. **No LLM co-authorship** — no `Co-Authored-By` trailer, ever, unless explicitly requested.
+5. **LLM co-authorship:** Enabled by default with the active model's `Co-Authored-By` trailer unless explicitly disabled.
 
 ## Keeping the plugin coherent
 6. After changing `skills/`, `commands/`, `agents/` (research-suite only), or `.mcp.json`: run `python scripts/sync_opencode.py`.

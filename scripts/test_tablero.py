@@ -11,8 +11,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tablero import (  # noqa: E402
     MARCA_FIN,
     MARCA_INICIO,
+    MARCA_FASE_FIN,
+    MARCA_FASE_INICIO,
     ORIGEN,
     PATRON_FASE,
+    actualizar_rollup,
     ancla_de_titulo,
     bloque_markdown,
     copiar_a_worktree,
@@ -116,7 +119,7 @@ def test_nombre_de_archivo_conserva_el_calificador():
     assert b.startswith("F21-reapertura-")
 
 
-def test_indice_enlaza_fase_a_archivo_y_subfase_a_ancla():
+def test_indice_enlaza_fase_y_subfases_limpias_sin_enlace():
     with tempfile.TemporaryDirectory() as tmp:
         raiz = _repo(tmp, plano=True)
         (raiz / "docs" / "task" / "fases" / "F00-setup-tooling-base.md").write_text(
@@ -128,9 +131,12 @@ def test_indice_enlaza_fase_a_archivo_y_subfase_a_ancla():
             encoding="utf-8",
         )
         bloque = bloque_markdown(entradas_de_las_fases(raiz / "docs" / "task" / "fases"))
+        # Fase con enlace al archivo
         assert "[**F0 — Setup, Tooling e Infraestructura Base**](fases/F00-setup-tooling-base.md)" in bloque
-        assert "(fases/F00-setup-tooling-base.md#sf01--entorno-y-estructura)" in bloque
-        assert "- [X] [**F0" in bloque and "- [ ] [SF0.2" in bloque
+        # Subfases indentadas limpias sin enlace
+        assert "  - [X] SF0.1 — Entorno y Estructura" in bloque
+        assert "  - [ ] SF0.2 — Calidad de Código" in bloque
+        assert "#sf01" not in bloque
 
 
 def test_los_marcadores_no_son_genericos():
@@ -307,6 +313,73 @@ def test_sync_segunda_corrida_no_reporta_falsa_divergencia():
         assert divergentes == []
         assert "segunda vuelta" in (raiz / "docs" / "task" / "fases" /
                                     "F07-app-trazabilidad-perillas.md").read_text(encoding="utf-8")
+
+
+def test_actualizar_rollup_acciones_a_tarea_y_subfase_y_fase():
+    with tempfile.TemporaryDirectory() as tmp:
+        raiz = _repo(tmp, plano=True)
+        fase_p = raiz / "docs" / "task" / "fases" / "F01-prueba-rollup.md"
+        fase_p.write_text(
+            "## [ ] Fase 1 — Setup Base\n\n"
+            "### [ ] SF1.1 — Subfase A\n\n"
+            "#### [ ] T1.1.1 — Tarea 1\n"
+            "  - [X] A1.1.1.1 — Paso uno\n"
+            "  - [X] A1.1.1.2 — Paso dos\n\n"
+            "#### [ ] T1.1.2 — Tarea 2\n"
+            "  - [X] A1.1.2.1 — Paso unico\n\n"
+            "### [ ] SF1.2 — Subfase B\n\n"
+            "#### [ ] T1.2.1 — Tarea 3\n"
+            "  - [ ] A1.2.1.1 — Pendiente\n",
+            encoding="utf-8",
+        )
+        cambio = actualizar_rollup(fase_p)
+        assert cambio is True
+        contenido = fase_p.read_text(encoding="utf-8")
+        # T1.1.1 con todas sus acciones [X] pasa a [X]
+        assert "#### [X] T1.1.1 — Tarea 1" in contenido
+        # T1.1.2 con su accion [X] pasa a [X]
+        assert "#### [X] T1.1.2 — Tarea 2" in contenido
+        # SF1.1 con todas sus tareas [X] pasa a [X]
+        assert "### [X] SF1.1 — Subfase A" in contenido
+        # SF1.2 con tarea pendiente permanece [ ]
+        assert "### [ ] SF1.2 — Subfase B" in contenido
+        # Fase 1 con SF1.1 [X] y SF1.2 [ ] pasa a progreso [/]
+        assert "## [/] Fase 1 — Setup Base" in contenido
+        # Genera el bloque de indice de la Fase
+        assert MARCA_FASE_INICIO in contenido
+        assert "- [X] SF1.1 — Subfase A" in contenido
+        assert "  - [X] T1.1.1 — Tarea 1" in contenido
+
+
+def test_copiar_worktree_con_subfase_y_scope():
+    with tempfile.TemporaryDirectory() as tmp:
+        raiz = _repo(tmp, plano=True)
+        _con_fase(raiz)
+        wt = raiz / ".claude" / "worktrees" / "F07-app-trazabilidad-perillas-sf7-1"
+        wt.mkdir(parents=True)
+        copiados = copiar_a_worktree(rutas(raiz, None), wt, "SF7.1")
+        assert (wt / "docs" / "task" / "fases" / "F07-app-trazabilidad-perillas.md").exists()
+        assert not (wt / "docs" / "task" / "fases" / "F08-otra-fase-cualquiera.md").exists()
+        origen = json.loads((wt / ORIGEN).read_text(encoding="utf-8"))
+        assert origen["scope"]["subfase"] == "SF7.1"
+        assert origen["scope"]["fase"] == "F07"
+
+
+def test_sincronizar_bloquea_fases_fuera_de_scope():
+    with tempfile.TemporaryDirectory() as tmp:
+        raiz = _repo(tmp, plano=True)
+        _con_fase(raiz)
+        wt = raiz / ".claude" / "worktrees" / "F07-app-trazabilidad-perillas-sf7-1"
+        wt.mkdir(parents=True)
+        copiar_a_worktree(rutas(raiz, None), wt, "SF7.1")
+        # Simular que en la worktree se creó/modificó un archivo de otra Fase
+        otra_fase = wt / "docs" / "task" / "fases" / "F08-fase-no-autorizada.md"
+        otra_fase.write_text("## [ ] Fase 8", encoding="utf-8")
+        try:
+            sincronizar(wt, raiz)
+            assert False, "debe fallar con SystemExit por violacion de scope"
+        except SystemExit as e:
+            assert "CAMBIO BLOQUEADO" in str(e)
 
 
 if __name__ == "__main__":
