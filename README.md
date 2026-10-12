@@ -98,11 +98,12 @@ y dos sesiones que lo editan se pisan. `scripts/tablero.py` mantiene la estructu
 |---|---|
 | `--rutas` | Imprime en JSON las rutas del track activo. Es la única fuente de verdad de dónde vive cada cosa. |
 | `--tracks` | Lista los tracks del repo. |
-| `--indice` | Regenera el índice de la portada leyendo `fases/`. |
-| `--verificar` | Sale con 1 si el índice quedó viejo (lo consume `verificar-dod`). |
+| `--indice` | Regenera el índice de la portada leyendo `fases/` y actualiza los roll-ups. |
+| `--rollup` | Calcula y actualiza en cascada los checkboxes de Tareas, Subfases y Fases. |
+| `--verificar` | Sale con 1 si el índice o los roll-ups quedaron viejos (lo consume `verificar-dod`). |
 | `--partir` | Migra un tablero monolítico existente a `fases/`, dejando un `.bak`. |
-| `--worktree FNN` | Crea rama y worktree para esa Fase, con los documentos del plan copiados adentro. |
-| `--sync` | Devuelve esos documentos al repo principal, sin pisar lo que haya cambiado ahí. |
+| `--worktree FNN[/SFx.y]` | Crea rama y worktree para esa Fase o Subfase, con scope acotado y documentos aislados. |
+| `--sync` | Devuelve esos documentos al repo principal con roll-up automático, sin pisar cambios externos. |
 
 ### Worktree por Fase
 
