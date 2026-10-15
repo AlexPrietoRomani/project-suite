@@ -1,6 +1,6 @@
 ---
 name: ejecucion
-description: Genera docs/ejecucion.md: guia de arranque, entorno, variables, ejecucion por tipo de proyecto, despliegue y troubleshooting. CARGA cuando el usuario quiera documentar como levantar, correr o desplegar el proyecto.
+description: 'Genera docs/ejecucion.md: guia de arranque, entorno, variables, ejecucion por tipo de proyecto, despliegue y troubleshooting. CARGA cuando el usuario quiera documentar como levantar, correr o desplegar el proyecto.'
 when_to_use: Al cerrar el setup o antes de entregar/desplegar.
 allowed-tools: Read Grep Glob Write Edit
 ---

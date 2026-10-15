@@ -20,7 +20,12 @@ def check_json(path, required):
         if k not in data: err(f"{path}: missing key '{k}'")
     return data
 
-check_json(".claude-plugin/plugin.json", ["name", "version", "description"])
+plugin = check_json(".claude-plugin/plugin.json", ["name", "version", "description"])
+# every manifest a harness reads must carry the same version
+for other in ("package.json", "gemini-extension.json"):
+    o = check_json(other, ["version"]) if (ROOT / other).exists() else None
+    if plugin and o and o.get("version") != plugin.get("version"):
+        err(f"{other}: version {o.get('version')} != plugin.json {plugin.get('version')}")
 check_json(".claude-plugin/marketplace.json", ["name", "plugins"])
 # .mcp.json is bundled; validate it parses if present
 if (ROOT / ".mcp.json").exists():
@@ -77,6 +82,12 @@ for skill in (sorted(skills_dir.glob("*/SKILL.md")) if skills_dir.exists() else 
     if "name" not in fm: err(f"{rel}: frontmatter missing 'name'")
     elif fm["name"] != d: err(f"{rel}: name '{fm['name']}' != dir '{d}'")
     if "description" not in fm: err(f"{rel}: frontmatter missing 'description'")
+    # ponytail: stdlib heuristic, not a YAML parser. An unquoted ': ' breaks
+    # strict parsers (opencode, Gemini) even though Claude Code tolerates it.
+    for k in ("description", "when_to_use"):
+        v = fm.get(k, "")
+        if ": " in v and v[:1] not in "'\">|":
+            err(f"{rel}: '{k}' has an unquoted ': ' (invalid YAML); wrap it in quotes")
     skill_names.add(d)
 
 cmd_dir = ROOT / "commands"

@@ -1,6 +1,6 @@
 ---
 name: visualizar-datos
-description: Genera visualizaciones de datos on-demand durante el desarrollo de cualquier proyecto (ETL, ciencia de datos, apps web) -- estaticas (matplotlib/seaborn/ggplot2, con perfiles de journal) o interactivas (Plotly, nativo via Shiny o standalone). CARGA ESTA HABILIDAD cuando el usuario pida graficar, visualizar, explorar o depurar datos durante la construccion de un proyecto. NO uses esta skill para la figura final de un reporte/articulo -- para eso existe research-suite:graficar-datos.
+description: 'Visualizaciones de datos on-demand durante el desarrollo (ETL, ciencia de datos, apps web): estáticas (matplotlib/seaborn/ggplot2, perfiles de journal) o interactivas (Plotly, Shiny o standalone). CARGA cuando pidan graficar, visualizar, explorar o depurar datos. NO para la figura final de un reporte/artículo (eso es research-suite:graficar-datos).'
 when_to_use: Exploracion o depuracion de datos en un pipeline ETL o de ciencia de datos; generar un chart o dashboard interactivo para una app web; cualquier visualizacion de datos que no sea la figura final de un documento.
 allowed-tools: Read Grep Write Edit Bash Skill mcp__context7__resolve-library-id mcp__context7__query-docs
 ---

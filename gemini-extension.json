@@ -1,6 +1,6 @@
 {
   "name": "project-suite",
-  "version": "1.1.0",
-  "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 20 skills, 6 commands.",
+  "version": "1.4.0",
+  "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 22 skills, 8 commands. No bundled MCP servers (opt-in per project via init).",
   "contextFileName": "AGENTS.md"
 }

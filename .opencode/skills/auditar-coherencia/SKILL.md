@@ -1,6 +1,6 @@
 ---
 name: auditar-coherencia
-description: Audita drift docs<->codigo: compara architecture.md (flujos, ADRs, scripts por flujo, bundle de deploy) y diseno_db.md (ER, diccionario de columnas, significado de PK, politicas de escritura, matriz CRUD) contra el codigo real (migraciones/DDL, modelos ORM, repos) y emite un reporte rankeado de divergencias. CARGA para verificar que los docs siguen fieles al codigo.
+description: 'Audita drift docs<->codigo: compara architecture.md (flujos, ADRs, scripts por flujo, bundle de deploy) y diseno_db.md (ER, diccionario de columnas, significado de PK, politicas de escritura, matriz CRUD) contra el codigo real (migraciones/DDL, modelos ORM, repos) y emite un reporte rankeado de divergencias. CARGA para verificar que los docs siguen fieles al codigo.'
 when_to_use: Tras implementar/refactorizar, en revisión, o periódicamente para detectar docs obsoletos.
 allowed-tools: Read Grep Glob Bash
 ---

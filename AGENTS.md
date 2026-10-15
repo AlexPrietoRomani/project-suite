@@ -41,9 +41,9 @@
 ## Maintainer notes (plugin repo only)
 
 This repository **is** the `project-suite` plugin. Canonical source:
-- `skills/<name>/SKILL.md` — the 20 skills (single source of truth)
+- `skills/<name>/SKILL.md` — the 22 skills (single source of truth)
 - `commands/*.md` — the 6 commands
-- `.mcp.json` — bundled MCP servers
+- `.mcp.json` — bundled MCP servers (empty by design; servers are opt-in per project via `init`)
 - `templates/` — the 7 doc templates + `templates/generated/`
 - `.claude-plugin/` — Claude Code plugin manifest
 

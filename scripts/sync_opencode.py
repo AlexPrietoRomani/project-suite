@@ -39,21 +39,31 @@ def mirror_commands():
     return n
 
 
+def to_opencode_entry(cfg):
+    """Map one .mcp.json server to opencode's schema.
+
+    `"x-project-suite": {"startup": "off"}` keeps the server configured but
+    not started (opencode `enabled: false`). The x- key is never copied out.
+    """
+    enabled = cfg.get("x-project-suite", {}).get("startup", "on") != "off"
+    if cfg.get("type", "stdio") in ("stdio", "local"):
+        entry = {"type": "local",
+                 "command": [cfg["command"], *cfg.get("args", [])],
+                 "enabled": enabled}
+        if cfg.get("env"):
+            entry["environment"] = cfg["env"]
+    else:  # http / sse / remote
+        entry = {"type": "remote", "url": cfg["url"], "enabled": enabled}
+        if cfg.get("headers"):
+            entry["headers"] = cfg["headers"]
+    return entry
+
+
 def gen_opencode_json():
     mcp_src = json.loads((ROOT / ".mcp.json").read_text(encoding="utf-8"))
     out = {"$schema": "https://opencode.ai/config.json", "mcp": {}}
     for name, cfg in mcp_src.get("mcpServers", {}).items():
-        if cfg.get("type", "stdio") in ("stdio", "local"):
-            entry = {"type": "local",
-                     "command": [cfg["command"], *cfg.get("args", [])],
-                     "enabled": True}
-            if cfg.get("env"):
-                entry["environment"] = cfg["env"]
-        else:  # http / sse / remote
-            entry = {"type": "remote", "url": cfg["url"], "enabled": True}
-            if cfg.get("headers"):
-                entry["headers"] = cfg["headers"]
-        out["mcp"][name] = entry
+        out["mcp"][name] = to_opencode_entry(cfg)
     if (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists():
         out["plugin"] = ["./.opencode/plugins/project-suite.mjs"]
     (ROOT / "opencode.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")

@@ -1,6 +1,6 @@
 ---
 name: verificar-dod
-description: Gate de Definition-of-Done por Tarea: corre los tests declarados (con cobertura vs umbral), lint/format sin warnings, y confirma que cambios de DB/env quedaron documentados (diseno_db.md/.env.example/architecture.md). Reporta pass/fail por item de DoD antes de marcar [X] o commitear. CARGA al cerrar una tarea.
+description: 'Gate de Definition-of-Done por Tarea: corre los tests declarados (con cobertura vs umbral), lint/format sin warnings, y confirma que cambios de DB/env quedaron documentados (diseno_db.md/.env.example/architecture.md). Reporta pass/fail por item de DoD antes de marcar [X] o commitear. CARGA al cerrar una tarea.'
 when_to_use: Antes de marcar una Tarea como [X] o de commitear su trabajo.
 allowed-tools: Read Grep Glob Bash Skill
 ---
