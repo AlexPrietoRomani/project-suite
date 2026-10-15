@@ -70,7 +70,7 @@ Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgado
 
 | # | Flujo | Entrada | Proceso | Salida |
 |---|---|---|---|---|
-| 1 | Scaffold inicial | `/init` | Entrevista + genera desde `templates/` | `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore` |
+| 1 | Scaffold inicial | `/init` | Entrevista + genera desde `templates/` | `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore`, `.mcp.json` solo con servers elegidos |
 | 2 | Gate de cambio nuevo | `/nueva-fase` | Evalúa y redacta Fase antes de codear | `plan_maestro.md` + `tareas.md` actualizados |
 | 3 | Recordatorio ambiental | `SessionStart` / `UserPromptSubmit` | Resuelve modo, emite texto | Contexto de sesión / `.project-suite/mode` |
 | 4 | Ejecución del plan | `construir` | Subagente por Tarea + `testear` + `verificar-dod` | Checkboxes `[X]` en `tareas.md`, commits |
@@ -165,6 +165,8 @@ sequenceDiagram
 |---|---|
 | Generado, no editable a mano | `.opencode/` y `opencode.json` se regeneran siempre; ediciones manuales se pierden en el próximo sync. |
 | `.opencode/plugins/project-suite.mjs` es la excepción | Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe. |
+| Sin MCP global | `.mcp.json` del plugin va vacío; los servers son opt-in por proyecto (paso 7 de `init`). Un server con `"x-project-suite": {"startup": "off"}` sale a opencode con `enabled: false`. |
+| Versión única | `validate_plugin.py` falla si `package.json` o `gemini-extension.json` difieren de `plugin.json`. |
 
 ---
 
@@ -201,3 +203,4 @@ flowchart LR
 | Recordatorio ambiental liviano (texto estático por modo) | Escanear git diff/tareas.md en cada turno | Más barato, y la verificación real ya vive en `verificar-dod`/`auditar-coherencia`/`testear` |
 | `CLAUDE.md`/`AGENTS.md` generados completos desde un solo cuerpo | Uno canónico + el otro puntero | El puntero se rompía si solo se generaba el archivo no-canónico (bug real encontrado y corregido) |
 | `docs/plan`/`docs/task` versionados en este propio repo (a diferencia del default para proyectos destino) | Dejarlos locales como en cualquier proyecto destino | Transparencia para colaboradores de un repo de plugin es justo el punto |
+| Servers MCP opt-in por proyecto (`init`), `.mcp.json` del plugin vacío | `codegraphcontext` global en el plugin | Ningún harness arranca servers stdio de forma perezosa: un MCP global es un proceso en cada sesión de cada repo, se use o no |

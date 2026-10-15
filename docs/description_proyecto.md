@@ -122,4 +122,4 @@ No aplica — no hay UI propia; los comandos y skills interactúan vía el chat 
 ### 7.3 Restricciones del entorno
 
 - **Caché de Claude Code versionada por carpeta:** `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` — un simple restart de la app NO recarga cambios de fuente; hace falta `/plugin marketplace update <marketplace>` (funciona si `plugin.json`'s `version` cambió) o, si eso no crea la carpeta nueva, desinstalar/reinstalar completo. Ver `docs/ejecucion.md` para el detalle.
-- **Windows:** el `codegraphcontext` MCP empaquetado usa KuzuDB (no FalkorDB, que es solo-Unix).
+- **Windows:** el MCP `codegraphcontext` (opt-in por proyecto desde `init`) usa KuzuDB (no FalkorDB, que es solo-Unix).

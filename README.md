@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.3.0-111111?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.4.0-111111?style=flat-square" alt="Version">
   <img src="https://img.shields.io/badge/works%20with-Claude%20Code%20%7C%20opencode-111111?style=flat-square" alt="Works with Claude Code and opencode">
   <img src="https://img.shields.io/badge/skills-22-111111?style=flat-square" alt="22 skills">
   <img src="https://img.shields.io/badge/commands-6-111111?style=flat-square" alt="6 commands">
@@ -169,10 +169,10 @@ Pregunta al instalar: idioma de documentación por defecto (`es | en`) y si vers
 
 El repo trae un árbol generado desde la misma fuente:
 
-- `.opencode/skills/` — las 20 skills (SKILL.md nativo de opencode)
+- `.opencode/skills/` — las 22 skills (SKILL.md nativo de opencode)
 - `.opencode/command/` — `/init`, `/nueva-fase`, `/modo`, `/track`, `/fase`, `/review`, `/audit`, `/help`
 - `.opencode/plugins/project-suite.mjs` — plugin que registra comandos, skills y el system prompt
-- `opencode.json` — el server `codegraphcontext`
+- `opencode.json` — registra el plugin; sin servers MCP (ver [MCP servers](#mcp-servers))
 
 Abre opencode dentro del repo (lee `.opencode/` + `opencode.json`), o copia `.opencode/*` a `~/.config/opencode/` y fusiona el bloque `mcp`.
 
@@ -198,11 +198,29 @@ Reutiliza el `gemini-extension.json` de este repo. Una diferencia: Antigravity c
 
 ## MCP servers
 
+**El plugin no empaqueta ningún server MCP.** Cada server MCP es un proceso que arranca al iniciar la sesión, se use o no: ni Claude Code, ni opencode, ni Gemini/Antigravity tienen arranque perezoso para servers locales (stdio). Por eso `init` los escribe solo en el repo que los va a usar.
+
 | Server | Alcance | Por qué |
 |---|---|---|
-| `codegraphcontext` | Por defecto, global | Indexa el código local en un grafo (`uvx --with kuzu codegraphcontext mcp start`; auto-instala). En Windows usa **KuzuDB** — el backend por defecto (FalkorDB Lite) es solo-Unix. |
-| `context7` | *No se empaqueta* | Usa el server global que ya tengas — empaquetar un segundo causa desconexiones. |
-| `playwright` | Por proyecto (solo apps web/UI) | `init` lo agrega al `.mcp.json` del proyecto para los tests de simulación de usuario. |
+| `playwright` | Por proyecto (apps web/UI) | `init` lo agrega para los tests de simulación de usuario. |
+| `codegraphcontext` | Por proyecto, opt-in | `init` pregunta. Indexa el código en un grafo (`uvx --with kuzu codegraphcontext mcp start`). En Windows usa **KuzuDB**; FalkorDB Lite es solo-Unix. |
+| `context7` | *No se empaqueta* | Usa el server global que ya tengas; un segundo causa desconexiones. |
+
+> Hasta la 1.3.x el plugin traía `codegraphcontext` global. Si lo quieres en un repo, corre `init` o copia el bloque del paso 7 de [`commands/init.md`](commands/init.md) a su `.mcp.json`.
+
+### ¿Y las skills?
+
+Las skills **no** consumen RAM ni contexto completo: en los tres harnesses solo el nombre y la descripción entran al arranque, y el `SKILL.md` se lee al invocarla. Lo único que pesa siempre es ese listado.
+
+### Apagar un MCP que no usas
+
+| Harness | Un server, sin desinstalar | Por repo |
+|---|---|---|
+| Claude Code | `/mcp` → seleccionar el server → *Disable* (se guarda por proyecto) | Plugin entero: `"enabledPlugins": {"<plugin>@<marketplace>": false}` en `.claude/settings.local.json` |
+| opencode | `"enabled": false` en el bloque `mcp` de `opencode.json` | El mismo flag en el `opencode.json` del repo; o habilitarlo solo en el agente que lo use |
+| Gemini CLI / Antigravity | `gemini mcp disable <name>` | `"mcp": {"excluded": ["<name>"]}` en `.gemini/settings.json` |
+
+**Para mantenedores:** un server en el `.mcp.json` del plugin con `"x-project-suite": {"startup": "off"}` se sincroniza a opencode con `enabled: false` (configurado pero apagado). Claude Code ignora la clave `x-`.
 
 ## Autoría
 
