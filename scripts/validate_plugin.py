@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Structural validator for the project-suite plugin. Stdlib only. Exit non-zero on any failure."""
-import json, re, sys
+import json, re, sys, hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -21,8 +21,8 @@ def check_json(path, required):
     return data
 
 plugin = check_json(".claude-plugin/plugin.json", ["name", "version", "description"])
-# every manifest a harness reads must carry the same version
-for other in ("package.json", "gemini-extension.json"):
+# every manifest a harness reads must carry the same version (root plugin.json is Antigravity's)
+for other in ("package.json", "gemini-extension.json", "plugin.json"):
     o = check_json(other, ["version"]) if (ROOT / other).exists() else None
     if plugin and o and o.get("version") != plugin.get("version"):
         err(f"{other}: version {o.get('version')} != plugin.json {plugin.get('version')}")
@@ -82,6 +82,11 @@ for skill in (sorted(skills_dir.glob("*/SKILL.md")) if skills_dir.exists() else 
     if "name" not in fm: err(f"{rel}: frontmatter missing 'name'")
     elif fm["name"] != d: err(f"{rel}: name '{fm['name']}' != dir '{d}'")
     if "description" not in fm: err(f"{rel}: frontmatter missing 'description'")
+    # the skills listing (name+description) is always-on context in every session
+    # of every harness — keep descriptions within budget
+    desc = fm.get("description", "")
+    if len(desc) > 400:
+        err(f"{rel}: 'description' is {len(desc)} chars (max 400); trim it to keep the skills listing cheap")
     # ponytail: stdlib heuristic, not a YAML parser. An unquoted ': ' breaks
     # strict parsers (opencode, Gemini) even though Claude Code tolerates it.
     for k in ("description", "when_to_use"):
@@ -120,11 +125,24 @@ EXPECTED_SKILLS = {
 for s in sorted(EXPECTED_SKILLS - skill_names):
     err(f"missing skill: skills/{s}/SKILL.md")
 
+def tree_hashes(base):
+    """sha256 of every file under `base`, keyed by relative path."""
+    return {str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(base.rglob("*")) if p.is_file()}
+
 oc_skills = ROOT / ".opencode" / "skills"
 if oc_skills.exists():
     oc_names = {p.parent.name for p in oc_skills.glob("*/SKILL.md")}
     if oc_names != skill_names:
         err(f".opencode/skills out of sync with skills/ (run scripts/sync_opencode.py): {sorted(skill_names ^ oc_names)}")
+    else:
+        # names match — verify content too: copy users consume the mirror as-is
+        for name in sorted(oc_names):
+            canon, mirror = tree_hashes(skills_dir / name), tree_hashes(oc_skills / name)
+            for relf in sorted(canon):
+                if mirror.get(relf) != canon[relf]:
+                    err(f".opencode/skills/{name}/{relf}: content differs from skills/{name}/ (run scripts/sync_opencode.py)")
+                    break
 
 if errors:
     print("VALIDATION FAILED:")

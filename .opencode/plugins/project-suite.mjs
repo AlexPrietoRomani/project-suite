@@ -21,6 +21,18 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+// findRepoRoot walks the filesystem up to the nearest .git. The transform
+// below runs on every turn and the process cwd does not change between
+// turns, so cache the result keyed by cwd (and refresh if cwd ever moves).
+let repoRootCache = null;
+function findRepoRootCached() {
+  const cwd = process.cwd();
+  if (!repoRootCache || repoRootCache.cwd !== cwd) {
+    repoRootCache = { cwd, root: findRepoRoot() };
+  }
+  return repoRootCache.root;
+}
+
 const require = createRequire(import.meta.url);
 const {
   findRepoRoot,
@@ -69,7 +81,7 @@ export default async ({ client } = {}) => {
 
     // Append the mode ruleset to the system prompt every turn.
     'experimental.chat.system.transform': async (_input, output) => {
-      const repoRoot = findRepoRoot();
+      const repoRoot = findRepoRootCached();
       if (!isProjectSuiteRepo(repoRoot)) return;
       ensureModeFile(repoRoot);
       const text = getInstructions(getMode(repoRoot));
@@ -80,7 +92,7 @@ export default async ({ client } = {}) => {
     // command invocations, so the command here is bare "modo".
     'command.execute.before': async (input) => {
       if (!input || input.command !== 'modo') return;
-      const repoRoot = findRepoRoot();
+      const repoRoot = findRepoRootCached();
       if (!isProjectSuiteRepo(repoRoot)) return;
       const mode = normalizeMode((input.arguments || '').trim());
       if (!mode) return;

@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 node_modules/
+.project-suite/
 /docs/superpowers
 /docs/plan
 /docs/task

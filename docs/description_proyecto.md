@@ -90,7 +90,7 @@ flowchart LR
 
 ## 3. Modelo de datos
 
-No aplica — project-suite no tiene una base de datos propia. El único estado persistente que el plugin mismo mantiene es `.project-suite/mode` en cada repo destino: un archivo de texto plano con un único valor (`estricto` | `relajado` | `off`). No amerita un diagrama ER; el diccionario completo de ese archivo vive en `docs/superpowers/specs/2026-07-02-modo-hooks-design.md` §2.
+No aplica — project-suite no tiene una base de datos propia. El único estado persistente que el plugin mismo mantiene es `.project-suite/mode` en cada repo destino: un archivo de texto plano con un único valor (`estricto` | `relajado` | `off`). No amerita un diagrama ER; la fuente de verdad de valores y default (`estricto`, self-healing) es `hooks/project-suite-config.js`.
 
 ## 4. Contratos de interfaz
 

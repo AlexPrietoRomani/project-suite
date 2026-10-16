@@ -17,7 +17,7 @@ Changes confined to `docs/`, `README.md`, `CONTRIBUTING.md`, `.github/` never re
 
 ## Commit hygiene
 
-A commit touching `docs/superpowers/` (design specs, implementation plans) must never also touch functional files (skills, commands, hooks, scripts) in the same commit. Keep planning docs and implementation in separate commits.
+Doc-only paths (`docs/`, `README.md`, `CONTRIBUTING.md`, `.github/`) are bump-exempt, but mixing them with functional files in the same commit still requires the bump for the functional change. The plan/tablero live under `docs/plan`/`docs/task` (gitignored, local to each clone), so they never enter commits.
 
 ## Enforcement
 

@@ -1,6 +1,6 @@
 ---
 name: pull-request
-description: Flujo completo de Pull Request a partir de los commits reales de la rama actual (vs main/master) — redacta título y cuerpo, crea el PR con gh si está disponible y, tras confirmación, lo mergea a main/master; si no hay gh entrega el link de comparación y el cuerpo listo para pegar. Úsalo cuando una rama de feature ya está lista para revisión o cuando el usuario diga "haz el PR", "abre el pull request", "crea y mergea el PR", "súbelo a main". Si faltan commits, delega en la skill semantic-commit antes de continuar.
+description: 'Flujo completo de Pull Request desde los commits reales de la rama actual (vs main/master): redacta título y cuerpo, crea el PR con gh y, tras confirmación, lo mergea a main/master; sin gh entrega el link de comparación. Úsalo cuando la rama esté lista o el usuario diga "haz el PR", "abre el pull request", "súbelo a main". Si faltan commits, delega en semantic-commit.'
 allowed-tools: Bash(git status *) Bash(git log *) Bash(git diff *) Bash(git branch *) Bash(git remote *) Bash(git rev-parse *) Bash(git push origin *) Bash(gh *) Read Grep Skill
 ---
 

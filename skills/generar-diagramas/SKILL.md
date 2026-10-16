@@ -1,6 +1,6 @@
 ---
 name: generar-diagramas
-description: 'Genera diagramas Mermaid (por defecto) o Graphviz desde el código real o una spec: flowchart, secuencia, clases, estados, ER, gantt, C4, mindmap, timeline, sankey, arquitectura y demás tipos. Úsalo cuando pidan "haz un diagrama", "diagrama ER", "diagrama de secuencia", "flowchart", "mapa mental", "gantt" o visualizar un pipeline/flujo/esquema. Graphviz solo si lo piden o para Streamlit (st.graphviz_chart).'
+description: 'Genera diagramas Mermaid (por defecto) o Graphviz desde el código real o una spec: flowchart, secuencia, clases, estados, ER, gantt, C4, mindmap, timeline, sankey y más. Úsalo cuando pidan un diagrama, diagrama ER, de secuencia, flowchart, mapa mental, gantt, o visualizar un pipeline/flujo/esquema. Graphviz solo si lo piden o para Streamlit.'
 allowed-tools: Read Grep Bash(ls *) mcp__context7__resolve-library-id mcp__context7__query-docs WebSearch WebFetch
 ---
 

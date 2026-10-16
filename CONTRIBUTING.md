@@ -34,5 +34,5 @@ Fill out the PR template checklist (`.github/PULL_REQUEST_TEMPLATE.md`) — it c
 
 ## Code of scope
 
-- Don't mix `docs/superpowers/` (design specs/plans) changes with functional changes in the same commit.
+- Doc-only changes (`docs/`, `README.md`, `CONTRIBUTING.md`, `.github/`) are bump-exempt; mixing them with functional changes still requires the functional bump.
 - Follow YAGNI — don't add speculative skills/options nobody asked for.

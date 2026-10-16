@@ -1,6 +1,6 @@
 {
   "name": "@alexprietoromani/project-suite",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 22 skills, 6 commands, works with Claude Code and opencode.",
   "keywords": ["opencode-plugin", "claude-code-plugin", "spec-driven", "planning", "testing", "project-management", "skills"],
   "license": "MIT",
@@ -23,6 +23,7 @@
   "files": [
     "AGENTS.md",
     "CLAUDE.md",
+    "plugin.json",
     "hooks/",
     "skills/",
     "commands/",

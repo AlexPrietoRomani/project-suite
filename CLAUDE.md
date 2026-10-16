@@ -9,7 +9,7 @@
 2. Any new skill, command, agent, MCP server, or dependency → bump MINOR in `.claude-plugin/plugin.json`. Any fix → bump PATCH. See `VERSIONING.md`. The `check-version-bump` pre-commit hook enforces this — don't bypass it with `--no-verify` unless the heuristic is genuinely wrong.
 
 ## Commit hygiene
-3. Never mix `docs/superpowers/` (specs/plans) changes with functional file changes in the same commit.
+3. Doc-only paths (`docs/`, `README.md`, `CONTRIBUTING.md`, `.github/`) are bump-exempt; a commit mixing them with functional files still needs the functional bump (`check_version_bump.py` computes it).
 4. Every commit uses `/semantic-commit`. Every PR uses `/pull-request` (yes, this repo's own bundled copy — see `CONTRIBUTING.md`).
 5. **LLM co-authorship:** Enabled by default with the active model's `Co-Authored-By` trailer unless explicitly disabled.
 

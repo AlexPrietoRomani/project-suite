@@ -54,16 +54,17 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 7. **MCP por proyecto (opt-in, nunca global).**
    El plugin no empaqueta servidores MCP: cada server arranca un proceso en cada sesión, así que solo se escribe en el repo que lo va a usar.
    - **App web/UI** (tipo del paso 2): agregar `playwright` para los tests de simulación de usuario.
-   - **`codegraphcontext`** (indexa el código en un grafo, ~100 MB de RAM por sesión): preguntar con AskUserQuestion si se quiere; default **no** para repos chicos o sin código aún.
-   Escribir solo los servers elegidos en `.mcp.json` (Claude Code):
+   - **`codegraphcontext`** (indexa el código en un grafo, ~250 MB de RSS por sesión medidos —uvx + worker + kuzu—): preguntar con AskUserQuestion si se quiere; default **no** para repos chicos o sin código aún.
+   - **Verificar el runner de cada server antes de escribirlo** (`command -v`): `npx` para playwright y `uvx` para codegraphcontext. Si falta el runner, informar (ej. `uvx no está instalado — usa 'pipx install uv' o 'uv tool install uv'; se omite codegraphcontext`) y **omitir ese server** sin abortar el resto del scaffold.
+   Escribir solo los servers elegidos **y con runner presente** en `.mcp.json` (Claude Code), con versiones pinneadas (verificar la última estable al generar: `npm view @playwright/mcp version`; PyPI para codegraphcontext):
    ```json
    {"mcpServers":{
-     "playwright":{"type":"stdio","command":"npx","args":["-y","@playwright/mcp@latest"]},
-     "codegraphcontext":{"type":"stdio","command":"uvx","args":["--with","kuzu","codegraphcontext","mcp","start"]}
+     "playwright":{"type":"stdio","command":"npx","args":["-y","@playwright/mcp@0.0.83"]},
+     "codegraphcontext":{"type":"stdio","command":"uvx","args":["--with","kuzu","codegraphcontext==0.6.13","mcp","start"]}
    }}
    ```
    Si se generó `AGENTS.md` (opencode), escribir los mismos servers en el bloque `mcp` de `opencode.json` con el formato `{"type":"local","command":[...],"enabled":true}`.
-   Si no se eligió ningún server, **no** crear `.mcp.json` ni bloque `mcp`.
+   Si no se eligió ningún server (o ninguno tiene runner), **no** crear `.mcp.json` ni bloque `mcp`.
 
 8. **Git inicial (opcional).**
    Ofrecer `git init` en el repo destino y, tras confirmación, dejar el primer commit vía la skill `semantic-commit` (nunca hacer push).
