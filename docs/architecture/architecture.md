@@ -52,9 +52,11 @@ flowchart LR
         RT["project-suite-runtime.js"]
         INSTR["project-suite-instructions.js"]
     end
-    subgraph COMP["Compiladores Documentales (Python stdlib)"]
+    subgraph COMP["Compiladores y Gobierno (Python stdlib)"]
         RDB["scripts/render_db_html.py\n+ templates/html/db_viewer.html"]
         RARCH["scripts/render_arch_html.py\n+ templates/html/arch_viewer.html"]
+        LIDX["scripts/log_index.py\n+ indice-cues"]
+        VAL["scripts/validate_plugin.py\n+ SurfaceSpec & census"]
     end
 
     HOOKSCC --> CFG
@@ -68,7 +70,7 @@ flowchart LR
     style COMP fill:#081a08,stroke:#69db7c,color:#a9e34b
 ```
 
-Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgados por herramienta — evita duplicar la resolución de modo entre Claude Code y opencode. Los compiladores Python stdlib (`render_db_html.py` y `render_arch_html.py`) transforman `diseno_db.md` y `architecture.md` en visores HTML standalone sin requerir dependencias externas.
+Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgados por herramienta — evita duplicar la resolución de modo entre Claude Code y opencode. Los compiladores Python stdlib (`render_db_html.py` y `render_arch_html.py`) transforman `diseno_db.md` y `architecture.md` en visores HTML standalone sin requerir dependencias externas. Asimismo, `scripts/log_index.py` indexa la memoria de Cues transferibles en `docs/logs/log.md`, mientras `scripts/validate_plugin.py` audita el presupuesto context `always-on` (`SurfaceSpec`) y emite el censo cuantitativo de superficie (`--census`).
 
 ---
 
@@ -174,6 +176,8 @@ sequenceDiagram
 | `.opencode/plugins/project-suite.mjs` es la excepción | Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe. |
 | Sin MCP global | `.mcp.json` del plugin va vacío; los servers son opt-in por proyecto (paso 7 de `init`). Un server con `"x-project-suite": {"startup": "off"}` sale a opencode con `enabled: false`. |
 | Versión única | `validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`. |
+| Presupuesto de superficie `always-on` | `validate_plugin.py` bloquea la sesión si los archivos siempre presentes exceden 16.000 chars, individualmente 6.000 chars o el catálogo de skills 8.800 chars. |
+| Integridad sintáctica y referencias cruzadas | Todo script `.py` en `scripts/` y `tests/` debe compilar sin errores de sintaxis, y toda referencia en comandos, reglas y skills operativas debe existir físicamente. |
 
 ## 8. Flujo 8 — Compilación de visores HTML (`render_db_html.py` y `render_arch_html.py`)
 

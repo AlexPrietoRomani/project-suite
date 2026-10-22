@@ -1,4 +1,4 @@
-<!-- source-sha256: a6277232d00ea700273c3a9cd4fc478c086b2f4fca9bf6d81ecc358ab21f2d91 -->
+<!-- source-sha256: f52d815a177f7646dd79eaa08c99a0aee3548aa81f5383413089289cc159bd11 -->
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
 <head>
@@ -1051,8 +1051,8 @@
     "title": "Arquitectura — project-suite",
     "subtitle": "Este documento describe project-suite organizado por **flujos**: cómo un comando/skill produce un efecto real (archivos escritos, un visor HTML compilado, un hook disparado). Cuenta con su visor interactivo compañero en [`docs/architecture/architecture.html`](architecture.html) (compilado con `python scripts/render_arch_html.py`). El plan de construcción del plugin vive en `docs/plan/plan_maestro.md` y su tablero en `docs/task/tareas.md` (locales, gitignored, como en cualquier proyecto destino).",
     "flows_count": 8,
-    "components_count": 65,
-    "invariants_count": 17,
+    "components_count": 67,
+    "invariants_count": 19,
     "adrs_count": 7
   },
   "views": [
@@ -1271,7 +1271,7 @@
           "subgraph_id": "OC",
           "target_view_id": null,
           "x": 80.0,
-          "y": 450.0,
+          "y": 710.0,
           "width": 250,
           "height": 86
         },
@@ -1327,7 +1327,7 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
-          "y": 320.0,
+          "y": 450.0,
           "width": 250,
           "height": 86
         },
@@ -1341,7 +1341,35 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
+          "y": 320.0,
+          "width": 250,
+          "height": 86
+        },
+        {
+          "id": "LIDX",
+          "label": "scripts/log_index.py",
+          "sublabel": "+ indice-cues",
+          "role": "backend",
+          "color": "#10b981",
+          "icon": "⚙️",
+          "subgraph_id": "COMP",
+          "target_view_id": null,
+          "x": 80.0,
           "y": 190.0,
+          "width": 250,
+          "height": 86
+        },
+        {
+          "id": "VAL",
+          "label": "scripts/validate_plugin.py",
+          "sublabel": "+ SurfaceSpec & census",
+          "role": "backend",
+          "color": "#10b981",
+          "icon": "⚙️",
+          "subgraph_id": "COMP",
+          "target_view_id": null,
+          "x": 80.0,
+          "y": 580.0,
           "width": 250,
           "height": 86
         }
@@ -1369,7 +1397,7 @@
             "BRIDGE"
           ],
           "x": 52.0,
-          "y": 416.0,
+          "y": 676.0,
           "width": 306.0,
           "height": 142.0
         },
@@ -1390,17 +1418,19 @@
         },
         {
           "id": "COMP",
-          "label": "Compiladores Documentales (Python stdlib)",
+          "label": "Compiladores y Gobierno (Python stdlib)",
           "color": "#69db7c",
           "parent_id": null,
           "children": [
             "RDB",
-            "RARCH"
+            "RARCH",
+            "LIDX",
+            "VAL"
           ],
           "x": 52.0,
           "y": 156.0,
           "width": 306.0,
-          "height": 272.0
+          "height": 532.0
         }
       ],
       "connections": [
@@ -1458,10 +1488,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 493.0 L 382.0 493.0 Q 390.0 493.0 390.0 485.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
+          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
           "label_at": {
             "x": 390.0,
-            "y": 298.0
+            "y": 428.0
           }
         },
         {
@@ -1473,10 +1503,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 493.0 L 382.0 493.0 Q 390.0 493.0 390.0 485.0 L 390.0 371.0 Q 390.0 363.0 398.0 363.0 L 450.0 363.0",
+          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 371.0 Q 390.0 363.0 398.0 363.0 L 450.0 363.0",
           "label_at": {
             "x": 390.0,
-            "y": 428.0
+            "y": 558.0
           }
         },
         {
@@ -1488,10 +1518,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 493.0 L 382.0 493.0 Q 390.0 493.0 390.0 485.0 L 390.0 241.0 Q 390.0 233.0 398.0 233.0 L 450.0 233.0",
+          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 241.0 Q 390.0 233.0 398.0 233.0 L 450.0 233.0",
           "label_at": {
             "x": 390.0,
-            "y": 363.0
+            "y": 493.0
           }
         }
       ]
@@ -2631,6 +2661,14 @@
         {
           "name": "Versión única",
           "description": "`validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`."
+        },
+        {
+          "name": "Presupuesto de superficie `always-on`",
+          "description": "`validate_plugin.py` bloquea la sesión si los archivos siempre presentes exceden 16.000 chars, individualmente 6.000 chars o el catálogo de skills 8.800 chars."
+        },
+        {
+          "name": "Integridad sintáctica y referencias cruzadas",
+          "description": "Todo script `.py` en `scripts/` y `tests/` debe compilar sin errores de sintaxis, y toda referencia en comandos, reglas y skills operativas debe existir físicamente."
         }
       ],
       "flow_meta": {
@@ -2652,6 +2690,14 @@
           {
             "name": "Versión única",
             "description": "`validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`."
+          },
+          {
+            "name": "Presupuesto de superficie `always-on`",
+            "description": "`validate_plugin.py` bloquea la sesión si los archivos siempre presentes exceden 16.000 chars, individualmente 6.000 chars o el catálogo de skills 8.800 chars."
+          },
+          {
+            "name": "Integridad sintáctica y referencias cruzadas",
+            "description": "Todo script `.py` en `scripts/` y `tests/` debe compilar sin errores de sintaxis, y toda referencia en comandos, reglas y skills operativas debe existir físicamente."
           }
         ]
       },
@@ -3345,7 +3391,7 @@
       "name": "7. Flujo 5 — Sync multi-herramienta",
       "pipeline": "`skills/`, `commands/`, `.mcp.json` (fuente canónica) → `scripts/sync_opencode.py` → `.opencode/`, `opencode.json`.",
       "scripts": [],
-      "invariants_count": 4
+      "invariants_count": 6
     },
     {
       "id": "flow-6",
@@ -3524,6 +3570,22 @@
       "category": "componente",
       "targetViewId": "c4-contenedor",
       "nodeId": "RARCH"
+    },
+    {
+      "id": "comp-LIDX",
+      "title": "scripts/log_index.py",
+      "subtitle": "+ indice-cues · C4 Contenedor",
+      "category": "componente",
+      "targetViewId": "c4-contenedor",
+      "nodeId": "LIDX"
+    },
+    {
+      "id": "comp-VAL",
+      "title": "scripts/validate_plugin.py",
+      "subtitle": "+ SurfaceSpec & census · C4 Contenedor",
+      "category": "componente",
+      "targetViewId": "c4-contenedor",
+      "nodeId": "VAL"
     },
     {
       "id": "view-mapa-maestro",
@@ -4020,6 +4082,20 @@
       "id": "inv-Versión única",
       "title": "Versión única",
       "subtitle": "`validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`. · Flujo 5",
+      "category": "invariante",
+      "targetViewId": "flow-5"
+    },
+    {
+      "id": "inv-Presupuesto de superficie `always-on`",
+      "title": "Presupuesto de superficie `always-on`",
+      "subtitle": "`validate_plugin.py` bloquea la sesión si los archivos siempre presentes exceden 16.000 chars, individualmente 6.000 chars o el catálogo de skills 8.800 chars. · Flujo 5",
+      "category": "invariante",
+      "targetViewId": "flow-5"
+    },
+    {
+      "id": "inv-Integridad sintáctica y referencias cruzadas",
+      "title": "Integridad sintáctica y referencias cruzadas",
+      "subtitle": "Todo script `.py` en `scripts/` y `tests/` debe compilar sin errores de sintaxis, y toda referencia en comandos, reglas y skills operativas debe existir físicamente. · Flujo 5",
       "category": "invariante",
       "targetViewId": "flow-5"
     },

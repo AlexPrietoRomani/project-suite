@@ -18,11 +18,13 @@ Recorre el Plan Maestro (`docs/plan/plan_maestro.md`) y el tablero (`docs/task/t
 5. **Evaluar el gate y marcar progreso.** Solo si `verificar-dod` pasa TODOS sus items: marca el checkbox de la Tarea como `[X]` en `tareas.md` y actualiza el roll-up (marca `[X]` en la Sub fase cuando todas sus Tareas estén en `[X]`, y en la Fase cuando todas sus Sub fases lo estén; usa `[/]` mientras haya trabajo en curso). Tras cerrar la Tarea en verde, sugiere ejecutar `semantic-commit` para guardar el avance.
 6. **Reajuste al cerrar cada Sub fase.** Cuando todas las Tareas de una Sub fase quedan en `[X]`, ejecuta este paso antes de seguir (no se hace por Tarea: el ruido de una sola Tarea no justifica reescribir el plan):
    1. **Contrasta lo aprendido** en las Tareas cerradas contra las Sub fases **pendientes de la misma Fase**: supuestos que resultaron falsos, interfaces que quedaron distintas, trabajo que ya no hace falta, trabajo que apareció.
-   2. **Si hay desviación, corrige el plan:** inserta las Tareas correctivas *dentro* de la Sub fase abierta o de la inmediata siguiente, con IDs correlativos, y reescribe las Sub fases afectadas para que describan lo que ahora hay que hacer.
-   3. **Marca cada bloque tocado** con `> ⟳ Ajustado en SF{x.y} — <motivo>` al inicio, para que el diff del plan sea legible y auditable.
-   4. Corre `python scripts/tablero.py --indice` y `--sync`, y commitea el ajuste del plan en la rama de la Fase.
-   5. **Reporta el ajuste al usuario en el mismo turno**, diciendo qué Sub fases cambiaron y por qué. No pide permiso (salvo el caso del bloque de Reglas).
-
+   2. **Clasificación `DOM` vs `INV` (base Harness²):**
+      - **`DOM` (Dominio / Proyecto):** desvíos de supuestos, contratos o tareas del proyecto actual → se corrigen directamente en las Sub fases pendientes de `plan_maestro.md` / `fases/FNN-*.md`.
+      - **`INV` (Invariante / Estándar):** guardarraíles técnicos reutilizables descubiertos tras reintentos o registrados como `INV` en `docs/logs/log.md` → se reportan al usuario al cerrar la Sub fase como propuestas de mejora para `CLAUDE.md`/`AGENTS.md` o los `*-standards`.
+   3. **Si hay desviación, corrige el plan:** inserta las Tareas correctivas *dentro* de la Sub fase abierta o de la inmediata siguiente, con IDs correlativos, y reescribe las Sub fases afectadas para que describan lo que ahora hay que hacer.
+   4. **Marca cada bloque tocado** con `> ⟳ Ajustado en SF{x.y} — <motivo>` al inicio, para que el diff del plan sea legible y auditable.
+   5. Corre `python scripts/tablero.py --indice` y `--sync`, y commitea el ajuste del plan en la rama de la Fase.
+   6. **Reporta el ajuste al usuario en el mismo turno**, diciendo qué Sub fases cambiaron y por qué. No pide permiso (salvo el caso del bloque de Reglas).
 7. **Continuar o parar.** Si el gate pasó, avanza a la siguiente Tarea del orden del paso 2. Si el gate falló, ejecuta el manejo de rojo del bloque siguiente. Repite hasta agotar el alcance solicitado.
 
 ## Reglas / Salida

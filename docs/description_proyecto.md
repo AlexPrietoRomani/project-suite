@@ -32,9 +32,10 @@ flowchart LR
         STD["python/r/rust/astro/sql/ts/webapp-standards + visualizar-datos"]
     end
 
-    subgraph RENDER["🖼️ Compiladores HTML (stdlib)"]
+    subgraph RENDER["🖼️ Compiladores HTML y Memoria (stdlib)"]
         RDB["scripts/render_db_html.py\n(base drawDB)"]
         RARCH["scripts/render_arch_html.py\n(base Archify Blueprint)"]
+        LIDX["scripts/log_index.py\n(Cues & Memoria Harness²)"]
     end
 
     subgraph HOOKS["🪝 Hooks (modo ambiental)"]
@@ -64,6 +65,8 @@ flowchart LR
 | Comandos (`init`, `nueva-fase`, `modo`, `review`, `audit`, `help`) | Orquestan flujos completos invocando skills | Ambas |
 | Skills de documentos (`especificar`, `planificar`, `bitacora`, `ejecucion`) | Generan/actualizan `docs/` del proyecto destino | Escribe |
 | Compiladores HTML (`scripts/render_db_html.py`, `scripts/render_arch_html.py`) | Compilan `diseno_db.md` → `diseno_db.html` (estilo drawDB) y `architecture.md` → `architecture.html` (estilo Archify multi-vista) y verifican sincronía (`--check`) | Ambas |
+| Indexador de memoria (`scripts/log_index.py`) | Extrae e indexa Cues transferibles en `docs/logs/log.md`, regenera la tabla de memoria y permite búsquedas rápidas con `--query` (base Harness²) | Ambas |
+| Validador estructural (`scripts/validate_plugin.py`) | Audita manifiestos, hooks, presupuesto context `always-on` (`SurfaceSpec`), compilación de scripts y emite el censo cuantitativo con `--census` | Solo lee (audita) |
 | Skills de loop (`testear`, `verificar-dod`, `auditar-coherencia`, `construir`) | Cierran el ciclo de calidad de cada Tarea | Ambas |
 | Skills de estándar (`*-standards`, `visualizar-datos`) | Guían la implementación por tipo de archivo/necesidad | Solo lee (guía, no ejecuta) |
 | Hooks (`hooks/project-suite-*.js`) | Recordatorio ambiental de modo, persistido per-repo | Ambas |
