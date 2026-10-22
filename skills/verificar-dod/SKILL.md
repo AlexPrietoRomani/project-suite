@@ -11,6 +11,8 @@ Ejecuta el Definition of Done (DoD) de una Tarea del Plan Maestro y reporta pass
 
 ## Flujo
 
+0. **Ejecución determinista automatizada (CLI).** El agente (o el desarrollador) puede ejecutar directamente `python scripts/verificar_dod.py --tarea <ID_TAREA> --json` para correr de forma determinista la suite de tests, compilación/lint de Python, sincronización `--check` de `diseno_db.html` / `architecture.html` / `log.md`, `tablero.py --verificar` y emitir automáticamente el recibo en `docs/logs/recibos/dod-receipts.jsonl`. Si el script retorna código `0` (`PASS`), los chequeos mecánicos base están cubiertos.
+
 1. **Entrada.** Recibe un ID de Tarea (ej. `T1.1.1`) o toma la Tarea del contexto actual. Localiza su definición en el tablero del track activo —en el archivo de su Fase, `fases/FNN-*.md`— y en su `plan_maestro.md` (rutas: `python scripts/tablero.py --rutas`) (macro-objetivo, Entregable, Criterios de Aceptación, y sus bloques `Test Unitario` + `Test de Simulación de Usuario`). Lee el **Apéndice A — Definition of Done (DoD) Global** del `plan_maestro.md` (derivado de `templates/plantilla_plan.md`), que fija los 5 requerimientos innegociables.
 
 2. **Item 1 — Tests unitarios + simulación de usuario en verde.** Delega en la skill `testear` (Skill tool) para materializar/correr los dos niveles obligatorios de la Tarea. Confirma que **todos** los tests declarados en los bloques `Test Unitario` y `Test de Simulación de Usuario` corren y pasan, y que cubren casos óptimos y de error.

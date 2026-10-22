@@ -1,5 +1,5 @@
 {
   "name": "project-suite",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 22 skills, 8 commands. No bundled MCP servers (opt-in per project via init)."
 }
