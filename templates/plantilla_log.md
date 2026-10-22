@@ -4,6 +4,14 @@
 > **Ámbito:** Cualquier aplicación con arquitectura modular desacoplada (Frontend, Backend/API, Workers/Queues, Base de Datos, Caché).
 > **Instrucciones:** Agrega una nueva entrada al principio del documento (orden cronológico inverso) por cada incidente, bug crítico o refactor de arquitectura resuelto.
 
+<!-- indice-cues:inicio -->
+## Índice de Cues por Dominio (Memoria Transferible)
+
+| Fecha | Dominio | Cue (Señal de disparo) | Tipo | Confianza | Lección accionable | Incidente |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 2026-06-03 | Worker / Database | Deadlock o barra de progreso colgada al 99% en escrituras concurrentes | INV | alta | Nunca realizar UPDATE OLTP de alta frecuencia desde múltiples workers concurrentes; agregar progreso en Redis y consolidar diferido | Error de concurrencia al actualizar estado de procesamiento |
+<!-- indice-cues:fin -->
+
 ---
 
 ## [Plantilla Vacía - Copiar para Nuevas Entradas]
@@ -47,8 +55,12 @@
 
 ### 6. Lecciones Aprendidas (Retroalimentación)
 *¿Cómo podemos evitar que este error vuelva a ocurrir? ¿Qué patrones de diseño o guardarrailes defensivos deberíamos añadir?*
-*   [Ej. "No confiar en que el cliente valide los payloads; el backend debe implementar validaciones robustas de esquema."]
-*   [Ej. "Configurar políticas de reintentos (retries con exponential backoff) y disyuntores (circuit breakers) en llamadas externas."]
+*   **Cue (Señal de disparo):** [Ej. Deadlock o barra de progreso colgada al 99% en escrituras concurrentes]
+*   **Dominio:** [Ej. Worker / Database]
+*   **Tipo de ajuste:** [INV | DOM]
+*   **Confianza:** [alta | media | baja]
+*   **Lección accionable:** [Ej. Nunca realizar UPDATE OLTP de alta frecuencia desde múltiples workers concurrentes; agregar progreso en Redis y consolidar diferido]
+*   **Evidencia:** [Ej. Cero deadlocks con 100 workers concurrentes tras delegar throttle a Redis]
 
 ---
 
@@ -89,5 +101,9 @@ Se implementó un bloqueo optimista en base de datos (`SELECT FOR UPDATE` contro
 *   **Tiempos de ejecución / Latencia:** El tiempo bloqueado en base de datos bajó de ~250ms por transacción a menos de 5ms gracias a la delegación a Redis.
 
 ### 6. Lecciones Aprendidas (Retroalimentación)
-*   **Nunca realizar actualizaciones de base de datos OLTP de alta frecuencia desde múltiples hilos o procesos distribuidos concurrentes.**
-*   Utilizar almacenes en memoria rápidos (como Redis) para estados transicionales de alta concurrencia, y consolidar en la base de datos SQL de manera diferida.
+*   **Cue (Señal de disparo):** Deadlock o barra de progreso colgada al 99% en escrituras concurrentes
+*   **Dominio:** Worker / Database
+*   **Tipo de ajuste:** INV
+*   **Confianza:** alta
+*   **Lección accionable:** Nunca realizar UPDATE OLTP de alta frecuencia desde múltiples workers concurrentes; agregar progreso en Redis y consolidar diferido
+*   **Evidencia:** Cero deadlocks detectados bajo carga de 100 workers concurrentes; latencia reducida de ~250ms a <5ms.

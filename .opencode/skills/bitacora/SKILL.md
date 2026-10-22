@@ -2,7 +2,7 @@
 name: bitacora
 description: Registra incidentes/bugs/refactors en docs/logs/log.md con formato forense (sintoma -> hipotesis -> causa raiz -> resolucion -> verificacion -> lecciones). CARGA cuando se resuelve un error, se documenta un incidente, o antes de depurar (consultar el log primero).
 when_to_use: Ante cualquier bug/bloqueo resuelto, o para consultar incidentes previos.
-allowed-tools: Read Grep Glob Write Edit
+allowed-tools: Read Grep Glob Write Edit Bash(python scripts/log_index.py *)
 ---
 
 # Bitácora de Incidencias
@@ -13,11 +13,11 @@ Mantiene `docs/logs/log.md`: un registro forense y cronológico de bugs, bloqueo
 
 1. **Asegura el archivo.** Comprueba si existe `docs/logs/log.md` (`Glob`/`Read`). Si no existe, créalo copiando literalmente `templates/plantilla_log.md` como semilla (con su bloque "[Plantilla Vacía - Copiar para Nuevas Entradas]" y el ejemplo de referencia) y reemplaza `[Nombre del Proyecto]` en el título por el nombre real del proyecto. Si el directorio `docs/logs/` no existe, créalo al escribir el archivo.
 
-2. **Consulta primero (obligatorio ante un error).** Antes de diagnosticar un bug nuevo, busca en `docs/logs/log.md` una entrada previa que coincida por síntoma, componente afectado, traza de error o mensaje (`Grep` sobre síntomas/logs, `Read` de las entradas candidatas). Si encuentras una coincidencia, parte de su causa raíz y sus lecciones aprendidas en lugar de empezar de cero, y dilo explícitamente al usuario.
+2. **Consulta primero (obligatorio ante un error).** Antes de diagnosticar un bug nuevo, consulta el **Índice de Cues por Dominio** en la cabecera de `docs/logs/log.md` o ejecuta `python scripts/log_index.py --query "<síntoma o componente>"` para localizar experiencias previas transferibles (`Read` de las entradas candidatas o `Grep` sobre síntomas/logs). Si encuentras una coincidencia, parte de su causa raíz, su señal de disparo (`Cue`) y sus lecciones aprendidas en lugar de empezar de cero, y dilo explícitamente al usuario.
 
 3. **Redacta la entrada nueva.** Reúne la evidencia real del incidente resuelto (síntoma observado, hipótesis validadas/descartadas, causa raíz técnica, cambios aplicados con archivos tocados, verificación con pruebas/mediciones, y lecciones accionables). Usa fecha absoluta `YYYY-MM-DD` (hoy) en el encabezado, junto al título corto del incidente y los componentes afectados.
 
-4. **Inserta al principio.** Agrega la entrada al **inicio** de la sección de incidentes (orden cronológico inverso: lo más reciente primero), justo antes de las entradas ya existentes. Usa `Edit` para insertar sin borrar el bloque de plantilla vacía, el ejemplo de referencia ni las entradas anteriores.
+4. **Inserta al principio y actualiza el índice.** Agrega la entrada al **inicio** de la sección de incidentes (orden cronológico inverso: lo más reciente primero), justo antes de las entradas ya existentes. Usa `Edit` para insertar sin borrar el bloque de plantilla vacía, el ejemplo de referencia ni las entradas anteriores. Tras insertar la entrada, ejecuta `python scripts/log_index.py` para regenerar y sincronizar automáticamente el bloque `<!-- indice-cues:inicio --> ... <!-- indice-cues:fin -->` en la cabecera de `docs/logs/log.md`.
 
 5. **Cierra.** Confirma la ruta de la entrada escrita y, si la causa raíz revela un cambio de contrato (DB/API/arquitectura), sugiere actualizar los docs con `especificar` o correr `auditar-coherencia`.
 
@@ -29,7 +29,13 @@ Mantiene `docs/logs/log.md`: un registro forense y cronológico de bugs, bloqueo
   3. `### 3. Causa Raíz` — explicación técnica **real** del porqué (condición de carrera, desalineación de contrato de API, concurrencia en DB, timeout en llamada síncrona, etc.). Nunca una causa genérica ni especulativa cuando ya se resolvió.
   4. `### 4. Resolución e Implementación` — pasos exactos y archivos editados/refactorizados; incluye diff de referencia cuando aporte.
   5. `### 5. Verificación y Mediciones` — pruebas ejecutadas que certifican la resolución sin regresiones; incluye tiempos/telemetría antes/después si aplica.
-  6. `### 6. Lecciones Aprendidas (Retroalimentación)` — guardarraíles accionables para evitar la reincidencia (validaciones, reintentos con backoff, circuit breakers, invariantes de escritura, etc.).
+  6. `### 6. Lecciones Aprendidas (Retroalimentación)` — campos estructurados de memoria transferible (base Harness²):
+     - `* **Cue (Señal de disparo):**` condición técnica o síntoma que activa esta regla ante problemas futuros.
+     - `* **Dominio:**` subsistema o tecnología (`Worker / Database`, `Gateway`, `Cache`, etc.).
+     - `* **Tipo de ajuste:**` `INV` (invariante/guardarraíl técnico generalizable) o `DOM` (ajuste específico del dominio/proyecto).
+     - `* **Confianza:**` `alta`, `media` o `baja`.
+     - `* **Lección accionable:**` regla concreta para no reincidir (invariantes, validaciones, reintentos con backoff, circuit breakers).
+     - `* **Evidencia:**` métrica o prueba que valida la efectividad del guardarraíl.
 - **Encabezado de entrada:** `## YYYY-MM-DD — [Título corto] — [Componentes Afectados]` con fecha absoluta (nunca "hoy"/"ayer" ni relativa).
 - **Consulta antes de diagnosticar:** ante un error, primero se busca en el log; solo si no hay coincidencia se diagnostica desde cero.
 - **No borra historia:** las entradas se acumulan; nunca se sobrescriben ni se reordena el archivo salvo para insertar la nueva entrada al principio. Se conservan el bloque de plantilla vacía y el ejemplo de referencia del template.
