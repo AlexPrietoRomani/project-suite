@@ -2,6 +2,8 @@
 
 > **Uso:** copia este archivo a `docs/architecture/` con el nombre apropiado, completa los placeholders `[...]` y elimina las instrucciones en cursiva. El modelo canónico completo es [`docs/architecture/architecture.md`](../architecture/architecture.md) — úsalo como referencia y ejemplo vivo.
 >
+> **Visor interactivo compañero:** compila y verifica este documento con `python scripts/render_arch_html.py docs/architecture/architecture.md -o docs/architecture/architecture.html` (o usa `--check` para auditar sincronía). El archivo `.html` resultante es un explorador visual blueprint offline inspirado en Archify con navegación multi-vista, auto-layout jerárquico, drill-down entre flujos, trazado de rutas conexas, inspector de invariantes y buscador global (`Ctrl+K`).
+>
 > **Estructura:** el documento se organiza por **Flujos de datos** (cómo fluye el dato desde las APIs hasta el gráfico), no por fases de desarrollo. Las fases viven en el tablero (`docs/task/tareas.md` y `docs/task/fases/`, o `docs/task/<track>/` en repos con varios planes).
 
 ---
@@ -430,4 +432,5 @@ flowchart LR
 **Cierre:**
 - [ ] ADRs: ≥3 decisiones con alternativa descartada y razón concreta
 - [ ] Despliegue: qué entra al bundle, qué queda fuera, quién automatiza
+- [ ] Visor HTML compañero generado y verificado con `python scripts/render_arch_html.py --check docs/architecture/architecture.md`
 - [ ] Sin secciones organizadas por fase de desarrollo
