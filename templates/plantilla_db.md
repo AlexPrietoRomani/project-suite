@@ -2,6 +2,8 @@
 
 > **Uso:** copia este archivo a `docs/db/` con el nombre apropiado, completa los placeholders `[...]` y elimina las instrucciones en cursiva. El modelo canónico completo es [`docs/db/diseno_db.md`](../db/diseno_db.md) — úsalo como referencia y ejemplo vivo.
 >
+> **Visor interactivo compañero:** compila y verifica este documento con `python scripts/render_db_html.py docs/db/diseno_db.md -o docs/db/diseno_db.html` (o usa `--check` para auditar sincronía). El archivo `.html` resultante es un visor interactivo offline inspirado en drawDB para explorar entidades, relaciones ER, políticas de escritura y matrices CRUD.
+>
 > **Estructura:** el documento se organiza por **bases de datos** (una sección por base), no por fases de desarrollo. Empieza siempre por el mapa de bases y el esquema lógico compartido (si aplica); luego dedica una sección a cada base con sus particularidades y diccionario de columnas.
 
 ---
@@ -291,5 +293,6 @@ erDiagram
 - [ ] Bases de consumo: ER propio si tienen tablas de mapeo o modelo de negocio
 - [ ] Acceso CRUD por componente para bases de consumo
 - [ ] Matriz de fuentes vs. columnas especiales (si el esquema es homogéneo con NULLs selectivos)
+- [ ] Visor HTML compañero generado y verificado con `python scripts/render_db_html.py --check docs/db/diseno_db.md`
 - [ ] Sin menciones de fases de desarrollo como estructura ("Fase 11 — completado")
 - [ ] Apunta a `docs/architecture/architecture.md` para el flujo que genera cada base

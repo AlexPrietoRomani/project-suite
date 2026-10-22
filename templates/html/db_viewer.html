@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- source-sha256: __SOURCE_SHA256__ -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__DOC_TITLE__ — Visor Interactivo de Bases de Datos</title>
+<style>
+  :root {
+    --bg-app: #0f172a;
+    --bg-canvas: #090d16;
+    --grid-dot: #1e293b;
+    --bg-panel: #1e293b;
+    --bg-card: #1e293b;
+    --bg-card-header: #1e293b;
+    --bg-card-hover: #26334d;
+    --border: #334155;
+    --border-light: #475569;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --accent: #38bdf8;
+    --accent-hover: #0ea5e9;
+    --badge-bg: #0f172a;
+    --badge-pk: #f59e0b;
+    --badge-fk: #8b5cf6;
+    --badge-null: #64748b;
+    --rel-stroke: #64748b;
+    --rel-hover: #38bdf8;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
+  [data-theme="light"] {
+    --bg-app: #f1f5f9;
+    --bg-canvas: #f8fafc;
+    --grid-dot: #cbd5e1;
+    --bg-panel: #ffffff;
+    --bg-card: #ffffff;
+    --bg-card-header: #f8fafc;
+    --bg-card-hover: #f1f5f9;
+    --border: #e2e8f0;
+    --border-light: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
+    --badge-bg: #e2e8f0;
+    --badge-pk: #d97706;
+    --badge-fk: #7c3aed;
+    --badge-null: #94a3b8;
+    --rel-stroke: #94a3b8;
+    --rel-hover: #0284c7;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top Navigation Bar */
+  header.top-nav {
+    height: 52px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    gap: 12px;
+    z-index: 100;
+  }
+
+  .nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text-primary);
+    text-decoration: none;
+  }
+  .brand svg {
+    color: var(--accent);
+  }
+  .brand-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .doc-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-left: 1px solid var(--border);
+    padding-left: 12px;
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .schema-select {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    outline: none;
+  }
+  .schema-select:focus { border-color: var(--accent); }
+
+  .view-tabs {
+    display: flex;
+    background-color: var(--bg-app);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-btn.active {
+    background-color: var(--bg-panel);
+    color: var(--accent);
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tool-btn {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+  }
+  .tool-btn:hover {
+    background-color: var(--bg-card-hover);
+    border-color: var(--border-light);
+  }
+  .tool-btn svg { width: 14px; height: 14px; }
+
+  .search-input {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 6px 10px;
+    width: 160px;
+    outline: none;
+  }
+  .search-input:focus { border-color: var(--accent); width: 200px; transition: width 0.2s; }
+
+  /* App Body */
+  .app-body {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Left Sidebar */
+  aside.sidebar {
+    width: 300px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    transition: width 0.2s ease, transform 0.2s ease;
+  }
+  aside.sidebar.collapsed {
+    transform: translateX(-300px);
+    width: 0;
+  }
+
+  .sidebar-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sidebar-tabs {
+    display: flex;
+    gap: 4px;
+  }
+  .sidebar-tab-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .sidebar-tab-btn.active {
+    color: var(--accent);
+    background-color: var(--bg-app);
+  }
+
+  .sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 14px;
+  }
+
+  .sidebar-search-box {
+    margin-bottom: 10px;
+  }
+  .sidebar-search-input {
+    width: 100%;
+    background-color: var(--bg-app);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 12px;
+    border-radius: 6px;
+    padding: 6px 8px;
+    outline: none;
+  }
+
+  .sidebar-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sidebar-item {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .sidebar-item:hover {
+    border-color: var(--accent);
+    background-color: var(--bg-card-hover);
+  }
+  .sidebar-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .sidebar-item-pill {
+    font-size: 11px;
+    background-color: var(--badge-bg);
+    color: var(--text-muted);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+  .sidebar-item-fields {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .sidebar-field-chip {
+    background-color: var(--bg-app);
+    border: 1px solid var(--border);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+
+  /* Canvas Area */
+  main.canvas-viewport {
+    flex: 1;
+    position: relative;
+    background-color: var(--bg-canvas);
+    background-image: radial-gradient(var(--grid-dot) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
+    overflow: hidden;
+    cursor: grab;
+  }
+  main.canvas-viewport.panning {
+    cursor: grabbing;
+  }
+
+  .canvas-world {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-origin: 0 0;
+    will-change: transform;
+  }
+
+  /* SVG Connections Layer */
+  svg.connections-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6000px;
+    height: 6000px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .rel-path {
+    fill: none;
+    stroke: var(--rel-stroke);
+    stroke-width: 2;
+    transition: stroke 0.15s ease, stroke-width 0.15s ease;
+    pointer-events: stroke;
+    cursor: pointer;
+  }
+  .rel-path:hover, .rel-path.highlighted {
+    stroke: var(--rel-hover);
+    stroke-width: 3.5;
+  }
+
+  .rel-badge {
+    pointer-events: auto;
+    font-size: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    fill: var(--text-primary);
+  }
+  .rel-badge-bg {
+    fill: var(--bg-panel);
+    stroke: var(--border);
+    stroke-width: 1;
+    rx: 4;
+  }
+
+  /* Tables Container */
+  .tables-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6000px;
+    height: 6000px;
+    z-index: 20;
+    pointer-events: none;
+  }
+
+  /* Table Card */
+  .table-card {
+    position: absolute;
+    width: 250px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    pointer-events: auto;
+    user-select: none;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .table-card:hover {
+    border-color: var(--border-light);
+  }
+  .table-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent), var(--shadow);
+  }
+  .table-card.highlight-flash {
+    animation: flash-ring 1.5s ease-out;
+  }
+  @keyframes flash-ring {
+    0% { box-shadow: 0 0 0 4px var(--accent), var(--shadow); }
+    100% { box-shadow: var(--shadow); }
+  }
+
+  .table-card-strip {
+    height: 5px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+  }
+
+  .table-card-header {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-card-header);
+    border-bottom: 1px solid var(--border);
+    cursor: move;
+  }
+
+  .table-title-area {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .table-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .table-pills {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .field-count-pill {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background-color: var(--badge-bg);
+    padding: 1px 5px;
+    border-radius: 10px;
+  }
+  .policy-pill {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .table-fields-list {
+    padding: 4px 0;
+  }
+
+  .field-row {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.1s ease;
+  }
+  .field-row:hover {
+    background-color: var(--bg-card-hover);
+  }
+
+  .field-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .field-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-integer { background-color: #3b82f6; }
+  .dot-text { background-color: #10b981; }
+  .dot-real { background-color: #f59e0b; }
+  .dot-blob { background-color: #a855f7; }
+  .dot-other { background-color: #94a3b8; }
+
+  .field-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .field-name.is-pk {
+    font-weight: 700;
+    color: var(--badge-pk);
+  }
+
+  .field-badges {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .badge-icon {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 0 3px;
+    border-radius: 3px;
+    line-height: 14px;
+  }
+  .badge-pk { background-color: rgba(245, 158, 11, 0.15); color: var(--badge-pk); }
+  .badge-fk { background-color: rgba(139, 92, 246, 0.15); color: var(--badge-fk); }
+  .badge-nullable { color: var(--badge-null); font-weight: 700; }
+
+  .field-type {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Popover Floating Tooltip */
+  .field-popover {
+    position: fixed;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    box-shadow: 0 20px 30px -10px rgba(0,0,0,0.6);
+    padding: 12px 14px;
+    width: 280px;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    font-size: 12px;
+  }
+  .field-popover.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .popover-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .popover-field-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .popover-field-type {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .popover-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .popover-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: var(--bg-app);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .popover-tag.pk { background: rgba(245, 158, 11, 0.15); color: var(--badge-pk); border-color: rgba(245, 158, 11, 0.3); }
+  .popover-tag.fk { background: rgba(139, 92, 246, 0.15); color: var(--badge-fk); border-color: rgba(139, 92, 246, 0.3); }
+  .popover-detail-row {
+    display: flex;
+    margin-bottom: 4px;
+    gap: 6px;
+  }
+  .popover-detail-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    min-width: 80px;
+  }
+  .popover-detail-val {
+    color: var(--text-primary);
+    word-break: break-word;
+  }
+
+  /* Document Section View (Tabular) */
+  .doc-view-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-canvas);
+    z-index: 30;
+    display: none;
+    flex-direction: column;
+    padding: 24px;
+    overflow-y: auto;
+  }
+  .doc-view-panel.active {
+    display: flex;
+  }
+  .doc-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .doc-view-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .doc-table-container {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .markdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  .markdown-table th {
+    background-color: var(--bg-app);
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .markdown-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+  .markdown-table tr:last-child td {
+    border-bottom: none;
+  }
+  .markdown-table tr:hover td {
+    background-color: var(--bg-card-hover);
+  }
+  .deploy-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .deploy-yes { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+  .deploy-no { background: rgba(148, 163, 184, 0.15); color: #94a3b8; }
+
+  /* Floating Floating Controls */
+  .canvas-hud {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px;
+    gap: 4px;
+    box-shadow: var(--shadow);
+    z-index: 40;
+  }
+  .hud-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .hud-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-card-hover);
+  }
+  .zoom-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 0 6px;
+    min-width: 44px;
+    text-align: center;
+  }
+
+  /* Empty state */
+  .empty-state {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation Bar -->
+<header class="top-nav">
+  <div class="nav-left">
+    <a href="#" class="brand">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+      </svg>
+      <span>project-suite</span>
+      <span class="brand-badge">DB</span>
+    </a>
+    <div class="doc-title" id="doc-title-display">__DOC_TITLE__</div>
+  </div>
+
+  <div class="nav-center">
+    <select id="schema-select" class="schema-select" title="Seleccionar Esquema"></select>
+
+    <div class="view-tabs">
+      <button class="tab-btn active" data-view="canvas">Canvas ER</button>
+      <button class="tab-btn" data-view="database_map">Mapa de Bases</button>
+      <button class="tab-btn" data-view="write_policies">Políticas</button>
+      <button class="tab-btn" data-view="pk_meanings">Significado PK</button>
+      <button class="tab-btn" data-view="crud_matrix">Matriz CRUD</button>
+      <button class="tab-btn" data-view="null_matrix">Matriz NULLs</button>
+      <button class="tab-btn" data-view="column_dictionaries">Diccionario</button>
+    </div>
+  </div>
+
+  <div class="nav-right">
+    <input type="search" id="quick-search" class="search-input" placeholder="Buscar tabla o columna...">
+
+    <button id="btn-export-drawdb" class="tool-btn" title="Descargar archivo .drawdb.json para drawdb.app">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>.drawdb</span>
+    </button>
+
+    <button id="btn-export-svg" class="tool-btn" title="Descargar imagen SVG">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+        <polyline points="21 15 16 10 5 21"></polyline>
+      </svg>
+      <span>SVG</span>
+    </button>
+
+    <button id="theme-toggle" class="tool-btn" title="Alternar tema oscuro / claro">
+      <span id="theme-icon">🌙</span>
+    </button>
+  </div>
+</header>
+
+<!-- Main Body -->
+<div class="app-body">
+  <!-- Left Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" data-side-tab="tables">Tablas (<span id="sidebar-tables-count">0</span>)</button>
+        <button class="sidebar-tab-btn" data-side-tab="relations">Relaciones (<span id="sidebar-rel-count">0</span>)</button>
+        <button class="sidebar-tab-btn" data-side-tab="issues">Chequeos</button>
+      </div>
+      <button id="btn-collapse-sidebar" class="hud-btn" title="Ocultar barra lateral">◀</button>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="sidebar-search-box">
+        <input type="text" id="sidebar-search" class="sidebar-search-input" placeholder="Filtrar por nombre...">
+      </div>
+      <div id="sidebar-list-container">
+        <ul id="sidebar-tables-list" class="sidebar-list"></ul>
+        <ul id="sidebar-rel-list" class="sidebar-list" style="display:none;"></ul>
+        <div id="sidebar-issues-list" style="display:none;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Interactive Canvas -->
+  <main id="canvas-viewport" class="canvas-viewport">
+    <div id="canvas-world" class="canvas-world">
+      <!-- SVG Connectors Layer -->
+      <svg id="connections-svg" class="connections-svg" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="badge-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-opacity="0.3"/>
+          </filter>
+        </defs>
+        <g id="paths-group"></g>
+        <g id="badges-group"></g>
+      </svg>
+
+      <!-- Table Cards Layer -->
+      <div id="tables-layer" class="tables-layer"></div>
+    </div>
+
+    <!-- Canvas Floating HUD -->
+    <div class="canvas-hud">
+      <button id="btn-toggle-sidebar-float" class="hud-btn" title="Mostrar/Ocultar barra lateral">☰</button>
+      <button id="btn-zoom-out" class="hud-btn" title="Reducir zoom">−</button>
+      <span id="zoom-indicator" class="zoom-label">100%</span>
+      <button id="btn-zoom-in" class="hud-btn" title="Aumentar zoom">+</button>
+      <button id="btn-zoom-fit" class="hud-btn" title="Ajustar a la pantalla">Fit</button>
+      <button id="btn-auto-arrange" class="hud-btn" title="Reorganizar automáticamente">Auto</button>
+    </div>
+  </main>
+
+  <!-- Document Sections Panel (Tabular Views) -->
+  <div id="doc-view-panel" class="doc-view-panel">
+    <div class="doc-view-header">
+      <h2 id="doc-view-title" class="doc-view-title">Vista Documental</h2>
+      <input type="text" id="doc-table-filter" class="search-input" placeholder="Filtrar registros...">
+    </div>
+    <div id="doc-table-wrapper" class="doc-table-container"></div>
+  </div>
+</div>
+
+<!-- Field Popover Tooltip -->
+<div id="field-popover" class="field-popover">
+  <div class="popover-header">
+    <span id="popover-field-name" class="popover-field-name">col_name</span>
+    <span id="popover-field-type" class="popover-field-type">INTEGER</span>
+  </div>
+  <div id="popover-tags" class="popover-tags"></div>
+  <div id="popover-details"></div>
+</div>
+
+<!-- Embedded Data Block -->
+<script id="db-doc-data" type="application/json">
+__DB_DOC_DATA__
+</script>
+
+<script>
+(function() {
+  // Inicialización de datos
+  let docData = {};
+  try {
+    const rawData = document.getElementById('db-doc-data').textContent;
+    docData = JSON.parse(rawData);
+  } catch (e) {
+    console.error('Error al inicializar datos:', e);
+    docData = { title: "Error al cargar datos", schemas: [], sections: {} };
+  }
+
+  // Constantes de diseño
+  const TABLE_WIDTH = 250;
+  const HEADER_HEIGHT = 42;
+  const FIELD_HEIGHT = 30;
+  const CORNER_RADIUS = 12;
+
+  // Estado global de la aplicación
+  let currentSchemaIndex = 0;
+  let currentSchema = docData.schemas && docData.schemas.length > 0 ? docData.schemas[0] : { tables: [], relationships: [] };
+  let currentView = 'canvas';
+
+  let panX = 40;
+  let panY = 40;
+  let scale = 1.0;
+  let isPanning = false;
+  let startMouseX = 0;
+  let startMouseY = 0;
+
+  let draggedTable = null;
+  let dragOffsetX = 0;
+  let dragOffsetY = 0;
+
+  // Referencias al DOM
+  const viewport = document.getElementById('canvas-viewport');
+  const world = document.getElementById('canvas-world');
+  const pathsGroup = document.getElementById('paths-group');
+  const badgesGroup = document.getElementById('badges-group');
+  const tablesLayer = document.getElementById('tables-layer');
+  const schemaSelect = document.getElementById('schema-select');
+  const docTitleDisplay = document.getElementById('doc-title-display');
+  const zoomIndicator = document.getElementById('zoom-indicator');
+  const docViewPanel = document.getElementById('doc-view-panel');
+  const docViewTitle = document.getElementById('doc-view-title');
+  const docTableWrapper = document.getElementById('doc-table-wrapper');
+  const docTableFilter = document.getElementById('doc-table-filter');
+  const fieldPopover = document.getElementById('field-popover');
+  const sidebar = document.getElementById('sidebar');
+
+  // Inicialización del selector de esquemas
+  if (docData.schemas && docData.schemas.length > 0) {
+    schemaSelect.innerHTML = '';
+    docData.schemas.forEach((schema, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = schema.title || `Esquema ${idx + 1}`;
+      schemaSelect.appendChild(opt);
+    });
+    schemaSelect.value = 0;
+  } else {
+    schemaSelect.style.display = 'none';
+  }
+
+  if (docData.title) {
+    docTitleDisplay.textContent = docData.title;
+  }
+
+  // Algoritmo calcPath portado de drawdb-io/drawdb
+  function calcPath(startTable, endTable, startFieldIdx, endFieldIdx, cardinality) {
+    const w1 = startTable.width || TABLE_WIDTH;
+    const w2 = endTable.width || TABLE_WIDTH;
+    const headerH = HEADER_HEIGHT;
+    const fieldH = FIELD_HEIGHT;
+    const cornerR = CORNER_RADIUS;
+
+    const y1 = startTable.y + headerH + (startFieldIdx + 0.5) * fieldH;
+    const y2 = endTable.y + headerH + (endFieldIdx + 0.5) * fieldH;
+
+    const x1_left = startTable.x;
+    const x1_right = startTable.x + w1;
+    const x2_left = endTable.x;
+    const x2_right = endTable.x + w2;
+
+    const cardMap = {
+      'one_to_one': ['(1)', '(1)'],
+      'one_to_many': ['(1)', '(n)'],
+      'many_to_one': ['(n)', '(1)'],
+      'many_to_many': ['(n)', '(m)']
+    };
+    const [startLabel, endLabel] = cardMap[cardinality] || ['(1)', '(n)'];
+
+    // Caso 1: startTable a la izquierda
+    if (x1_right + 10 <= x2_left) {
+      const midX = (x1_right + x2_left) / 2;
+      let d = '';
+      if (Math.abs(y1 - y2) <= 2) {
+        d = `M ${x1_right.toFixed(1)} ${y1.toFixed(1)} L ${x2_left.toFixed(1)} ${y2.toFixed(1)}`;
+      } else {
+        const dirY = y1 < y2 ? 1 : -1;
+        const sw1 = dirY > 0 ? 1 : 0;
+        const sw2 = dirY > 0 ? 0 : 1;
+        const r = Math.min(cornerR, Math.abs(midX - x1_right), Math.abs(y2 - y1) / 2);
+        d = `M ${x1_right.toFixed(1)} ${y1.toFixed(1)} ` +
+            `L ${(midX - r).toFixed(1)} ${y1.toFixed(1)} ` +
+            `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw1} ${midX.toFixed(1)} ${(y1 + dirY * r).toFixed(1)} ` +
+            `L ${midX.toFixed(1)} ${(y2 - dirY * r).toFixed(1)} ` +
+            `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw2} ${(midX + r).toFixed(1)} ${y2.toFixed(1)} ` +
+            `L ${x2_left.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      return {
+        d: d,
+        startBadge: { x: Math.round(x1_right + 18), y: Math.round(y1 - 10), label: startLabel },
+        endBadge: { x: Math.round(x2_left - 18), y: Math.round(y2 - 10), label: endLabel }
+      };
+    }
+
+    // Caso 2: endTable a la izquierda
+    if (x2_right + 10 <= x1_left) {
+      const midX = (x1_left + x2_right) / 2;
+      let d = '';
+      if (Math.abs(y1 - y2) <= 2) {
+        d = `M ${x1_left.toFixed(1)} ${y1.toFixed(1)} L ${x2_right.toFixed(1)} ${y2.toFixed(1)}`;
+      } else {
+        const dirY = y1 < y2 ? 1 : -1;
+        const sw1 = dirY > 0 ? 0 : 1;
+        const sw2 = dirY > 0 ? 1 : 0;
+        const r = Math.min(cornerR, Math.abs(x1_left - midX), Math.abs(y2 - y1) / 2);
+        d = `M ${x1_left.toFixed(1)} ${y1.toFixed(1)} ` +
+            `L ${(midX + r).toFixed(1)} ${y1.toFixed(1)} ` +
+            `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw1} ${midX.toFixed(1)} ${(y1 + dirY * r).toFixed(1)} ` +
+            `L ${midX.toFixed(1)} ${(y2 - dirY * r).toFixed(1)} ` +
+            `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw2} ${(midX - r).toFixed(1)} ${y2.toFixed(1)} ` +
+            `L ${x2_right.toFixed(1)} ${y2.toFixed(1)}`;
+      }
+      return {
+        d: d,
+        startBadge: { x: Math.round(x1_left - 18), y: Math.round(y1 - 10), label: startLabel },
+        endBadge: { x: Math.round(x2_right + 18), y: Math.round(y2 - 10), label: endLabel }
+      };
+    }
+
+    // Caso 3: Solapamiento horizontal (misma columna)
+    const exitX = x1_right;
+    const enterX = x2_right;
+    const loopX = Math.max(x1_right, x2_right) + 36;
+    const dirY = y1 < y2 ? 1 : -1;
+    const sw1 = dirY > 0 ? 1 : 0;
+    const sw2 = dirY > 0 ? 1 : 0;
+    const r = Math.min(cornerR, Math.abs(loopX - exitX), Math.abs(y2 - y1) / 2);
+    const d = `M ${exitX.toFixed(1)} ${y1.toFixed(1)} ` +
+              `L ${(loopX - r).toFixed(1)} ${y1.toFixed(1)} ` +
+              `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw1} ${loopX.toFixed(1)} ${(y1 + dirY * r).toFixed(1)} ` +
+              `L ${loopX.toFixed(1)} ${(y2 - dirY * r).toFixed(1)} ` +
+              `A ${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${sw2} ${(loopX - r).toFixed(1)} ${y2.toFixed(1)} ` +
+              `L ${enterX.toFixed(1)} ${y2.toFixed(1)}`;
+    return {
+      d: d,
+      startBadge: { x: Math.round(exitX + 18), y: Math.round(y1 - 10), label: startLabel },
+      endBadge: { x: Math.round(enterX + 18), y: Math.round(y2 - 10), label: endLabel }
+    };
+  }
+
+  // Renderizado del lienzo ER
+  function renderCanvas() {
+    tablesLayer.innerHTML = '';
+    pathsGroup.innerHTML = '';
+    badgesGroup.innerHTML = '';
+
+    if (!currentSchema || !currentSchema.tables) return;
+
+    const tablesById = {};
+    currentSchema.tables.forEach(t => { tablesById[t.id] = t; });
+
+    // Renderizar tarjetas de tablas
+    currentSchema.tables.forEach(table => {
+      const card = document.createElement('div');
+      card.className = 'table-card';
+      card.id = `table-card-${table.id}`;
+      card.style.transform = `translate(${table.x}px, ${table.y}px)`;
+      card.style.width = `${table.width || TABLE_WIDTH}px`;
+
+      // Barra superior con color temático
+      const strip = document.createElement('div');
+      strip.className = 'table-card-strip';
+      strip.style.backgroundColor = table.color || '#3b82f6';
+      card.appendChild(strip);
+
+      // Cabecera arrastrable
+      const header = document.createElement('div');
+      header.className = 'table-card-header';
+      header.innerHTML = `
+        <div class="table-title-area">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${table.color || '#3b82f6'}" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          <span class="table-title" title="${table.comment || table.name}">${table.name}</span>
+        </div>
+        <div class="table-pills">
+          ${table.writePolicy ? `<span class="policy-pill" title="Política: ${table.writePolicy.policy}">${table.writePolicy.policy}</span>` : ''}
+          <span class="field-count-pill">${table.fields.length}</span>
+        </div>
+      `;
+
+      // Evento de arrastre de tarjeta
+      header.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        draggedTable = table;
+        dragOffsetX = (e.clientX - panX) / scale - table.x;
+        dragOffsetY = (e.clientY - panY) / scale - table.y;
+        document.querySelectorAll('.table-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        e.stopPropagation();
+      });
+
+      card.appendChild(header);
+
+      // Lista de campos
+      const fieldsList = document.createElement('div');
+      fieldsList.className = 'table-fields-list';
+
+      table.fields.forEach((field, fIdx) => {
+        const row = document.createElement('div');
+        row.className = 'field-row';
+        row.id = `field-row-${table.id}-${fIdx}`;
+
+        let dotClass = 'dot-other';
+        const tUpper = (field.type || '').toUpperCase();
+        if (tUpper.includes('INT')) dotClass = 'dot-integer';
+        else if (tUpper.includes('TEXT') || tUpper.includes('CHAR')) dotClass = 'dot-text';
+        else if (tUpper.includes('REAL') || tUpper.includes('FLOAT') || tUpper.includes('NUM') || tUpper.includes('DEC')) dotClass = 'dot-real';
+        else if (tUpper.includes('BLOB')) dotClass = 'dot-blob';
+
+        row.innerHTML = `
+          <div class="field-left">
+            <span class="field-dot ${dotClass}"></span>
+            <span class="field-name ${field.primary ? 'is-pk' : ''}">${field.name}</span>
+            <div class="field-badges">
+              ${field.primary ? '<span class="badge-icon badge-pk" title="Clave Primaria">PK</span>' : ''}
+              ${field.fk ? '<span class="badge-icon badge-fk" title="Clave Foránea">FK</span>' : ''}
+              ${!field.notNull && !field.primary ? '<span class="badge-icon badge-nullable" title="Permite NULL">?</span>' : ''}
+            </div>
+          </div>
+          <span class="field-type">${field.type || ''}</span>
+        `;
+
+        // Interacción Popover
+        row.addEventListener('mouseenter', (e) => showFieldPopover(table, field, row));
+        row.addEventListener('mouseleave', hideFieldPopover);
+        row.addEventListener('click', (e) => {
+          showFieldPopover(table, field, row);
+          e.stopPropagation();
+        });
+
+        fieldsList.appendChild(row);
+      });
+
+      card.appendChild(fieldsList);
+      tablesLayer.appendChild(card);
+    });
+
+    // Renderizar rutas SVG de relaciones
+    renderRelationships();
+    updateSidebar();
+  }
+
+  // Renderizado dinámico de rutas SVG y badges
+  function renderRelationships() {
+    pathsGroup.innerHTML = '';
+    badgesGroup.innerHTML = '';
+
+    if (!currentSchema || !currentSchema.relationships) return;
+    const tablesById = {};
+    currentSchema.tables.forEach(t => { tablesById[t.id] = t; });
+
+    currentSchema.relationships.forEach(rel => {
+      const startTable = tablesById[rel.startTableId];
+      const endTable = tablesById[rel.endTableId];
+      if (!startTable || !endTable) return;
+
+      const pathData = calcPath(startTable, endTable, rel.startFieldId, rel.endFieldId, rel.cardinality);
+
+      // Ruta SVG
+      const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathEl.setAttribute('d', pathData.d);
+      pathEl.setAttribute('class', 'rel-path');
+      pathEl.id = `rel-path-${rel.id}`;
+
+      // Efecto hover
+      pathEl.addEventListener('mouseenter', () => {
+        pathEl.classList.add('highlighted');
+        highlightConnectedTables(startTable.id, endTable.id, true);
+      });
+      pathEl.addEventListener('mouseleave', () => {
+        pathEl.classList.remove('highlighted');
+        highlightConnectedTables(startTable.id, endTable.id, false);
+      });
+
+      pathsGroup.appendChild(pathEl);
+
+      // Badges de cardinalidad
+      [pathData.startBadge, pathData.endBadge].forEach(badge => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `translate(${badge.x}, ${badge.y})`);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', '-10');
+        rect.setAttribute('y', '-9');
+        rect.setAttribute('width', '20');
+        rect.setAttribute('height', '18');
+        rect.setAttribute('class', 'rel-badge-bg');
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', '0');
+        text.setAttribute('y', '4');
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('class', 'rel-badge');
+        text.textContent = badge.label;
+
+        g.appendChild(rect);
+        g.appendChild(text);
+        badgesGroup.appendChild(g);
+      });
+    });
+  }
+
+  function highlightConnectedTables(id1, id2, active) {
+    const card1 = document.getElementById(`table-card-${id1}`);
+    const card2 = document.getElementById(`table-card-${id2}`);
+    if (active) {
+      if (card1) card1.classList.add('selected');
+      if (card2) card2.classList.add('selected');
+    } else {
+      if (card1) card1.classList.remove('selected');
+      if (card2) card2.classList.remove('selected');
+    }
+  }
+
+  // Popover de columna
+  function showFieldPopover(table, field, rowEl) {
+    const rect = rowEl.getBoundingClientRect();
+    const nameEl = document.getElementById('popover-field-name');
+    const typeEl = document.getElementById('popover-field-type');
+    const tagsEl = document.getElementById('popover-tags');
+    const detailsEl = document.getElementById('popover-details');
+
+    nameEl.textContent = `${table.name}.${field.name}`;
+    typeEl.textContent = field.type || 'TEXT';
+
+    // Tags
+    tagsEl.innerHTML = '';
+    if (field.primary) tagsEl.innerHTML += '<span class="popover-tag pk">PRIMARY KEY</span>';
+    if (field.fk) tagsEl.innerHTML += '<span class="popover-tag fk">FOREIGN KEY</span>';
+    if (field.unique) tagsEl.innerHTML += '<span class="popover-tag">UNIQUE</span>';
+    tagsEl.innerHTML += field.notNull || field.primary ? '<span class="popover-tag">NOT NULL</span>' : '<span class="popover-tag">NULLABLE</span>';
+    if (field.increment) tagsEl.innerHTML += '<span class="popover-tag">AUTOINCREMENT</span>';
+
+    // Detalles
+    let html = '';
+
+    // Referencias si es FK
+    const rel = currentSchema.relationships.find(r =>
+      (r.endTableId === table.id && r.endFieldId === field.id) ||
+      (r.startTableId === table.id && r.startFieldId === field.id && r.cardinality === 'many_to_one')
+    );
+    if (rel) {
+      const otherTable = currentSchema.tables.find(t => t.id === (rel.startTableId === table.id ? rel.endTableId : rel.startTableId));
+      if (otherTable) {
+        const otherField = otherTable.fields[rel.startTableId === table.id ? rel.endFieldId : rel.startFieldId];
+        const otherCol = otherField ? otherField.name : 'PK';
+        html += `<div class="popover-detail-row"><span class="popover-detail-label">Referencias:</span><span class="popover-detail-val" style="color:var(--badge-fk);font-weight:600;">${otherTable.name}(${otherCol})</span></div>`;
+      }
+    }
+
+    if (field.default) html += `<div class="popover-detail-row"><span class="popover-detail-label">Por defecto:</span><span class="popover-detail-val">${field.default}</span></div>`;
+    if (field.unit) html += `<div class="popover-detail-row"><span class="popover-detail-label">Unidad:</span><span class="popover-detail-val">${field.unit}</span></div>`;
+    if (field.values && field.values.length > 0) html += `<div class="popover-detail-row"><span class="popover-detail-label">Valores:</span><span class="popover-detail-val">${field.values.join(' | ')}</span></div>`;
+    if (table.writePolicy) html += `<div class="popover-detail-row"><span class="popover-detail-label">Política:</span><span class="popover-detail-val">${table.writePolicy.policy} (${table.writePolicy.writer || 'ETL'})</span></div>`;
+    if (field.comment) html += `<div class="popover-detail-row"><span class="popover-detail-label">Comentario:</span><span class="popover-detail-val">${field.comment}</span></div>`;
+    if (field.notes) html += `<div class="popover-detail-row"><span class="popover-detail-label">Notas:</span><span class="popover-detail-val">${field.notes}</span></div>`;
+
+    detailsEl.innerHTML = html;
+
+    // Posicionamiento dinámico
+    let popoverX = rect.right + 12;
+    let popoverY = rect.top - 10;
+    if (popoverX + 290 > window.innerWidth) {
+      popoverX = rect.left - 295;
+    }
+    if (popoverY + 200 > window.innerHeight) {
+      popoverY = window.innerHeight - 210;
+    }
+
+    fieldPopover.style.left = `${Math.max(10, popoverX)}px`;
+    fieldPopover.style.top = `${Math.max(10, popoverY)}px`;
+    fieldPopover.classList.add('visible');
+  }
+
+  function hideFieldPopover() {
+    fieldPopover.classList.remove('visible');
+  }
+
+  // Actualización de Sidebar
+  function updateSidebar() {
+    const tablesListEl = document.getElementById('sidebar-tables-list');
+    const relListEl = document.getElementById('sidebar-rel-list');
+    const issuesListEl = document.getElementById('sidebar-issues-list');
+    const filterText = (document.getElementById('sidebar-search').value || '').toLowerCase();
+
+    document.getElementById('sidebar-tables-count').textContent = currentSchema.tables.length;
+    document.getElementById('sidebar-rel-count').textContent = currentSchema.relationships.length;
+
+    // Lista de tablas
+    tablesListEl.innerHTML = '';
+    currentSchema.tables
+      .filter(t => !filterText || t.name.toLowerCase().includes(filterText) || t.fields.some(f => f.name.toLowerCase().includes(filterText)))
+      .forEach(t => {
+        const li = document.createElement('li');
+        li.className = 'sidebar-item';
+        li.innerHTML = `
+          <div class="sidebar-item-header">
+            <span style="display:flex;align-items:center;gap:6px;">
+              <span style="width:8px;height:8px;border-radius:2px;background:${t.color || '#3b82f6'};"></span>
+              <span>${t.name}</span>
+            </span>
+            <span class="sidebar-item-pill">${t.fields.length} cols</span>
+          </div>
+          <div class="sidebar-item-fields">
+            ${t.fields.slice(0, 5).map(f => `<span class="sidebar-field-chip">${f.name}</span>`).join('')}
+            ${t.fields.length > 5 ? `<span class="sidebar-field-chip">+${t.fields.length - 5}</span>` : ''}
+          </div>
+        `;
+        li.addEventListener('click', () => centerOnTable(t));
+        tablesListEl.appendChild(li);
+      });
+
+    // Lista de relaciones
+    relListEl.innerHTML = '';
+    const tablesById = {};
+    currentSchema.tables.forEach(t => { tablesById[t.id] = t; });
+
+    currentSchema.relationships.forEach(rel => {
+      const s = tablesById[rel.startTableId];
+      const e = tablesById[rel.endTableId];
+      if (!s || !e) return;
+      const li = document.createElement('li');
+      li.className = 'sidebar-item';
+      li.innerHTML = `
+        <div class="sidebar-item-header">
+          <span style="font-size:12px;">${s.name} → ${e.name}</span>
+          <span class="sidebar-item-pill">${rel.cardinality}</span>
+        </div>
+        ${rel.name ? `<div style="font-size:11px;color:var(--text-muted);margin-top:4px;">"${rel.name}"</div>` : ''}
+      `;
+      li.addEventListener('click', () => {
+        const pathEl = document.getElementById(`rel-path-${rel.id}`);
+        if (pathEl) {
+          pathEl.classList.add('highlighted');
+          setTimeout(() => pathEl.classList.remove('highlighted'), 2000);
+        }
+        centerOnTable(s);
+      });
+      relListEl.appendChild(li);
+    });
+
+    // Chequeos e issues
+    issuesListEl.innerHTML = '';
+    const issues = [];
+    currentSchema.tables.forEach(t => {
+      const hasPk = t.fields.some(f => f.primary);
+      if (!hasPk) {
+        issues.push({ type: 'warning', text: `Tabla "${t.name}" no tiene clave primaria (PK) declarada.` });
+      }
+    });
+
+    if (issues.length === 0) {
+      issuesListEl.innerHTML = '<div style="color:#10b981;font-size:12px;padding:8px 0;">✓ No se detectaron anomalías estructurales en el esquema.</div>';
+    } else {
+      issues.forEach(iss => {
+        const div = document.createElement('div');
+        div.style.cssText = 'padding:6px 8px;margin-bottom:6px;border-radius:4px;font-size:12px;background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);';
+        div.textContent = `⚠ ${iss.text}`;
+        issuesListEl.appendChild(div);
+      });
+    }
+  }
+
+  function centerOnTable(table) {
+    const rect = viewport.getBoundingClientRect();
+    panX = rect.width / 2 - (table.x + (table.width || TABLE_WIDTH) / 2) * scale;
+    panY = rect.height / 2 - (table.y + (table.height || 100) / 2) * scale;
+    updateTransform();
+
+    const card = document.getElementById(`table-card-${table.id}`);
+    if (card) {
+      document.querySelectorAll('.table-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.classList.add('highlight-flash');
+      setTimeout(() => card.classList.remove('highlight-flash'), 1600);
+    }
+  }
+
+  // Manejo de Cámara (Pan & Zoom)
+  function updateTransform() {
+    world.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    zoomIndicator.textContent = `${Math.round(scale * 100)}%`;
+  }
+
+  viewport.addEventListener('mousedown', (e) => {
+    if (e.button === 0 || e.button === 1) {
+      isPanning = true;
+      startMouseX = e.clientX - panX;
+      startMouseY = e.clientY - panY;
+      viewport.classList.add('panning');
+      hideFieldPopover();
+    }
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+      panX = e.clientX - startMouseX;
+      panY = e.clientY - startMouseY;
+      updateTransform();
+      return;
+    }
+
+    if (draggedTable) {
+      draggedTable.x = Math.round((e.clientX - panX) / scale - dragOffsetX);
+      draggedTable.y = Math.round((e.clientY - panY) / scale - dragOffsetY);
+      const card = document.getElementById(`table-card-${draggedTable.id}`);
+      if (card) {
+        card.style.transform = `translate(${draggedTable.x}px, ${draggedTable.y}px)`;
+      }
+      renderRelationships();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    isPanning = false;
+    draggedTable = null;
+    viewport.classList.remove('panning');
+  });
+
+  viewport.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.min(Math.max(scale * zoomFactor, 0.2), 3.0);
+    const rect = viewport.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    panX = mouseX - (mouseX - panX) * (newScale / scale);
+    panY = mouseY - (mouseY - panY) * (newScale / scale);
+    scale = newScale;
+    updateTransform();
+    hideFieldPopover();
+  }, { passive: false });
+
+  // Controles de zoom
+  document.getElementById('btn-zoom-in').addEventListener('click', () => {
+    scale = Math.min(scale * 1.2, 3.0);
+    updateTransform();
+  });
+  document.getElementById('btn-zoom-out').addEventListener('click', () => {
+    scale = Math.max(scale * 0.8, 0.2);
+    updateTransform();
+  });
+  zoomIndicator.addEventListener('click', () => {
+    scale = 1.0;
+    updateTransform();
+  });
+
+  document.getElementById('btn-zoom-fit').addEventListener('click', () => {
+    if (!currentSchema.tables || currentSchema.tables.length === 0) return;
+    const rect = viewport.getBoundingClientRect();
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    currentSchema.tables.forEach(t => {
+      minX = Math.min(minX, t.x);
+      minY = Math.min(minY, t.y);
+      maxX = Math.max(maxX, t.x + (t.width || TABLE_WIDTH));
+      maxY = Math.max(maxY, t.y + (t.height || 100));
+    });
+
+    const contentW = maxX - minX + 80;
+    const contentH = maxY - minY + 80;
+    const sX = rect.width / contentW;
+    const sY = rect.height / contentH;
+    scale = Math.min(Math.max(Math.min(sX, sY), 0.3), 1.5);
+    panX = (rect.width - contentW * scale) / 2 - minX * scale + 40 * scale;
+    panY = (rect.height - contentH * scale) / 2 - minY * scale + 40 * scale;
+    updateTransform();
+  });
+
+  document.getElementById('btn-auto-arrange').addEventListener('click', () => {
+    // Reorganización topológica directa en cliente
+    const tables = currentSchema.tables;
+    if (!tables) return;
+    const colGap = 90;
+    const rowGap = 50;
+    let currX = 50, currY = 50;
+    tables.forEach((t, i) => {
+      if (i > 0 && i % 3 === 0) {
+        currX += (TABLE_WIDTH + colGap);
+        currY = 50;
+      }
+      t.x = currX;
+      t.y = currY;
+      currY += (t.height || 120) + rowGap;
+    });
+    renderCanvas();
+  });
+
+  // Cambio de esquema activo
+  schemaSelect.addEventListener('change', (e) => {
+    currentSchemaIndex = parseInt(e.target.value, 10);
+    currentSchema = docData.schemas[currentSchemaIndex] || { tables: [], relationships: [] };
+    renderCanvas();
+    document.getElementById('btn-zoom-fit').click();
+  });
+
+  // Pestañas de Vista Documental
+  const viewTabs = document.querySelectorAll('.tab-btn');
+  viewTabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewTabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.getAttribute('data-view');
+      switchView(view);
+    });
+  });
+
+  function switchView(view) {
+    currentView = view;
+    if (view === 'canvas') {
+      docViewPanel.classList.remove('active');
+      viewport.style.display = 'block';
+    } else {
+      viewport.style.display = 'none';
+      docViewPanel.classList.add('active');
+      renderDocumentTableView(view);
+    }
+  }
+
+  function renderDocumentTableView(viewKey) {
+    const titlesMap = {
+      'database_map': 'Mapa de Bases de Datos',
+      'write_policies': 'Políticas de Escritura',
+      'pk_meanings': 'Significado de la Clave Primaria por Base',
+      'crud_matrix': 'Acceso CRUD por Componente',
+      'null_matrix': 'Matriz de Fuentes vs. Columnas Especiales',
+      'column_dictionaries': 'Diccionarios de Columnas Clave'
+    };
+    docViewTitle.textContent = titlesMap[viewKey] || 'Sección Documental';
+
+    const sections = docData.sections || {};
+    let tableData = sections[viewKey];
+
+    if (viewKey === 'column_dictionaries') {
+      const dicts = sections.column_dictionaries || [];
+      if (dicts.length === 0) {
+        docTableWrapper.innerHTML = '<div class="empty-state">No se registraron tablas de diccionario de columnas en este documento.</div>';
+        return;
+      }
+      // Renderizar todos los diccionarios concatenados
+      let fullHtml = '';
+      dicts.forEach((d, idx) => {
+        fullHtml += `<div style="padding:12px 16px;background:var(--bg-app);font-weight:700;border-bottom:1px solid var(--border);">${d.section_title || `Diccionario ${idx+1}`}</div>`;
+        fullHtml += renderHtmlTable(d);
+      });
+      docTableWrapper.innerHTML = fullHtml;
+      attachTableFilter();
+      return;
+    }
+
+    if (!tableData) {
+      docTableWrapper.innerHTML = `<div class="empty-state">La sección "${titlesMap[viewKey] || viewKey}" no está especificada o no contiene tablas Markdown en este documento.</div>`;
+      return;
+    }
+
+    docTableWrapper.innerHTML = renderHtmlTable(tableData);
+    attachTableFilter();
+  }
+
+  function renderHtmlTable(tableData) {
+    if (!tableData || !tableData.headers) return '<div class="empty-state">Tabla vacía.</div>';
+    let html = '<table class="markdown-table"><thead><tr>';
+    tableData.headers.forEach(h => { html += `<th>${h}</th>`; });
+    html += '</tr></thead><tbody>';
+
+    tableData.rows.forEach(row => {
+      html += '<tr>';
+      row.forEach(cell => {
+        let formatted = cell;
+        if (cell.toLowerCase() === 'sí' || cell.toLowerCase() === 'si') {
+          formatted = '<span class="deploy-badge deploy-yes">Sí</span>';
+        } else if (cell.toLowerCase() === 'no') {
+          formatted = '<span class="deploy-badge deploy-no">No</span>';
+        }
+        html += `<td>${formatted}</td>`;
+      });
+      html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+    return html;
+  }
+
+  function attachTableFilter() {
+    docTableFilter.value = '';
+    docTableFilter.oninput = () => {
+      const filter = docTableFilter.value.toLowerCase();
+      const rows = docTableWrapper.querySelectorAll('tbody tr');
+      rows.forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        tr.style.display = text.includes(filter) ? '' : 'none';
+      });
+    };
+  }
+
+  // Búsqueda rápida
+  const quickSearch = document.getElementById('quick-search');
+  quickSearch.addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    if (!q) {
+      document.querySelectorAll('.table-card').forEach(c => c.classList.remove('selected'));
+      return;
+    }
+    const matchedTable = currentSchema.tables.find(t =>
+      t.name.toLowerCase().includes(q) || t.fields.some(f => f.name.toLowerCase().includes(q))
+    );
+    if (matchedTable) {
+      centerOnTable(matchedTable);
+    }
+  });
+
+  // Barra lateral - Pestañas y colapso
+  const sideTabBtns = document.querySelectorAll('.sidebar-tab-btn');
+  sideTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sideTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-side-tab');
+      document.getElementById('sidebar-tables-list').style.display = tab === 'tables' ? '' : 'none';
+      document.getElementById('sidebar-rel-list').style.display = tab === 'relations' ? '' : 'none';
+      document.getElementById('sidebar-issues-list').style.display = tab === 'issues' ? '' : 'none';
+    });
+  });
+
+  document.getElementById('sidebar-search').addEventListener('input', updateSidebar);
+
+  document.getElementById('btn-collapse-sidebar').addEventListener('click', () => {
+    sidebar.classList.add('collapsed');
+  });
+  document.getElementById('btn-toggle-sidebar-float').addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+  });
+
+  // Tema oscuro / claro
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
+  themeToggle.addEventListener('click', () => {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      document.documentElement.removeAttribute('data-theme');
+      themeIcon.textContent = '🌙';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      themeIcon.textContent = '☀️';
+    }
+  });
+
+  // Exportar .drawdb.json
+  document.getElementById('btn-export-drawdb').addEventListener('click', () => {
+    const drawdbObj = {
+      database: "SQLite",
+      title: currentSchema.title || "Esquema ER",
+      tables: currentSchema.tables.map(t => ({
+        id: t.id,
+        name: t.name,
+        x: t.x || 0,
+        y: t.y || 0,
+        fields: (t.fields || []).map(f => ({
+          id: f.id,
+          name: f.name,
+          type: f.type || "TEXT",
+          default: f.default || "",
+          check: f.check || "",
+          primary: !!f.primary,
+          unique: !!f.unique,
+          notNull: !!f.notNull,
+          increment: !!f.increment,
+          comment: f.comment || ""
+        })),
+        comment: t.comment || "",
+        indices: t.indices || [],
+        color: t.color || "#3b82f6"
+      })),
+      relationships: (currentSchema.relationships || []).map(r => ({
+        id: r.id,
+        name: r.name || "",
+        startTableId: r.startTableId,
+        startFieldId: r.startFieldId,
+        endTableId: r.endTableId,
+        endFieldId: r.endFieldId,
+        cardinality: r.cardinality || "one_to_many",
+        updateConstraint: "No action",
+        deleteConstraint: "No action"
+      })),
+      notes: [],
+      subjectAreas: [],
+      types: []
+    };
+
+    const blob = new Blob([JSON.stringify(drawdbObj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(currentSchema.title || 'esquema').toLowerCase().replace(/[^a-z0-9]/g, '_')}.drawdb.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Exportar SVG
+  document.getElementById('btn-export-svg').addEventListener('click', () => {
+    const svgEl = document.getElementById('connections-svg').cloneNode(true);
+    // Incrustar rectángulos de tarjetas en el clon SVG
+    const tablesG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    currentSchema.tables.forEach(t => {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('transform', `translate(${t.x}, ${t.y})`);
+
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('width', t.width || TABLE_WIDTH);
+      rect.setAttribute('height', t.height || 120);
+      rect.setAttribute('rx', '8');
+      rect.setAttribute('fill', '#1e293b');
+      rect.setAttribute('stroke', '#334155');
+      rect.setAttribute('stroke-width', '1');
+
+      const strip = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      strip.setAttribute('width', t.width || TABLE_WIDTH);
+      strip.setAttribute('height', '5');
+      strip.setAttribute('rx', '4');
+      strip.setAttribute('fill', t.color || '#3b82f6');
+
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      title.setAttribute('x', '12');
+      title.setAttribute('y', '26');
+      title.setAttribute('fill', '#f8fafc');
+      title.setAttribute('font-family', 'sans-serif');
+      title.setAttribute('font-size', '13');
+      title.setAttribute('font-weight', 'bold');
+      title.textContent = t.name;
+
+      g.appendChild(rect);
+      g.appendChild(strip);
+      g.appendChild(title);
+
+      (t.fields || []).forEach((f, fIdx) => {
+        const fText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        fText.setAttribute('x', '12');
+        fText.setAttribute('y', `${42 + (fIdx + 0.7) * FIELD_HEIGHT}`);
+        fText.setAttribute('fill', f.primary ? '#f59e0b' : '#94a3b8');
+        fText.setAttribute('font-family', 'sans-serif');
+        fText.setAttribute('font-size', '11');
+        fText.textContent = `${f.primary ? '🔑 ' : ''}${f.name}: ${f.type || ''}`;
+        g.appendChild(fText);
+      });
+
+      tablesG.appendChild(g);
+    });
+
+    svgEl.insertBefore(tablesG, svgEl.firstChild);
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${(currentSchema.title || 'esquema').toLowerCase().replace(/[^a-z0-9]/g, '_')}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Inicialización
+  renderCanvas();
+  setTimeout(() => {
+    document.getElementById('btn-zoom-fit').click();
+  }, 100);
+})();
+</script>
+</body>
+</html>
