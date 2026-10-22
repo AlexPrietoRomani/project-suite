@@ -1,4 +1,4 @@
-<!-- source-sha256: f52d815a177f7646dd79eaa08c99a0aee3548aa81f5383413089289cc159bd11 -->
+<!-- source-sha256: 6607ec06246eabe1ac7ed08eb2825cda5c27299fe7825c1a24934687e8b726f7 -->
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
 <head>
@@ -1053,7 +1053,7 @@
     "flows_count": 8,
     "components_count": 67,
     "invariants_count": 19,
-    "adrs_count": 7
+    "adrs_count": 8
   },
   "views": [
     {
@@ -2126,6 +2126,7 @@
         "especificar",
         "planificar",
         "ejecucion",
+        "scripts/scaffold_project.py",
         "scripts/render_db_html.py",
         "scripts/render_arch_html.py"
       ],
@@ -2150,6 +2151,7 @@
           "especificar",
           "planificar",
           "ejecucion",
+          "scripts/scaffold_project.py",
           "scripts/render_db_html.py",
           "scripts/render_arch_html.py"
         ],
@@ -2188,7 +2190,7 @@
         {
           "id": "f1_proc",
           "label": "Scaffold inicial (`init`)",
-          "sublabel": "commands/init.md, especificar, planificar, ejecucion, scripts/render_db_html.py, scripts/render_arch_html.py",
+          "sublabel": "commands/init.md, especificar, planificar, ejecucion, scripts/scaffold_project.py, scripts/render_db_html.py, scripts/render_arch_html.py",
           "role": "backend",
           "color": "#10b981",
           "icon": "⚙️",
@@ -2256,7 +2258,9 @@
       "flow_number": 2,
       "description": "petición de cambio → decide si amerita Fase nueva → la redacta con Tareas y tests, sin codear.",
       "scripts": [
-        "commands/nueva-fase.md"
+        "commands/nueva-fase.md",
+        "scripts/nueva_fase.py",
+        "scripts/tablero.py"
       ],
       "invariants": [
         {
@@ -2267,7 +2271,9 @@
       "flow_meta": {
         "pipeline": "petición de cambio → decide si amerita Fase nueva → la redacta con Tareas y tests, sin codear.",
         "scripts": [
-          "commands/nueva-fase.md"
+          "commands/nueva-fase.md",
+          "scripts/nueva_fase.py",
+          "scripts/tablero.py"
         ],
         "invariants": [
           {
@@ -2296,7 +2302,7 @@
         {
           "id": "f2_proc",
           "label": "Gate de cambio nuevo (`nueva-fase`)",
-          "sublabel": "commands/nueva-fase.md",
+          "sublabel": "commands/nueva-fase.md, scripts/nueva_fase.py, scripts/tablero.py",
           "role": "backend",
           "color": "#10b981",
           "icon": "⚙️",
@@ -3333,7 +3339,7 @@
       "name": "ADRs",
       "description": "Registro de Decisiones Arquitectónicas tomadas y descartadas",
       "diagram_type": "adrs_table",
-      "badge": "7",
+      "badge": "8",
       "components": [],
       "boundaries": [],
       "connections": []
@@ -3350,6 +3356,7 @@
         "especificar",
         "planificar",
         "ejecucion",
+        "scripts/scaffold_project.py",
         "scripts/render_db_html.py",
         "scripts/render_arch_html.py"
       ],
@@ -3361,7 +3368,9 @@
       "name": "4. Flujo 2 — Gate de cambio nuevo (`nueva-fase`)",
       "pipeline": "petición de cambio → decide si amerita Fase nueva → la redacta con Tareas y tests, sin codear.",
       "scripts": [
-        "commands/nueva-fase.md"
+        "commands/nueva-fase.md",
+        "scripts/nueva_fase.py",
+        "scripts/tablero.py"
       ],
       "invariants_count": 1
     },
@@ -3458,6 +3467,11 @@
       "decision": "Visores HTML compañeros (`diseno_db.html` base drawDB y `architecture.html` base Archify multi-vista) compilados desde `.md` con Python stdlib",
       "alternative": "Empaquetar el editor React de drawDB o exigir JSONs con coordenadas manuales de Archify",
       "rationale": "Mantiene el `.md` como única fuente de verdad sin duplicación ni dependencias externas, soporta arquitecturas extensas mediante auto-layout por capas y drill-down de flujos, y valida sincronía en ms con `--check` (SHA-256)"
+    },
+    {
+      "decision": "Suite determinista CLI (`suite.py`, `nueva_fase.py`, `verificar_dod.py`, `scaffold_project.py`, `install_hooks.py`, `auditar_coherencia.py`) + GitHub Actions CI",
+      "alternative": "Depender exclusivamente del LLM para crear archivos de fase, evaluar gates DoD o auditar SQL/esquemas",
+      "rationale": "Desacopla las invariantes mecánicas del modelo, ahorra tokens, permite operar el ciclo completo desde terminal o CI/CD y bloquea commits inválidos con Git hooks nativos"
     }
   ],
   "search_index": [
@@ -3804,7 +3818,7 @@
     {
       "id": "comp-f1_proc",
       "title": "Scaffold inicial (`init`)",
-      "subtitle": "commands/init.md, especificar, planificar, ejecucion, scripts/render_db_html.py, scripts/render_arch_html.py · Flujo 1",
+      "subtitle": "commands/init.md, especificar, planificar, ejecucion, scripts/scaffold_project.py, scripts/render_db_html.py, scripts/render_arch_html.py · Flujo 1",
       "category": "componente",
       "targetViewId": "flow-1",
       "nodeId": "f1_proc"
@@ -3841,6 +3855,13 @@
     {
       "id": "script-ejecucion",
       "title": "ejecucion",
+      "subtitle": "Script de Flujo 1",
+      "category": "script",
+      "targetViewId": "flow-1"
+    },
+    {
+      "id": "script-scripts/scaffold_project.py",
+      "title": "scripts/scaffold_project.py",
       "subtitle": "Script de Flujo 1",
       "category": "script",
       "targetViewId": "flow-1"
@@ -3898,7 +3919,7 @@
     {
       "id": "comp-f2_proc",
       "title": "Gate de cambio nuevo (`nueva-fase`)",
-      "subtitle": "commands/nueva-fase.md · Flujo 2",
+      "subtitle": "commands/nueva-fase.md, scripts/nueva_fase.py, scripts/tablero.py · Flujo 2",
       "category": "componente",
       "targetViewId": "flow-2",
       "nodeId": "f2_proc"
@@ -3914,6 +3935,20 @@
     {
       "id": "script-commands/nueva-fase.md",
       "title": "commands/nueva-fase.md",
+      "subtitle": "Script de Flujo 2",
+      "category": "script",
+      "targetViewId": "flow-2"
+    },
+    {
+      "id": "script-scripts/nueva_fase.py",
+      "title": "scripts/nueva_fase.py",
+      "subtitle": "Script de Flujo 2",
+      "category": "script",
+      "targetViewId": "flow-2"
+    },
+    {
+      "id": "script-scripts/tablero.py",
+      "title": "scripts/tablero.py",
       "subtitle": "Script de Flujo 2",
       "category": "script",
       "targetViewId": "flow-2"
@@ -4365,6 +4400,13 @@
       "id": "adr-Visores HTML compañeros (`dise",
       "title": "Visores HTML compañeros (`diseno_db.html` base drawDB y `architecture.html` base Archify multi-vista) compilados desde `.md` con Python stdlib",
       "subtitle": "Mantiene el `.md` como única fuente de verdad sin duplicación ni dependencias externas, soporta arquitecturas extensas mediante auto-layout por capas y drill-down de flujos, y valida sincronía en ms con `--check` (SHA-256)",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Suite determinista CLI (`suite",
+      "title": "Suite determinista CLI (`suite.py`, `nueva_fase.py`, `verificar_dod.py`, `scaffold_project.py`, `install_hooks.py`, `auditar_coherencia.py`) + GitHub Actions CI",
+      "subtitle": "Desacopla las invariantes mecánicas del modelo, ahorra tokens, permite operar el ciclo completo desde terminal o CI/CD y bloquea commits inválidos con Git hooks nativos",
       "category": "adr",
       "targetViewId": "adrs"
     }
