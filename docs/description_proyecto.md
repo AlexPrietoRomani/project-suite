@@ -4,14 +4,14 @@
 
 ## 0. Resumen ejecutivo
 
-- **Propósito:** scaffolding y gobierno de proyectos spec-driven — planificar en documentos antes de codear, construir por Fases con gates de calidad forzados.
-- **Usuarios objetivo:** desarrolladores usando Claude Code u opencode que quieran disciplina de planificación en sus propios proyectos.
+- **Propósito:** scaffolding y gobierno de proyectos spec-driven — planificar en documentos antes de codear, construir por Fases con gates de calidad forzados y mantener visores HTML interactivos sincronizados con la especificación Markdown.
+- **Usuarios objetivo:** desarrolladores usando Claude Code, opencode o Antigravity que quieran disciplina de planificación en sus propios proyectos.
 - **Casos de uso principales:**
-  1. Un usuario corre `/init` en un repo nuevo → obtiene `docs/` completo (especificación, arquitectura, DB, plan, tareas) + reglas de operación (`CLAUDE.md`/`AGENTS.md`) + `.gitignore`.
+  1. Un usuario corre `/init` en un repo nuevo → obtiene `docs/` completo (`description_proyecto.md`, `architecture.md` + `architecture.html`, `diseno_db.md` + `diseno_db.html`, plan, tareas) + reglas de operación (`CLAUDE.md`/`AGENTS.md`) + `.gitignore`.
   2. Un usuario pide un cambio nuevo → `/nueva-fase` evalúa si amerita una Fase nueva y la redacta antes de que se escriba código.
   3. Un usuario corre `construir` → el plan se ejecuta Fase por Fase, un subagente por Tarea, cerrando cada una con `testear` + `verificar-dod`.
   4. Un usuario corre `/review` → se revisa el diff actual contra el plan para detectar código sin planificar.
-  5. Un usuario corre `/audit` → se audita TODO el repo contra architecture.md y diseno_db.md para detectar drift.
+  5. Un usuario corre `/audit` → se audita TODO el repo contra `architecture.md` (+ `architecture.html`) y `diseno_db.md` (+ `diseno_db.html`) para detectar drift.
 
 ## 1. Arquitectura de componentes
 
@@ -32,6 +32,11 @@ flowchart LR
         STD["python/r/rust/astro/sql/ts/webapp-standards + visualizar-datos"]
     end
 
+    subgraph RENDER["🖼️ Compiladores HTML (stdlib)"]
+        RDB["scripts/render_db_html.py\n(base drawDB)"]
+        RARCH["scripts/render_arch_html.py\n(base Archify Blueprint)"]
+    end
+
     subgraph HOOKS["🪝 Hooks (modo ambiental)"]
         SS["SessionStart -> activate.js"]
         UPS["UserPromptSubmit -> mode-tracker.js"]
@@ -39,10 +44,12 @@ flowchart LR
 
     subgraph STATE["🗄️ Estado"]
         MODE[(".project-suite/mode")]
-        DOCS[("docs/ del proyecto destino")]
+        DOCS[("docs/ (.md + .html compañeros)")]
     end
 
     INIT --> DOC --> DOCS
+    DOC --> RDB --> DOCS
+    DOC --> RARCH --> DOCS
     NF --> DOC
     LOOP --> DOCS
     MODO -->|"lee/escribe"| MODE
@@ -56,6 +63,7 @@ flowchart LR
 |---|---|---|
 | Comandos (`init`, `nueva-fase`, `modo`, `review`, `audit`, `help`) | Orquestan flujos completos invocando skills | Ambas |
 | Skills de documentos (`especificar`, `planificar`, `bitacora`, `ejecucion`) | Generan/actualizan `docs/` del proyecto destino | Escribe |
+| Compiladores HTML (`scripts/render_db_html.py`, `scripts/render_arch_html.py`) | Compilan `diseno_db.md` → `diseno_db.html` (estilo drawDB) y `architecture.md` → `architecture.html` (estilo Archify multi-vista) y verifican sincronía (`--check`) | Ambas |
 | Skills de loop (`testear`, `verificar-dod`, `auditar-coherencia`, `construir`) | Cierran el ciclo de calidad de cada Tarea | Ambas |
 | Skills de estándar (`*-standards`, `visualizar-datos`) | Guían la implementación por tipo de archivo/necesidad | Solo lee (guía, no ejecuta) |
 | Hooks (`hooks/project-suite-*.js`) | Recordatorio ambiental de modo, persistido per-repo | Ambas |
@@ -67,7 +75,7 @@ flowchart LR
 | Dirección | Fuente / Destino | Tipo de dato | Frecuencia |
 |---|---|---|---|
 | Entrada | Usuario (comando/skill) | Texto/argumentos | Por demanda |
-| Salida | `docs/` del proyecto destino | Markdown | Por demanda |
+| Salida | `docs/` del proyecto destino | Markdown (`.md`) + Visores interactivos (`.html`) | Por demanda |
 | Salida | `.project-suite/mode` | Texto plano (un valor) | Por sesión / cambio de modo |
 
 ### 2.2 Diagrama de flujo principal (recordatorio de modo)
@@ -108,7 +116,7 @@ No aplica — no hay cálculos matemáticos ni índices. La "lógica de negocio"
 
 ## 6. Interfaz de usuario
 
-No aplica — no hay UI propia; los comandos y skills interactúan vía el chat de Claude Code/opencode.
+No hay servidor de UI propio; los comandos y skills interactúan vía el chat de Claude Code / opencode / Antigravity, y los documentos técnicos cuentan con visores HTML estáticos e interactivos (`docs/db/diseno_db.html` y `docs/architecture/architecture.html`) abribles directamente en cualquier navegador sin conexión.
 
 ## 7. Configuración y despliegue
 

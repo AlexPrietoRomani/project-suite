@@ -2,12 +2,12 @@
 name: especificar
 description: Genera la especificacion tecnica de un proyecto (description_proyecto + architecture + diseno_db) partiendo de una entrevista de diseno tipo brainstorming. CARGA cuando el usuario quiera definir, especificar o documentar QUE hace un sistema y COMO fluye el dato, antes de planificar o codear.
 when_to_use: Fase de especificacion inicial de cualquier proyecto spec-driven, o cuando cambia el alcance y hay que reespecificar.
-allowed-tools: Read Grep Glob Write Edit AskUserQuestion Skill
+allowed-tools: Read Grep Glob Write Edit AskUserQuestion Skill Bash(python *)
 ---
 
 # Especificar — spec técnica brainstorm-first
 
-Produce la especificación técnica de un proyecto en tres documentos (descripción, arquitectura, diseño de BD) **después** de una entrevista de diseño tipo brainstorming. Es la primera fase del loop spec-driven: define QUÉ hace el sistema y CÓMO fluye el dato, antes de planificar o codear.
+Produce la especificación técnica de un proyecto en tres documentos Markdown canónicos (descripción, arquitectura, diseño de BD) junto con sus visores HTML interactivos compañeros (`docs/architecture/architecture.html` y `docs/db/diseno_db.html`) **después** de una entrevista de diseño tipo brainstorming. Es la primera fase del loop spec-driven: define QUÉ hace el sistema y CÓMO fluye el dato, antes de planificar o codear.
 
 ## Flujo
 
@@ -23,18 +23,18 @@ Produce la especificación técnica de un proyecto en tres documentos (descripci
 
 6. **Escribe `docs/db/diseno_db.md`** siguiendo `templates/plantilla_db.md`: mapa de bases (con flag "¿se despliega?"), esquema lógico compartido si aplica (ER + políticas de escritura + significado de PK por base), una sección por base con particularidades y diccionario de columnas, acceso CRUD por componente para las bases de consumo, y la matriz de fuentes vs. columnas especiales si el esquema es homogéneo con NULLs.
 
-7. **Diagramas.** Para todo diagrama (Mermaid) delega en la skill `generar-diagramas` con `Skill`, respetando la paleta canónica de la plantilla de architecture (`fuente` `#EAB308`, `proc` `#3B82F6`, `model` `#22C55E`, `out` `#8B5CF6`, `riesgo` `#EF4444`, `ui` `#64748B`) y las cardinalidades reales en los `erDiagram`. Nunca generes imágenes ni capturas: solo Mermaid en el `.md`.
+7. **Diagramas y visores HTML compañeros.** Para todo diagrama (Mermaid) delega en la skill `generar-diagramas` con `Skill`, respetando la paleta canónica de la plantilla de architecture (`fuente` `#EAB308`, `proc` `#3B82F6`, `model` `#22C55E`, `out` `#8B5CF6`, `riesgo` `#EF4444`, `ui` `#64748B`) y las cardinalidades reales en los `erDiagram`. Nunca generes imágenes ni capturas en el `.md`: solo Mermaid en el `.md`, y luego compila los visores HTML interactivos compañeros ejecutando `python scripts/render_arch_html.py docs/architecture/architecture.md` (genera `docs/architecture/architecture.html` estilo Archify blueprint multi-vista) y `python scripts/render_db_html.py docs/db/diseno_db.md` (genera `docs/db/diseno_db.html` estilo drawDB).
 
-8. **Referencias cruzadas.** Enlaza los tres documentos entre sí con las rutas exactas: `architecture.md` apunta al diccionario en `../db/diseno_db.md`; `diseno_db.md` apunta al flujo que genera cada base en `../architecture/architecture.md`; `description_proyecto.md` referencia `docs/architecture/architecture.md` cuando haya más de 3 flujos. Verifica que cada ruta relativa resuelve.
+8. **Referencias cruzadas.** Enlaza los tres documentos entre sí con las rutas exactas: `architecture.md` apunta al diccionario en `../db/diseno_db.md` y a su visor interactivo `architecture.html`; `diseno_db.md` apunta al flujo que genera cada base en `../architecture/architecture.md` y a su visor `diseno_db.html`; `description_proyecto.md` referencia `docs/architecture/architecture.md` cuando haya más de 3 flujos. Verifica que cada ruta relativa resuelve.
 
-9. **Terminal state.** Deja los tres documentos escritos, sin secciones en blanco, y sugiere continuar con la skill `planificar` para derivar el Plan Maestro y `tareas.md`.
+9. **Terminal state.** Deja los tres documentos `.md` y sus dos visores `.html` compañeros escritos y sincronizados (`--check`), sin secciones en blanco, y sugiere continuar con la skill `planificar` para derivar el Plan Maestro y `tareas.md`.
 
 ## Reglas / Salida
 
 - **Disciplina brainstorming (adaptada de `superpowers:brainstorming`):** una sola pregunta a la vez; prefiere opción múltiple (`AskUserQuestion`) sobre pregunta abierta; ante decisiones no triviales presenta 2–3 enfoques con pros/contras y una recomendación; y respeta el **gate de aprobación**: no escribas los docs hasta cerrar las "Preguntas de diseño" y tener el OK del usuario. Empezar a documentar sin cerrar el brainstorming es un error.
 - **Idioma:** genera en el idioma del proyecto (`userConfig.default_doc_language`); reconfirma solo si el usuario pidió otro. Las etiquetas de código, rutas y tipos SQLite (`INTEGER`, `REAL`, `TEXT`, `BLOB`) van tal cual.
-- **Salida = 3 documentos:** `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, cada uno conforme a su plantilla en `templates/plantilla_{description_proyecto,architecture,db}.md`. Aplica la regla de las plantillas: **borra las secciones opcionales que no apliquen**; no publiques secciones en blanco ni placeholders `[...]`.
-- **Diagramas:** siempre vía la skill `generar-diagramas` (Mermaid, paleta canónica). Nada de imágenes.
+- **Salida = 3 documentos `.md` (fuente de verdad) + 2 visores `.html` compañeros:** `docs/description_proyecto.md`, `docs/architecture/architecture.md` (+ `docs/architecture/architecture.html` compilado con `scripts/render_arch_html.py`), `docs/db/diseno_db.md` (+ `docs/db/diseno_db.html` compilado con `scripts/render_db_html.py`), cada uno conforme a su plantilla en `templates/plantilla_{description_proyecto,architecture,db}.md`. Aplica la regla de las plantillas: **borra las secciones opcionales que no apliquen**; no publiques secciones en blanco ni placeholders `[...]`.
+- **Diagramas:** siempre vía la skill `generar-diagramas` (Mermaid, paleta canónica en el `.md` + compilación determinista de los visores `.html`). Nada de imágenes estáticas en los `.md`.
 - **Regla dura:** toda afirmación factual va con su fuente o queda marcada explícitamente como hipótesis; ninguna sección puede quedar en blanco. Si el diagrama o una sección no puede completarse por falta de información, se pregunta — no se inventa.
 - **No hace:** no planifica fases ni tareas (eso es `planificar`), no escribe código ni tests, no genera `CLAUDE.md`/`AGENTS.md` (eso lo hace el comando `init`).
-- **Retorna:** los tres documentos escritos y coherentes entre sí, con referencias cruzadas correctas, y la sugerencia de continuar con `planificar`.
+- **Retorna:** los tres documentos escritos y coherentes entre sí, con sus visores `.html` compañeros generados y referencias cruzadas correctas, y la sugerencia de continuar con `planificar`.

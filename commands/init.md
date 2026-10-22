@@ -1,7 +1,7 @@
 ---
 description: Arranca un proyecto spec-driven: entrevista de diseno, genera docs/ desde plantillas en el idioma elegido, escribe CLAUDE.md/AGENTS.md de reglas y arma .gitignore.
 argument-hint: [nombre o idea del proyecto]
-allowed-tools: Skill Read Grep Glob Write Edit AskUserQuestion Bash(git *) Bash(mkdir *) Bash(echo *)
+allowed-tools: Skill Read Grep Glob Write Edit AskUserQuestion Bash(git *) Bash(mkdir *) Bash(echo *) Bash(python *)
 ---
 
 # init — Scaffold de proyecto spec-driven
@@ -21,10 +21,10 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
    - Si `$ARGUMENTS` trae nombre/idea, úsalo como `PROJECT_NAME` provisional; si viene vacío, pregúntalo aquí.
 
 2. **Especificar (skill `especificar`).**
-   Invocar la skill `especificar`, que corre la entrevista de diseño tipo brainstorming (una pregunta a la vez, gate de aprobación antes de escribir) y produce los tres documentos base en `DOC_LANG`:
+   Invocar la skill `especificar`, que corre la entrevista de diseño tipo brainstorming (una pregunta a la vez, gate de aprobación antes de escribir) y produce los tres documentos base en `DOC_LANG` junto con sus visores HTML interactivos compañeros:
    - `docs/description_proyecto.md` (desde `templates/plantilla_description_proyecto.md`)
-   - `docs/architecture/architecture.md` (desde `templates/plantilla_architecture.md`)
-   - `docs/db/diseno_db.md` (desde `templates/plantilla_db.md`)
+   - `docs/architecture/architecture.md` (desde `templates/plantilla_architecture.md`) y su visor compañero `docs/architecture/architecture.html` (`python scripts/render_arch_html.py`)
+   - `docs/db/diseno_db.md` (desde `templates/plantilla_db.md`) y su visor compañero `docs/db/diseno_db.html` (`python scripts/render_db_html.py`)
    Registrar de aquí el **tipo de proyecto** detectado (app web/UI, API, ETL/scripts, librería, etc.), que se necesita en los pasos 4 y 7.
 
 3. **Planificar (skill `planificar`).**
@@ -74,4 +74,4 @@ Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Ski
 - **Regla dura:** `init` NO escribe código de features ni lógica de aplicación. Solo produce scaffolding: estructura `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore` y, cuando el usuario elige servers, `.mcp.json`/`opencode.json`.
 - Todos los documentos de `docs/` se generan en `DOC_LANG`; las etiquetas, nombres de tools y rutas se mantienen en inglés/tal cual.
 - Ninguna sección de los docs generados queda en blanco: las skills delegadas borran las secciones opcionales de las plantillas que no apliquen (regla de las plantillas).
-- **Salida esperada** al terminar: `docs/description_proyecto.md`, `docs/architecture/architecture.md`, `docs/db/diseno_db.md`, `docs/plan/plan_maestro.md`, `docs/task/tareas.md` + `docs/task/fases/`, `docs/ejecucion.md`, `docs/logs/log.md`, más `CLAUDE.md`/`AGENTS.md` (según elección, cada uno con el cuerpo completo de reglas), `.project-suite/mode` (modo `estricto` por defecto), `.gitignore` actualizado y `.mcp.json` (solo con los servers MCP elegidos en el paso 7). Sugerir continuar con `/project-suite:construir` para empezar a implementar el plan, y mencionar que `/project-suite:modo` cambia la intensidad del recordatorio ambiental en cualquier momento.
+- **Salida esperada** al terminar: `docs/description_proyecto.md`, `docs/architecture/architecture.md` (+ `docs/architecture/architecture.html`), `docs/db/diseno_db.md` (+ `docs/db/diseno_db.html`), `docs/plan/plan_maestro.md`, `docs/task/tareas.md` + `docs/task/fases/`, `docs/ejecucion.md`, `docs/logs/log.md`, más `CLAUDE.md`/`AGENTS.md` (según elección, cada uno con el cuerpo completo de reglas), `.project-suite/mode` (modo `estricto` por defecto), `.gitignore` actualizado y `.mcp.json` (solo con los servers MCP elegidos en el paso 7). Sugerir continuar con `/project-suite:construir` para empezar a implementar el plan, y mencionar que `/project-suite:modo` cambia la intensidad del recordatorio ambiental en cualquier momento.

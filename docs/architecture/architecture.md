@@ -1,6 +1,6 @@
 # Arquitectura — project-suite
 
-> Este documento describe project-suite organizado por **flujos**: cómo un comando/skill produce un efecto real (archivos escritos, un hook disparado). El plan de construcción del plugin vive en `docs/plan/plan_maestro.md` y su tablero en `docs/task/tareas.md` (locales, gitignored, como en cualquier proyecto destino).
+> Este documento describe project-suite organizado por **flujos**: cómo un comando/skill produce un efecto real (archivos escritos, un visor HTML compilado, un hook disparado). Cuenta con su visor interactivo compañero en [`docs/architecture/architecture.html`](architecture.html) (compilado con `python scripts/render_arch_html.py`). El plan de construcción del plugin vive en `docs/plan/plan_maestro.md` y su tablero en `docs/task/tareas.md` (locales, gitignored, como en cualquier proyecto destino).
 
 ---
 
@@ -9,21 +9,21 @@
 ```mermaid
 flowchart TB
     subgraph Actores["👥 Actores"]
-        U1["👤 Desarrollador\n(Claude Code / opencode)"]
+        U1["👤 Desarrollador\n(Claude Code / opencode / Antigravity)"]
     end
 
     subgraph Sistema["🖥️ project-suite"]
-        PLUGIN["Skills + Comandos + Hooks"]
+        PLUGIN["Skills + Comandos + Hooks + Compiladores HTML"]
     end
 
     subgraph Destino["📁 Repo destino"]
-        DOCS[("docs/ generado")]
+        DOCS[("docs/ (.md + .html compañeros)")]
         MODE[(".project-suite/mode")]
         RULES[("CLAUDE.md / AGENTS.md")]
     end
 
     U1 -->|"/project-suite:init, nueva-fase, modo, construir..."| PLUGIN
-    PLUGIN -->|"escribe"| DOCS
+    PLUGIN -->|"escribe y compila"| DOCS
     PLUGIN -->|"escribe"| RULES
     PLUGIN <-->|"lee/escribe (hooks)"| MODE
 
@@ -33,8 +33,9 @@ flowchart TB
 ```
 
 **Decisiones arquitectónicas clave (Nivel Macro):**
-- El plugin no tiene servidor propio ni base de datos — es Markdown (skills/comandos) + Node.js (hooks) + Python (scripts de validación/sync), todo stdlib.
+- El plugin no tiene servidor propio ni base de datos — es Markdown (skills/comandos) + Node.js (hooks) + Python (scripts de validación, sync y compiladores `.md` → `.html`), todo stdlib.
 - Todo el estado que el plugin genera vive **en el repo destino**, no en el plugin mismo — auditable, versionable a criterio del usuario.
+- La documentación de arquitectura y base de datos mantiene el `.md` como única fuente de verdad y compila visores HTML interactivos autocontenidos (`architecture.html` base Archify multi-vista y `diseno_db.html` base drawDB) verificables con `--check`.
 
 ## 2. Componentes Internos (C4 – Nivel Contenedor)
 
@@ -51,6 +52,10 @@ flowchart LR
         RT["project-suite-runtime.js"]
         INSTR["project-suite-instructions.js"]
     end
+    subgraph COMP["Compiladores Documentales (Python stdlib)"]
+        RDB["scripts/render_db_html.py\n+ templates/html/db_viewer.html"]
+        RARCH["scripts/render_arch_html.py\n+ templates/html/arch_viewer.html"]
+    end
 
     HOOKSCC --> CFG
     HOOKSCC --> RT
@@ -60,9 +65,10 @@ flowchart LR
     BRIDGE --> INSTR
 
     style SHARED fill:#091827,stroke:#4dabf7,color:#74c0fc
+    style COMP fill:#081a08,stroke:#69db7c,color:#a9e34b
 ```
 
-Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgados por herramienta — evita duplicar la resolución de modo entre Claude Code y opencode.
+Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgados por herramienta — evita duplicar la resolución de modo entre Claude Code y opencode. Los compiladores Python stdlib (`render_db_html.py` y `render_arch_html.py`) transforman `diseno_db.md` y `architecture.md` en visores HTML standalone sin requerir dependencias externas.
 
 ---
 
@@ -70,19 +76,20 @@ Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgado
 
 | # | Flujo | Entrada | Proceso | Salida |
 |---|---|---|---|---|
-| 1 | Scaffold inicial | `/init` | Entrevista + genera desde `templates/` | `docs/`, `CLAUDE.md`/`AGENTS.md`, `.gitignore`, `.mcp.json` solo con servers elegidos |
+| 1 | Scaffold inicial | `/init` | Entrevista + genera desde `templates/` + compila visores HTML | `docs/` (`.md` + `.html`), `CLAUDE.md`/`AGENTS.md`, `.gitignore`, `.mcp.json` |
 | 2 | Gate de cambio nuevo | `/nueva-fase` | Evalúa y redacta Fase antes de codear | `plan_maestro.md` + `tareas.md` actualizados |
 | 3 | Recordatorio ambiental | `SessionStart` / `UserPromptSubmit` | Resuelve modo, emite texto | Contexto de sesión / `.project-suite/mode` |
 | 4 | Ejecución del plan | `construir` | Subagente por Tarea + `testear` + `verificar-dod` | Checkboxes `[X]` en `tareas.md`, commits |
 | 5 | Sync multi-herramienta | `scripts/sync_opencode.py` | Espeja `skills/`/`commands/`/`.mcp.json` | `.opencode/`, `opencode.json` |
 | 6 | Revision de diff | `/review` | Compara diff contra plan y spec | Reporte de desviaciones (sin modificar archivos) |
-| 7 | Auditoria global | `/audit` | Recorre TODO el repo contra architecture/diseno_db | Reporte de drift (sin modificar archivos) |
+| 7 | Auditoria global | `/audit` | Recorre TODO el repo contra architecture/diseno_db y `--check` HTML | Reporte de drift (sin modificar archivos) |
+| 8 | Compilación de visores HTML | `diseno_db.md` / `architecture.md` | Parsea Mermaid + tablas y auto-layoutea en `db_viewer.html` / `arch_viewer.html` | `diseno_db.html` (drawDB) y `architecture.html` (Archify) con sello SHA-256 |
 
 ## 3. Flujo 1 — Scaffold inicial (`init`)
 
-**Entrada → Proceso → Salida:** entrevista de diseño → genera `docs/` + reglas + gitignore → repo destino listo para planificar.
+**Entrada → Proceso → Salida:** entrevista de diseño → genera `docs/` (`.md` + `.html`) + reglas + gitignore → repo destino listo para planificar.
 
-Script: `commands/init.md` (skills invocadas: `especificar`, `planificar`, `ejecucion`).
+Script: `commands/init.md` (skills invocadas: `especificar`, `planificar`, `ejecucion`; scripts invocados: `scripts/render_db_html.py`, `scripts/render_arch_html.py`).
 
 ### 3.2 Reglas e invariantes
 
@@ -168,9 +175,43 @@ sequenceDiagram
 | Sin MCP global | `.mcp.json` del plugin va vacío; los servers son opt-in por proyecto (paso 7 de `init`). Un server con `"x-project-suite": {"startup": "off"}` sale a opencode con `enabled: false`. |
 | Versión única | `validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`. |
 
+## 8. Flujo 8 — Compilación de visores HTML (`render_db_html.py` y `render_arch_html.py`)
+
+**Entrada → Proceso → Salida:** `diseno_db.md` / `architecture.md` → parseo stdlib + auto-layout + inyección en plantilla HTML → `diseno_db.html` / `architecture.html`.
+
+Scripts: `scripts/render_db_html.py`, `scripts/render_arch_html.py`, `templates/html/db_viewer.html`, `templates/html/arch_viewer.html`.
+
+### 8.1 Diagrama — pipeline de compilación y verificación SHA-256
+
+```mermaid
+flowchart LR
+    MD(["Documento fuente .md\n(diseno_db.md / architecture.md)"]):::fuente
+    PARSE["Parser stdlib\n(Mermaid + tablas canónicas)"]:::proc
+    LAYOUT["Motor de Auto-Layout\n(grilla topológica + rutas SVG)"]:::proc
+    HTML(["Visor interactivo .html\n(con source-sha256 embebido)"]):::out
+    CHK{"Modo --check"}:::ui
+
+    MD --> PARSE --> LAYOUT --> HTML
+    MD --> CHK
+    HTML --> CHK
+
+    classDef fuente fill:#EAB308,stroke:#A16207,color:#1F2937;
+    classDef proc   fill:#3B82F6,stroke:#1D4ED8,color:#FFFFFF;
+    classDef out    fill:#8B5CF6,stroke:#6D28D9,color:#FFFFFF;
+    classDef ui     fill:#64748B,stroke:#334155,color:#FFFFFF;
+```
+
+### 8.2 Reglas e invariantes
+
+| Regla | Descripción |
+|---|---|
+| El `.md` es la única fuente de verdad | `diseno_db.html` y `architecture.html` se compilan determinísticamente desde su `.md` par y nunca se editan a mano. |
+| Sello anti-drift SHA-256 | Ambos compiladores estampan `<!-- source-sha256: <hash> -->` y fallan con código `1` en modo `--check` si el `.md` cambió sin regenerar el `.html`. |
+| 100% offline y stdlib pura | Ni los scripts Python requieren `pip` ni las plantillas HTML requieren CDNs externos para renderizar sus lienzos SVG interactivos. |
+
 ---
 
-## 8. Arquitectura de despliegue
+## 9. Arquitectura de despliegue
 
 ```mermaid
 flowchart LR
@@ -194,9 +235,9 @@ flowchart LR
 - **opencode:** desde npm (`@alexprietoromani/project-suite`) o checkout local (`.opencode/plugins/project-suite.mjs`).
 - **Antigravity:** `agy plugin install <url-o-ruta>` — requiere el `plugin.json` raíz (1.5.0+), validado con `agy plugin validate`. `gemini-extension.json` se conserva para el Gemini CLI legacy (enterprise/API-key).
 - La caché se indexa por número de versión — sin bump de `plugin.json`, `/plugin marketplace update` puede no detectar cambios.
-- No hay build/compilación — el plugin es Markdown + JS/Python interpretados directamente.
+- No hay build/compilación de código de aplicación — el plugin es Markdown + JS/Python interpretados directamente.
 
-## 9. Decisiones arquitectónicas (ADRs)
+## 10. Decisiones arquitectónicas (ADRs)
 
 | Decisión Tomada | Alternativa Descartada | Razón Principal |
 |---|---|---|
@@ -206,3 +247,4 @@ flowchart LR
 | `docs/plan`/`docs/task` locales (gitignored) también en este propio repo | Versionarlos aquí para transparencia de colaboradores | Revisado en 1.2.0: el tablero se regenera con `tablero.py --indice` y el plan cambia por Tarea — versionarlos generaba ruido constante; el historial relevante vive en los commits de código/docs |
 | Servers MCP opt-in por proyecto (`init`), `.mcp.json` del plugin vacío | `codegraphcontext` global en el plugin | Ningún harness arranca servers stdio de forma perezosa: un MCP global es un proceso en cada sesión de cada repo, se use o no |
 | Manifiesto `plugin.json` raíz para Antigravity | Asumir que `gemini-extension.json` seguía sirviendo al sucesor | `agy plugin validate` exige el manifiesto raíz (verificado con agy 1.3.4): sin él, la instalación falla; Gemini CLI quedó legacy (sunset consumer 18-jun-2026, enterprise/API-key vigentes) |
+| Visores HTML compañeros (`diseno_db.html` base drawDB y `architecture.html` base Archify multi-vista) compilados desde `.md` con Python stdlib | Empaquetar el editor React de drawDB o exigir JSONs con coordenadas manuales de Archify | Mantiene el `.md` como única fuente de verdad sin duplicación ni dependencias externas, soporta arquitecturas extensas mediante auto-layout por capas y drill-down de flujos, y valida sincronía en ms con `--check` (SHA-256) |

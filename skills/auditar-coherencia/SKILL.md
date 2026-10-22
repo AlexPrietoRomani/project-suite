@@ -7,13 +7,13 @@ allowed-tools: Read Grep Glob Bash
 
 # Auditar coherencia doc <-> código
 
-Detecta el *drift* entre la documentación viva del proyecto (`docs/architecture/architecture.md` y `docs/db/diseno_db.md`) y el código real (migraciones/DDL, modelos ORM, funciones de repositorio, scripts referenciados). No corrige: emite un reporte rankeado por severidad y propone quién debe alinearse con quién.
+Detecta el *drift* entre la documentación viva del proyecto (`docs/architecture/architecture.md` y `docs/db/diseno_db.md`, incluyendo sus visores HTML interactivos compañeros `architecture.html` y `diseno_db.html`) y el código real (migraciones/DDL, modelos ORM, funciones de repositorio, scripts referenciados). No corrige: emite un reporte rankeado por severidad y propone quién debe alinearse con quién.
 
 ## Flujo
 
-1. **Lee los documentos fuente de la verdad.**
-   - `docs/architecture/architecture.md` — extrae: la tabla del **mapa maestro de flujos** (# / Flujo / Entrada / Proceso / Salida / §), el **script referenciado por cada flujo** (`scripts/...`), las **reglas e invariantes** por flujo, la sección **Arquitectura de despliegue** (qué entra al bundle, qué se excluye) y la tabla de **ADRs** (decisión tomada vs. alternativa descartada).
-   - `docs/db/diseno_db.md` — extrae: el **mapa de bases**, el **ER / esquema lógico** (tablas, columnas, tipos, cardinalidades), el **diccionario de columnas** por tabla, el **significado de la PK por base**, las **políticas de escritura** (`INSERT OR IGNORE` / `INSERT OR REPLACE` / `DROP+CREATE` / `UPSERT`) y la **matriz CRUD por componente** (escritor ETL, lector app, si sube al deploy).
+1. **Lee los documentos fuente de la verdad y verifica sus visores HTML compañeros.**
+   - `docs/architecture/architecture.md` — extrae: la tabla del **mapa maestro de flujos** (# / Flujo / Entrada / Proceso / Salida / §), el **script referenciado por cada flujo** (`scripts/...`), las **reglas e invariantes** por flujo, la sección **Arquitectura de despliegue** (qué entra al bundle, qué se excluye) y la tabla de **ADRs** (decisión tomada vs. alternativa descartada). Si existe `scripts/render_arch_html.py`, corre `python scripts/render_arch_html.py --check docs/architecture/architecture.md` para verificar que `docs/architecture/architecture.html` está sincronizado sin drift.
+   - `docs/db/diseno_db.md` — extrae: el **mapa de bases**, el **ER / esquema lógico** (tablas, columnas, tipos, cardinalidades), el **diccionario de columnas** por tabla, el **significado de la PK por base**, las **políticas de escritura** (`INSERT OR IGNORE` / `INSERT OR REPLACE` / `DROP+CREATE` / `UPSERT`) y la **matriz CRUD por componente** (escritor ETL, lector app, si sube al deploy). Si existe `scripts/render_db_html.py`, corre `python scripts/render_db_html.py --check docs/db/diseno_db.md` para verificar que `docs/db/diseno_db.html` está sincronizado sin drift.
    - Si alguno de los dos docs no existe, decláralo como hallazgo de severidad alta ("documento ausente") y audita solo lo disponible.
 
 2. **Localiza el código real** con `Glob`/`Grep` (y `Bash` para listar/inspeccionar sin ejecutar la app):
@@ -42,16 +42,17 @@ Detecta el *drift* entre la documentación viva del proyecto (`docs/architecture
   | **Media** | **Tipo no coincide** | El tipo real (`INTEGER`/`REAL`/`TEXT`/`BLOB`, o el tipo ORM) difiere del documentado en el ER / diccionario. |
   | **Media** | **Script referenciado inexistente** | Un `scripts/...` citado por un flujo de `architecture.md` no existe en el árbol. |
   | **Media** | **Cardinalidad / FK divergente** | La relación real (FK, `||--o{`) no coincide con la del ER. |
+  | **Baja** | **Visor HTML compañero desactualizado** | `render_arch_html.py --check` o `render_db_html.py --check` retorna código `1` porque `architecture.html` o `diseno_db.html` no se regeneró tras editar su `.md` fuente. |
   | **Baja** | **Invariante o bundle desalineado** | Una invariante de flujo o el contenido del bundle de deploy documentado no se refleja en el código/config. |
 
 - **Para cada hallazgo, incluir:** severidad, categoría, ubicación en el doc (archivo + sección/línea), ubicación en el código (archivo + línea), qué dice cada lado, y **acción propuesta**.
 - **Proponer, no ejecutar la corrección.** Por hallazgo, indica una de dos rutas:
-  - *"Actualizar doc"* → el código es correcto; delega en la skill `especificar` para reescribir la sección afectada de `architecture.md`/`diseno_db.md` (respetando `templates/plantilla_architecture.md` y `templates/plantilla_db.md`).
+  - *"Actualizar doc"* → el código es correcto; delega en la skill `especificar` para reescribir la sección afectada de `architecture.md`/`diseno_db.md` (respetando `templates/plantilla_architecture.md` y `templates/plantilla_db.md`) y regenerar su `.html` compañero.
   - *"Corregir código"* → el doc es la intención acordada (p. ej. un ADR o una invariante) y el código lo viola.
 
 ### Qué NO debe hacer
 
-- **No corrige automáticamente** ni edita docs ni código. Es una skill de solo lectura y análisis (`allowed-tools: Read Grep Glob Bash`); usa `Bash` únicamente para inspección (listar árbol, `grep`, contar), **nunca** para ejecutar la app, migraciones o mutar archivos.
+- **No corrige automáticamente** ni edita docs ni código. Es una skill de solo lectura y análisis (`allowed-tools: Read Grep Glob Bash`); usa `Bash` únicamente para inspección (listar árbol, `grep`, contar, `--check`), **nunca** para ejecutar la app, migraciones o mutar archivos.
 - **No inventa hallazgos.** Si una comparación no es concluyente (p. ej. el ORM genera el tipo dinámicamente), marca el ítem como "requiere verificación manual" en vez de afirmar drift.
 - **No marca checkboxes** ni toca `tareas.md` (eso es de `verificar-dod`/`construir`).
 

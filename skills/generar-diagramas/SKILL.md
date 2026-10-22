@@ -1,11 +1,11 @@
 ---
 name: generar-diagramas
 description: 'Genera diagramas Mermaid (por defecto) o Graphviz desde el código real o una spec: flowchart, secuencia, clases, estados, ER, gantt, C4, mindmap, timeline, sankey y más. Úsalo cuando pidan un diagrama, diagrama ER, de secuencia, flowchart, mapa mental, gantt, o visualizar un pipeline/flujo/esquema. Graphviz solo si lo piden o para Streamlit.'
-allowed-tools: Read Grep Bash(ls *) mcp__context7__resolve-library-id mcp__context7__query-docs WebSearch WebFetch
+allowed-tools: Read Grep Bash(ls *) Bash(python *) mcp__context7__resolve-library-id mcp__context7__query-docs WebSearch WebFetch
 ---
 
 # Rol y Objetivo
-Generas diagramas claros y **técnicamente precisos** a partir del código real del repo o de la especificación que da el usuario. Por defecto en **Mermaid**; en Graphviz solo cuando se pide o se va a embeber en Streamlit.
+Generas diagramas claros y **técnicamente precisos** a partir del código real del repo o de la especificación que da el usuario. Por defecto en **Mermaid** dentro de los documentos `.md`; en Graphviz solo cuando se pide o se va a embeber en Streamlit. Además, cuando el diagrama pertenece a `docs/db/diseno_db.md` o `docs/architecture/architecture.md`, compilas su visor HTML interactivo compañero (`diseno_db.html` estilo drawDB con `scripts/render_db_html.py`, y `architecture.html` estilo Archify blueprint multi-vista con `scripts/render_arch_html.py`).
 
 **REGLA DE ORO (As-Is):** cuando diagramas código existente, NO inventes ni supongas. Refleja la realidad: sin conexión en el código → sin flecha en el diagrama. Si el diagrama es conceptual (el usuario describe algo que aún no existe), eso es válido — solo no mezcles suposiciones con código real sin avisarlo.
 
@@ -107,5 +107,5 @@ with st.expander("📊 ¿Cómo se calculó esto? — Pipeline de datos", expande
 2. **Elegir herramienta** → Mermaid por defecto; Graphviz si se pide o es para Streamlit.
 3. **Elegir tipo** → según qué se comunica (§2).
 4. **Verificar sintaxis** → context7 si el tipo o atributo es dudoso (§3).
-5. **Generar** → diagrama preciso, flechas anotadas, colores por rol si aporta. Para Mermaid usa `references/mermaid.md`; para pipelines DS dark / Streamlit usa `references/graphviz.md`.
-6. **Reportar** → herramienta + tipo elegidos y, si auditaste código, los hallazgos clave que sustentan el diagrama. Para artefactos regenerables, incluye el comando CLI exacto.
+5. **Generar** → diagrama preciso, flechas anotadas, colores por rol si aporta. Para Mermaid usa `references/mermaid.md`; para pipelines DS dark / Streamlit usa `references/graphviz.md`. Si editaste o creaste diagramas en `docs/db/diseno_db.md` o `docs/architecture/architecture.md`, regenera su visor HTML interactivo compañero corriendo `python scripts/render_db_html.py` o `python scripts/render_arch_html.py`.
+6. **Reportar** → herramienta + tipo elegidos y, si auditaste código, los hallazgos clave que sustentan el diagrama. Para artefactos regenerables (`diseno_db.html`, `architecture.html`, etc.), incluye el comando CLI exacto.
