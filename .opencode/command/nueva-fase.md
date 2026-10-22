@@ -1,7 +1,7 @@
 ---
 description: "Gate spec-driven: ante un cambio nuevo, evalua si amerita una nueva Fase y la redacta (Fase+Sub fases+Tareas con tests) en plan_maestro.md y tareas.md ANTES de codear."
 argument-hint: "[descripcion del cambio/feature]"
-allowed-tools: Skill Read Grep Glob Write Edit
+allowed-tools: Skill Read Grep Glob Write Edit Bash(python scripts/nueva_fase.py *) Bash(python scripts/tablero.py *)
 ---
 
 # /nueva-fase — Gate de cambio spec-driven
@@ -17,8 +17,14 @@ Ante cualquier cambio o feature nuevo, este comando es el gate previo: el plan m
    - **Requiere una nueva Fase** si introduce un macro-objetivo distinto, un nuevo dominio, un cambio de arquitectura o de esquema de DB, o una superficie que ninguna Fase actual cubre.
    Escribe explícitamente la decisión y su justificación (qué Fase, o por qué una nueva) antes de continuar. No sigas si el cambio es tan pequeño que no amerita planificarse formalmente: en ese caso dilo y remite al flujo normal de `construir`.
 
-3. **Redactar el trabajo con `planificar` (modo incremental).** Invoca la skill `planificar` en modo incremental para redactar únicamente el bloque nuevo (una Fase completa, o las Sub fases/Tareas que se anexan a una Fase existente), respetando `templates/plantilla_plan.md` y `templates/plantilla_tareas.md`:
-   - En `docs/plan/plan_maestro.md`: la **Fase** (o Sub fases) con **macro-objetivo**, **entregable global**, **Criterios de Aceptación (AC)** y **Estrategia de Pruebas** (Tests Unitarios + Tests de Simulación de Usuario) a nivel Fase, Sub fase y Tarea. El plan baja solo hasta el nivel de **Tarea** (las Acciones atómicas viven en `tareas.md`).
+3. **Redactar el trabajo con `scripts/nueva_fase.py` y `planificar` (modo incremental).** Si el trabajo requiere una **nueva Fase**, ejecuta primero el CLI determinista:
+   ```bash
+   python scripts/nueva_fase.py --title "<Título>" --objetivo "<Objetivo>" --subfases "<SF1,SF2>"
+   ```
+   Esto genera determinísticamente el archivo `fases/FNN-slug.md`, actualiza `docs/plan/plan_maestro.md` y regenera el índice de `docs/task/tareas.md` antes de detallar las tareas, garantizando cero drift y compatibilidad con `python scripts/tablero.py --verificar`.
+
+   A continuación, detalla las tareas con la skill `planificar` en modo incremental para redactar o ajustar el bloque, respetando `templates/plantilla_plan.md` y `templates/plantilla_tareas.md`:
+   - En `docs/plan/plan_maestro.md`: la **Fase** (o Sub fases) con **macro-objetivo**, **entregable global**, **Criterios de Aceptación (AC)** y **Estrategia de Pruebas** (Tests Unitarios + Tests de Simulación de Usuario) a nivel Fase, Sub fase y Tarea. El plan baja solo hasta el nivel de **Tarea** (las Acciones atómicas viven en `tareas.md` y en su archivo de Fase).
    - En el tablero del track (`python scripts/tablero.py --rutas`): **la Fase nueva va en su propio archivo** `fases/FNN-slug.md`; si el trabajo se anexa a una Fase existente, se edita el archivo de esa Fase. Cada Tarea nueva con sus IDs correlativos (`F`/`SF`/`T`/`A`), checkboxes respetando el invariante de roll-up (una Tarea se cierra solo si sus Acciones, AC y tests pasan; una Sub fase si todas sus Tareas, una Fase si todas sus Sub fases), y los dos bloques obligatorios por Tarea: **🧠 Explicación** (qué es cada parte y por qué) y **💡 Cómo hacerlo** (código/comando real y adaptable por stack). El **Índice de Fases y Sub fases** de `tareas.md` no se edita a mano: se regenera con `python scripts/tablero.py --indice`.
    - **Regla dura:** cada nivel (Fase/Sub fase/Tarea) declara sus **Tests Unitarios** y **Tests de Simulación de Usuario**. Ninguna sección en blanco, sin placeholders `TBD`/`TODO`.
 
