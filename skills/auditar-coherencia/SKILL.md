@@ -11,7 +11,8 @@ Detecta el *drift* entre la documentación viva del proyecto (`docs/architecture
 
 ## Flujo
 
-1. **Lee los documentos fuente de la verdad y verifica sus visores HTML compañeros.**
+1. **Ejecuta la auditoría estática determinista y lee los documentos fuente.**
+   - Corre primero `python scripts/auditar_coherencia.py --json` para obtener automáticamente el inventario determinista de divergencias entre `diseno_db.md` / `architecture.md` y los archivos `.sql`, `.db`/`.sqlite`, `scripts/` y visores `.html`.
    - `docs/architecture/architecture.md` — extrae: la tabla del **mapa maestro de flujos** (# / Flujo / Entrada / Proceso / Salida / §), el **script referenciado por cada flujo** (`scripts/...`), las **reglas e invariantes** por flujo, la sección **Arquitectura de despliegue** (qué entra al bundle, qué se excluye) y la tabla de **ADRs** (decisión tomada vs. alternativa descartada). Si existe `scripts/render_arch_html.py`, corre `python scripts/render_arch_html.py --check docs/architecture/architecture.md` para verificar que `docs/architecture/architecture.html` está sincronizado sin drift.
    - `docs/db/diseno_db.md` — extrae: el **mapa de bases**, el **ER / esquema lógico** (tablas, columnas, tipos, cardinalidades), el **diccionario de columnas** por tabla, el **significado de la PK por base**, las **políticas de escritura** (`INSERT OR IGNORE` / `INSERT OR REPLACE` / `DROP+CREATE` / `UPSERT`) y la **matriz CRUD por componente** (escritor ETL, lector app, si sube al deploy). Si existe `scripts/render_db_html.py`, corre `python scripts/render_db_html.py --check docs/db/diseno_db.md` para verificar que `docs/db/diseno_db.html` está sincronizado sin drift.
    - Si alguno de los dos docs no existe, decláralo como hallazgo de severidad alta ("documento ausente") y audita solo lo disponible.
