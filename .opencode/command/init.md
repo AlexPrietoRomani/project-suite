@@ -12,6 +12,13 @@ Arranca un proyecto nuevo bajo la disciplina spec-driven: primero se especifica 
 
 Ejecuta estos pasos en orden. Cada paso que delega en una skill usa el tool `Skill`; los documentos que producen esas skills siguen las plantillas de `templates/` y viven en las rutas canónicas de `docs/`.
 
+> **Bootstrapping mecánico determinista (`scripts/scaffold_project.py`):**
+> Tras confirmar las opciones del paso 1, el bootstrapping físico completo de directorios, plantillas iniciales, visores HTML compañeros (`architecture.html`, `diseno_db.html`), `CLAUDE.md`/`AGENTS.md`, `.project-suite/mode` y `.gitignore` puede ejecutarse determinísticamente en un único paso con:
+> ```bash
+> python scripts/scaffold_project.py --target . --name "<PROJECT_NAME>" --lang "<DOC_LANG>" --rules "<both|claude|agents>" --version-work "<VERSION_WORK>" --author-name "<AUTHOR_NAME>" --author-email "<AUTHOR_EMAIL>" --coauthor-policy "<COAUTHOR_POLICY>"
+> ```
+> Esto crea toda la estructura en milisegundos con sincronía total de índices y visores, permitiendo que las skills de los siguientes pasos trabajen directamente refinando el contenido sobre documentos ya instanciados.
+
 1. **Confirmar idioma y archivos de reglas (AskUserQuestion).**
    - Idioma de la documentación: proponer como default el valor de `userConfig.default_doc_language` del plugin (`es` | `en`). Todos los docs de `docs/` se generarán en ese idioma. Guardar la elección como `DOC_LANG`.
    - Archivos de reglas a generar: `CLAUDE.md`, `AGENTS.md`, o ambos. **Default sugerido según la herramienta actual:** corre `echo $CLAUDE_PLUGIN_ROOT` (Bash) — si devuelve un valor no vacío, estás en Claude Code y el default sugerido es "solo CLAUDE.md"; si viene vacío, estás en opencode y el default sugerido es "solo AGENTS.md". La pregunta se hace siempre igual (nunca se asume sin preguntar); esto solo cambia qué opción viene preseleccionada. El usuario puede elegir "ambos" en cualquier caso.
