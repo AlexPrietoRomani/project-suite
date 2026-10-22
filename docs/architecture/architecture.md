@@ -91,7 +91,7 @@ Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgado
 
 **Entrada → Proceso → Salida:** entrevista de diseño → genera `docs/` (`.md` + `.html`) + reglas + gitignore → repo destino listo para planificar.
 
-Script: `commands/init.md` (skills invocadas: `especificar`, `planificar`, `ejecucion`; scripts invocados: `scripts/render_db_html.py`, `scripts/render_arch_html.py`).
+Script: `commands/init.md` (skills invocadas: `especificar`, `planificar`, `ejecucion`; scripts invocados: `scripts/scaffold_project.py`, `scripts/render_db_html.py`, `scripts/render_arch_html.py`).
 
 ### 3.2 Reglas e invariantes
 
@@ -105,7 +105,7 @@ Script: `commands/init.md` (skills invocadas: `especificar`, `planificar`, `ejec
 
 **Entrada → Proceso → Salida:** petición de cambio → decide si amerita Fase nueva → la redacta con Tareas y tests, sin codear.
 
-Script: `commands/nueva-fase.md`.
+Script: `commands/nueva-fase.md` (scripts invocados: `scripts/nueva_fase.py`, `scripts/tablero.py`).
 
 ### 4.2 Reglas e invariantes
 
@@ -252,3 +252,4 @@ flowchart LR
 | Servers MCP opt-in por proyecto (`init`), `.mcp.json` del plugin vacío | `codegraphcontext` global en el plugin | Ningún harness arranca servers stdio de forma perezosa: un MCP global es un proceso en cada sesión de cada repo, se use o no |
 | Manifiesto `plugin.json` raíz para Antigravity | Asumir que `gemini-extension.json` seguía sirviendo al sucesor | `agy plugin validate` exige el manifiesto raíz (verificado con agy 1.3.4): sin él, la instalación falla; Gemini CLI quedó legacy (sunset consumer 18-jun-2026, enterprise/API-key vigentes) |
 | Visores HTML compañeros (`diseno_db.html` base drawDB y `architecture.html` base Archify multi-vista) compilados desde `.md` con Python stdlib | Empaquetar el editor React de drawDB o exigir JSONs con coordenadas manuales de Archify | Mantiene el `.md` como única fuente de verdad sin duplicación ni dependencias externas, soporta arquitecturas extensas mediante auto-layout por capas y drill-down de flujos, y valida sincronía en ms con `--check` (SHA-256) |
+| Suite determinista CLI (`suite.py`, `nueva_fase.py`, `verificar_dod.py`, `scaffold_project.py`, `install_hooks.py`, `auditar_coherencia.py`) + GitHub Actions CI | Depender exclusivamente del LLM para crear archivos de fase, evaluar gates DoD o auditar SQL/esquemas | Desacopla las invariantes mecánicas del modelo, ahorra tokens, permite operar el ciclo completo desde terminal o CI/CD y bloquea commits inválidos con Git hooks nativos |

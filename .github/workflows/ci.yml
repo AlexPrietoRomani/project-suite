@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  governance-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate plugin surface & budget
+        run: python scripts/validate_plugin.py --census
+
+      - name: Run validate_plugin tests
+        run: python scripts/test_validate_plugin.py
+
+      - name: Run tablero tests
+        run: python scripts/test_tablero.py
+
+      - name: Check architecture HTML sync
+        run: python scripts/render_arch_html.py --check
+
+      - name: Check plantilla_log cues sync
+        run: python scripts/log_index.py templates/plantilla_log.md --check
+
+      - name: Run Python unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run Node test suite
+        run: npm test
