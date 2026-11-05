@@ -45,7 +45,9 @@ flowchart LR
         HOOKSCC["hooks/hooks.json\n(SessionStart, UserPromptSubmit)"]
     end
     subgraph OC["opencode"]
-        BRIDGE[".opencode/plugins/project-suite.mjs"]
+        BRIDGE[".opencode/plugins/project-suite.mjs\n(contrato dual v1/v2: id + setup(ctx) / server())"]
+        DISC[".opencode/plugins/index.js\n(entrypoint de autodiscovery v2)"]
+        PARSER[".opencode/plugins/project-suite-frontmatter.cjs\n(frontmatter CJS)"]
     end
     subgraph SHARED["Logica compartida (CommonJS)"]
         CFG["project-suite-config.js"]
@@ -65,12 +67,34 @@ flowchart LR
     BRIDGE -->|"createRequire"| CFG
     BRIDGE --> RT
     BRIDGE --> INSTR
+    BRIDGE --> PARSER
+    DISC -->|"reexporta default"| BRIDGE
 
     style SHARED fill:#091827,stroke:#4dabf7,color:#74c0fc
     style COMP fill:#081a08,stroke:#69db7c,color:#a9e34b
 ```
 
 Una sola fuente de lógica (`hooks/project-suite-*.js`), dos entrypoints delgados por herramienta — evita duplicar la resolución de modo entre Claude Code y opencode. Los compiladores Python stdlib (`render_db_html.py` y `render_arch_html.py`) transforman `diseno_db.md` y `architecture.md` en visores HTML standalone sin requerir dependencias externas. Asimismo, `scripts/log_index.py` indexa la memoria de Cues transferibles en `docs/logs/log.md`, mientras `scripts/validate_plugin.py` audita el presupuesto context `always-on` (`SurfaceSpec`) y emite el censo cuantitativo de superficie (`--census`).
+
+### 2.1 Puente dual de OpenCode (v1/v2)
+
+El plugin de opencode se compone de 3 archivos hand-authored (el sync de `.opencode/` los preserva, no los regenera):
+
+| Archivo | Rol |
+|---|---|
+| `.opencode/plugins/project-suite.mjs` | Plugin principal ESM con **contrato dual**: exporta por defecto `{ id: 'project-suite', async setup(ctx), async server({ client }) }`. `id` + `setup(ctx)` es el contrato **v2** — registra transformadores `ctx.skill.transform` y `ctx.command.transform` (comandos/skills desde `.opencode/command/*.md` y `skills/*/SKILL.md` vía el parser CJS, persistencia de `/modo` en `.project-suite/mode` y sustitución de `$ARGUMENTS`) y hooks de sesión `ctx.session.hook('context')` / `ctx.session.hook('compaction')` que inyectan el recordatorio ambiental si `isProjectSuiteRepo(root)` es verdadero. `server()` es el contrato **v1** — retorna los hooks equivalentes para el binario opencode anterior. |
+| `.opencode/plugins/index.js` | Entrypoint de **autodiscovery v2** — reexporta el `default` desde `./project-suite.mjs`; OpenCode v2 descubre plugins locales por convención buscando `index.js`, sin necesidad de registrarlo en `opencode.json`. |
+| `.opencode/plugins/project-suite-frontmatter.cjs` | Parser **desacoplado** de frontmatter YAML (CommonJS) — expone `parseCommandFile(content)` y `parseSkillFile(content)` con soporte de saltos CRLF y escalares de bloque `>` / `|`; el `.mjs` lo consume vía `createRequire` manteniendo una única export por defecto. |
+
+### 2.2 Orquestación Multi-Agente
+
+La gobernanza del plugin (reglas en `AGENTS.md`/`CLAUDE.md`) define un modelo de tres capas:
+
+| Capa | Rol |
+|---|---|
+| **Orquestador** | Agente principal: coordina, revisa y delega; normalmente no escribe código ni documentos. |
+| **Subagentes propios** (`invoke_subagent`) | Modelo ligero/rápido (`flash` / Gemini Flash) para tareas acotadas de edición, validación o investigación. |
+| **Especialistas OpenCode v2** (vía Orca / orca-cli) | Sesiones persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`); solo se instancia `{especialista}-2` al paralelizar tareas simultáneas del mismo dominio. |
 
 ---
 
@@ -117,7 +141,12 @@ Script: `commands/nueva-fase.md` (scripts invocados: `scripts/nueva_fase.py`, `s
 
 **Entrada → Proceso → Salida:** evento de sesión o prompt del usuario → resuelve/persiste modo → texto de recordatorio o confirmación.
 
-Scripts: `hooks/project-suite-activate.js` (SessionStart), `hooks/project-suite-mode-tracker.js` (UserPromptSubmit), `.opencode/plugins/project-suite.mjs` (equivalente opencode).
+Scripts: `hooks/project-suite-activate.js` (SessionStart), `hooks/project-suite-mode-tracker.js` (UserPromptSubmit), `.opencode/plugins/project-suite.mjs` (equivalente opencode, dual v1/v2).
+
+- **Claude Code:** los hooks `SessionStart` / `UserPromptSubmit` disparan los scripts de `hooks/` como siempre.
+- **OpenCode v2:** `setup(ctx)` registra `ctx.session.hook('context')` y `ctx.session.hook('compaction')`, que inyectan el recordatorio en el system prompt de cada turno (el hook de compactación garantiza que el resumen no pierda el ruleset).
+- **OpenCode v1:** `server()` retorna los hooks equivalentes para el binario anterior.
+- La persistencia de `/modo <nivel>` en v2 es determinista: el `execute` de la transformación de comandos detecta la invocación de `modo` y persiste por código via `persistMode()`, sin depender del modelo.
 
 ### 5.1 Diagrama — resolución de modo y persistencia
 
@@ -148,7 +177,7 @@ sequenceDiagram
 
 | Regla | Descripción |
 |---|---|
-| Nunca toca repos no-opt-in | `isProjectSuiteRepo()` es el guard en ambos entrypoints y el bridge opencode. |
+| Nunca toca repos no-opt-in | `isProjectSuiteRepo()` es el guard en ambos entrypoints, el bridge opencode (en `setup(ctx)` y `server()`) y en cada hook de sesión v2 (`context`/`compaction`). |
 | Self-healing, no destructivo | Un archivo `.project-suite/mode` con contenido inválido se repara a `estricto`; uno válido (aunque no default) nunca se sobreescribe. |
 | Deteccion determinista del cambio de modo | `UserPromptSubmit` regexea el prompt crudo (`^/project-suite:modo\b`) y persiste por código, sin depender de que el modelo obedezca. |
 | Nunca lanza sin capturar | `setMode`/`ensureModeFile` envuelven sus operaciones de filesystem en try/except, degradando a `null`/`false` en vez de crashear la sesión. |
@@ -173,7 +202,7 @@ sequenceDiagram
 | Regla | Descripción |
 |---|---|
 | Generado, no editable a mano | `.opencode/` y `opencode.json` se regeneran siempre; ediciones manuales se pierden en el próximo sync. |
-| `.opencode/plugins/project-suite.mjs` es la excepción | Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe. |
+| `.opencode/plugins/*` (3 archivos) es la excepción | `project-suite.mjs`, `index.js` y `project-suite-frontmatter.cjs` son hand-authored y checked-in: el sync nunca los sobreescribe ni borra (solo REGISTRA `project-suite.mjs` en `opencode.json`). `index.js` habilita el autodiscovery v2 y también se preserva si el usuario copia `.opencode/` a su config global (allí no se lee `opencode.json`). |
 | Sin MCP global | `.mcp.json` del plugin va vacío; los servers son opt-in por proyecto (paso 7 de `init`). Un server con `"x-project-suite": {"startup": "off"}` sale a opencode con `enabled: false`. |
 | Versión única | `validate_plugin.py` falla si `package.json`, `gemini-extension.json` o el `plugin.json` raíz (manifiesto de Antigravity) difieren de `.claude-plugin/plugin.json`. |
 | Presupuesto de superficie `always-on` | `validate_plugin.py` bloquea la sesión si los archivos siempre presentes exceden 16.000 chars, individualmente 6.000 chars o el catálogo de skills 8.800 chars. |
@@ -246,6 +275,10 @@ flowchart LR
 | Decisión Tomada | Alternativa Descartada | Razón Principal |
 |---|---|---|
 | Hooks de Claude Code + puente opencode compartiendo módulos CJS | Reimplementar la lógica de modo por herramienta | Una sola fuente de verdad; menos superficie de bugs |
+| Contrato dual en el plugin opencode (`{ id, setup(ctx), server() }` en un único default export) | Dos archivos de plugin separados, uno por versión de la API, o elegir solo v2 | Sin saber qué binario `opencode` tiene el usuario, v2 lee `id`+`setup(ctx)` (transforms de skill/command y hooks de sesión `context`/`compaction`) y v1 llama `server()` — un solo artefacto checked-in sirve a ambos sin branching en el registro |
+| Autodiscovery v2 vía `.opencode/plugins/index.js` (reexport del default) | Registrar la ruta del plugin también en la config global del usuario | OpenCode v2 por convención descubre plugins locales buscando `index.js`; el reexport hace que instalar `.opencode/` a `~/.config/opencode/` funcione sin editar ningún JSON |
+| Parser frontmatter CJS desacoplado (`project-suite-frontmatter.cjs`) | Inline yaml-ish parsing dentro del `.mjs` con imports de segundo export | Un único export por defecto en el `.mjs` carga limpio en el module loader de Node; el parser tolera CRLF y block scalars `>`/`|` que el frontmatter real de comandos/skills contiene (Windows) |
+| Orquestación Multi-Agente: Orquestador (delega, no codea) + subagentes Flash + especialistas OpenCode v2 vía Orca | Hacer todo en el agente principal o disparar subagentes ad-hoc sin modelo ni dominio | Separa pensamiento estratégico de ejecución, optimiza velocidad/retención de contexto con modelo ligero para tareas acotadas y mantiene especialistas persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`) reutilizables; suficiente para sesiones largas y paralelismo acotado con sufijos `{especialista}-2` |
 | Recordatorio ambiental liviano (texto estático por modo) | Escanear git diff/tareas.md en cada turno | Más barato, y la verificación real ya vive en `verificar-dod`/`auditar-coherencia`/`testear` |
 | `CLAUDE.md`/`AGENTS.md` generados completos desde un solo cuerpo | Uno canónico + el otro puntero | El puntero se rompía si solo se generaba el archivo no-canónico (bug real encontrado y corregido) |
 | `docs/plan`/`docs/task` locales (gitignored) también en este propio repo | Versionarlos aquí para transparencia de colaboradores | Revisado en 1.2.0: el tablero se regenera con `tablero.py --indice` y el plan cambia por Tarea — versionarlos generaba ruido constante; el historial relevante vive en los commits de código/docs |

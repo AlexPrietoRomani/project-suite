@@ -13,6 +13,12 @@
 4. Every commit uses `/semantic-commit`. Every PR uses `/pull-request` (yes, this repo's own bundled copy — see `CONTRIBUTING.md`).
 5. **LLM co-authorship:** Enabled by default with the active model's `Co-Authored-By` trailer unless explicitly disabled.
 
+## Multi-Agent Orchestration
+- **Orchestrator:** The primary agent coordinates, reviews, and delegates; does not directly write code or documents.
+- **Own subagents (`invoke_subagent`):** Use fast/lightweight model (`flash` / Gemini Flash) for bounded editing, validation, or research tasks.
+- **OpenCode specialists (via `orca-cli` / `orchestration`):** Domain-specific sessions with short, identifiable names (`front`, `back`, `db`, `qa`, `docs`, `plugin`, etc.).
+- **Reuse & parallelism:** Reuse active domain sessions (continuing context or after clean). Only instantiate `{specialist}-2` (e.g. `front-2`) when parallelizing concurrent tasks within the same domain.
+
 ## Keeping the plugin coherent
 6. After changing `skills/`, `commands/`, `agents/` (research-suite only), or `.mcp.json`: run `python scripts/sync_opencode.py`.
 7. Before committing: run `python scripts/validate_plugin.py` — must print `OK`.

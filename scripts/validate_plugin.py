@@ -295,8 +295,16 @@ def validate_plugin(root: Path = ROOT) -> list[str]:
         except Exception as exc:
             err(f"hooks/hooks.json: unexpected structure: {exc}")
 
-    if not (root / ".opencode" / "plugins" / "project-suite.mjs").exists():
-        err("missing .opencode/plugins/project-suite.mjs (opencode mode bridge)")
+    for plugin_file, label in (
+        ("project-suite.mjs", "opencode mode bridge"),
+        ("index.js", "v2 autodiscovery entry"),
+        ("project-suite-frontmatter.cjs", "frontmatter parser"),
+    ):
+        p = root / ".opencode" / "plugins" / plugin_file
+        if not p.exists():
+            err(f"missing .opencode/plugins/{plugin_file} ({label})")
+        elif not p.read_text(encoding="utf-8").strip():
+            err(f".opencode/plugins/{plugin_file}: empty file")
 
     if not (root / "templates" / "generated" / "rules-body.tmpl.md").exists():
         err("missing templates/generated/rules-body.tmpl.md")

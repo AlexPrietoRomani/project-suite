@@ -296,6 +296,45 @@ Descuentos negativos aplicados a órdenes corporativas.
         )
 
 
+class TestOpenCodePluginFiles(unittest.TestCase):
+    """Pruebas de integridad de los archivos plugin de OpenCode (contrato dual v1/v2)."""
+
+    PLUGIN_FILES = ("project-suite.mjs", "index.js", "project-suite-frontmatter.cjs")
+
+    def test_validate_plugin_mandates_opencode_plugin_files(self) -> None:
+        """Verifica que validate_plugin() valide los 3 archivos de .opencode/plugins/ y falle si falta alguno."""
+        clean_errs = [e for e in validate_plugin() if ".opencode/plugins/" in e]
+        self.assertEqual(clean_errs, [], f"Repo limpio con errores de plugins OpenCode: {clean_errs}")
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir) / "copy"
+            shutil.copytree(
+                ROOT,
+                tmp_root,
+                ignore=shutil.ignore_patterns(".git", "__pycache__", "node_modules", "*.pyc"),
+            )
+
+            # Copia completa: ningun error sobre .opencode/plugins/
+            errs = validate_plugin(tmp_root)
+            self.assertEqual(
+                [e for e in errs if ".opencode/plugins/" in e],
+                [],
+                f"Copia completa debe pasar la validacion de plugins: {errs}",
+            )
+
+            plugins_dir = tmp_root / ".opencode" / "plugins"
+            for name in self.PLUGIN_FILES:
+                target = plugins_dir / name
+                target.unlink()
+                errs = validate_plugin(tmp_root)
+                self.assertTrue(
+                    any(e.startswith(f"missing .opencode/plugins/{name}") for e in errs),
+                    f"Debe reportar el archivo faltante {name}; errores: {errs}",
+                )
+                # Restaurar para las siguientes iteraciones
+                shutil.copy2(ROOT / ".opencode" / "plugins" / name, target)
+
+
 class TestCliAndHarnessIntegration(unittest.TestCase):
     """Pruebas de simulacion de usuario y ejecucion de comandos CLI."""
 

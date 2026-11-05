@@ -499,7 +499,7 @@ class TestDogfoodingProjectSuite(unittest.TestCase):
         self.assertEqual(meta["flows_count"], 8, "project-suite debe tener exactamente 8 flujos")
         self.assertGreaterEqual(meta["components_count"], 20)
         self.assertGreaterEqual(meta["invariants_count"], 8)
-        self.assertEqual(meta["adrs_count"], 7, "project-suite debe tener exactamente 7 ADRs")
+        self.assertEqual(meta["adrs_count"], 12, "project-suite debe tener exactamente 12 ADRs")
 
         # Verificación de vistas esenciales
         view_ids = [v["id"] for v in data["views"]]
@@ -521,7 +521,7 @@ class TestDogfoodingProjectSuite(unittest.TestCase):
 
         # Verificación de que todos los ADRs fueron extraídos fielmente
         adrs = data["adrs"]
-        self.assertEqual(len(adrs), 7)
+        self.assertEqual(len(adrs), 12)
         adr_decisions = [a["decision"] for a in adrs]
         self.assertTrue(any("Hooks de Claude Code" in d for d in adr_decisions))
         self.assertTrue(any("Recordatorio ambiental" in d for d in adr_decisions))
