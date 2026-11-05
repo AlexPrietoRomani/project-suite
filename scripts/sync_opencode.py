@@ -15,6 +15,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OC = ROOT / ".opencode"
 
+#: Hand-authored plugin files that must survive every sync (see SF10.2).
+PLUGIN_FILES = (
+    "project-suite.mjs",
+    "index.js",
+    "project-suite-frontmatter.cjs",
+)
+
+
+def check_plugins():
+    """Los 3 archivos de .opencode/plugins/ son hand-authored y deben existir."""
+    missing = [f for f in PLUGIN_FILES if not (OC / "plugins" / f).exists()]
+    if missing:
+        raise SystemExit(
+            "missing .opencode/plugins files (hand-authored, sync never writes them): "
+            + ", ".join(missing)
+        )
+
 
 def mirror_skills():
     src, dst = ROOT / "skills", OC / "skills"
@@ -73,6 +90,7 @@ def gen_opencode_json():
 if __name__ == "__main__":
     OC.mkdir(exist_ok=True)
     ns, nc, mcps = mirror_skills(), mirror_commands(), gen_opencode_json()
+    check_plugins()
     # self-check: the opencode skill mirror must match the canonical set exactly
     canon = {p.parent.name for p in (ROOT / "skills").glob("*/SKILL.md")}
     mirrored = {p.parent.name for p in (OC / "skills").glob("*/SKILL.md")}

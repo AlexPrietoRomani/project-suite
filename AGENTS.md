@@ -12,6 +12,12 @@
 3. Implement plan phases with `construir` (subagent per Tarea). Follow the language standard per file type: `.py`→python-standards, `.R`→r-standards, `.rs`→rust-standards, `.astro`→astro-standards, `.sql`→sql-standards, `.ts`/`.tsx`→ts-standards, web apps→webapp-standards.
 4. Every Tarea needs unit + user-simulation tests (`testear`). Close it with `verificar-dod` before marking `[X]`. A checkbox `[X]` means its DoD passed.
 
+## Orquestación multi-agente
+- **Orquestador:** El agente principal coordina, revisa y delega; normalmente no escribe código ni documentos directamente.
+- **Subagentes propios (`invoke_subagent`):** Usar modelo ligero/rápido (`flash` / Gemini Flash) para tareas acotadas de edición, validación o investigación.
+- **Especialistas OpenCode (vía `orca-cli` / `orchestration`):** Sesiones por dominio con nombres cortos e identificables (`front`, `back`, `db`, `qa`, `docs`, `plugin`, etc.).
+- **Reutilización y paralelismo:** Reutilizar el especialista activo del dominio (siguiendo contexto o tras limpieza). Solo instanciar `{especialista}-2` (ej. `front-2`) al paralelizar tareas simultáneas del mismo dominio.
+
 ## Committing & PRs (strict)
 5. **Every commit** goes through `semantic-commit`. **Every PR** goes through `pull-request`. Never bypass hooks or signing unless explicitly told.
 

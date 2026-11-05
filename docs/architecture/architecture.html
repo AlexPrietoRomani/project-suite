@@ -1,4 +1,4 @@
-<!-- source-sha256: 6607ec06246eabe1ac7ed08eb2825cda5c27299fe7825c1a24934687e8b726f7 -->
+<!-- source-sha256: 6509d0afff159717cde0156a94fb1e7770a7fc59c30fdea10954d2c6a9a45129 -->
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
 <head>
@@ -1051,9 +1051,9 @@
     "title": "Arquitectura — project-suite",
     "subtitle": "Este documento describe project-suite organizado por **flujos**: cómo un comando/skill produce un efecto real (archivos escritos, un visor HTML compilado, un hook disparado). Cuenta con su visor interactivo compañero en [`docs/architecture/architecture.html`](architecture.html) (compilado con `python scripts/render_arch_html.py`). El plan de construcción del plugin vive en `docs/plan/plan_maestro.md` y su tablero en `docs/task/tareas.md` (locales, gitignored, como en cualquier proyecto destino).",
     "flows_count": 8,
-    "components_count": 67,
+    "components_count": 69,
     "invariants_count": 19,
-    "adrs_count": 8
+    "adrs_count": 12
   },
   "views": [
     {
@@ -1264,14 +1264,42 @@
         {
           "id": "BRIDGE",
           "label": ".opencode/plugins/project-suite.mjs",
-          "sublabel": "",
+          "sublabel": "(contrato dual v1/v2: id + setup(ctx) / server())",
           "role": "frontend",
           "color": "#06b6d4",
           "icon": "👤",
           "subgraph_id": "OC",
           "target_view_id": null,
+          "x": 450.0,
+          "y": 60.0,
+          "width": 250,
+          "height": 86
+        },
+        {
+          "id": "DISC",
+          "label": ".opencode/plugins/index.js",
+          "sublabel": "(entrypoint de autodiscovery v2)",
+          "role": "backend",
+          "color": "#10b981",
+          "icon": "⚙️",
+          "subgraph_id": "OC",
+          "target_view_id": null,
           "x": 80.0,
           "y": 710.0,
+          "width": 250,
+          "height": 86
+        },
+        {
+          "id": "PARSER",
+          "label": ".opencode/plugins/project-suite-frontmatter.cjs",
+          "sublabel": "(frontmatter CJS)",
+          "role": "frontend",
+          "color": "#06b6d4",
+          "icon": "👤",
+          "subgraph_id": "OC",
+          "target_view_id": null,
+          "x": 820.0,
+          "y": 60.0,
           "width": 250,
           "height": 86
         },
@@ -1284,8 +1312,8 @@
           "icon": "👤",
           "subgraph_id": "SHARED",
           "target_view_id": null,
-          "x": 450.0,
-          "y": 60.0,
+          "x": 820.0,
+          "y": 190.0,
           "width": 250,
           "height": 86
         },
@@ -1298,8 +1326,8 @@
           "icon": "👤",
           "subgraph_id": "SHARED",
           "target_view_id": null,
-          "x": 450.0,
-          "y": 320.0,
+          "x": 820.0,
+          "y": 450.0,
           "width": 250,
           "height": 86
         },
@@ -1312,8 +1340,8 @@
           "icon": "👤",
           "subgraph_id": "SHARED",
           "target_view_id": null,
-          "x": 450.0,
-          "y": 190.0,
+          "x": 820.0,
+          "y": 320.0,
           "width": 250,
           "height": 86
         },
@@ -1394,12 +1422,14 @@
           "color": "#334155",
           "parent_id": null,
           "children": [
-            "BRIDGE"
+            "BRIDGE",
+            "DISC",
+            "PARSER"
           ],
           "x": 52.0,
-          "y": 676.0,
-          "width": 306.0,
-          "height": 142.0
+          "y": 26.0,
+          "width": 1046.0,
+          "height": 792.0
         },
         {
           "id": "SHARED",
@@ -1411,8 +1441,8 @@
             "RT",
             "INSTR"
           ],
-          "x": 422.0,
-          "y": 26.0,
+          "x": 792.0,
+          "y": 156.0,
           "width": 306.0,
           "height": 402.0
         },
@@ -1443,10 +1473,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 103.0 L 450.0 103.0",
+          "path": "M 330.0 103.0 L 567.0 103.0 Q 575.0 103.0 575.0 111.0 L 575.0 225.0 Q 575.0 233.0 583.0 233.0 L 820.0 233.0",
           "label_at": {
-            "x": 390.0,
-            "y": 103.0
+            "x": 575.0,
+            "y": 168.0
           }
         },
         {
@@ -1458,10 +1488,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 103.0 L 382.0 103.0 Q 390.0 103.0 390.0 111.0 L 390.0 355.0 Q 390.0 363.0 398.0 363.0 L 450.0 363.0",
+          "path": "M 330.0 103.0 L 567.0 103.0 Q 575.0 103.0 575.0 111.0 L 575.0 485.0 Q 575.0 493.0 583.0 493.0 L 820.0 493.0",
           "label_at": {
-            "x": 390.0,
-            "y": 233.0
+            "x": 575.0,
+            "y": 298.0
           }
         },
         {
@@ -1473,10 +1503,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 103.0 L 382.0 103.0 Q 390.0 103.0 390.0 111.0 L 390.0 225.0 Q 390.0 233.0 398.0 233.0 L 450.0 233.0",
+          "path": "M 330.0 103.0 L 567.0 103.0 Q 575.0 103.0 575.0 111.0 L 575.0 355.0 Q 575.0 363.0 583.0 363.0 L 820.0 363.0",
           "label_at": {
-            "x": 390.0,
-            "y": 168.0
+            "x": 575.0,
+            "y": 233.0
           }
         },
         {
@@ -1488,10 +1518,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
+          "path": "M 700.0 103.0 L 752.0 103.0 Q 760.0 103.0 760.0 111.0 L 760.0 225.0 Q 760.0 233.0 768.0 233.0 L 820.0 233.0",
           "label_at": {
-            "x": 390.0,
-            "y": 428.0
+            "x": 760.0,
+            "y": 168.0
           }
         },
         {
@@ -1503,10 +1533,10 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 371.0 Q 390.0 363.0 398.0 363.0 L 450.0 363.0",
+          "path": "M 700.0 103.0 L 752.0 103.0 Q 760.0 103.0 760.0 111.0 L 760.0 485.0 Q 760.0 493.0 768.0 493.0 L 820.0 493.0",
           "label_at": {
-            "x": 390.0,
-            "y": 558.0
+            "x": 760.0,
+            "y": 298.0
           }
         },
         {
@@ -1518,10 +1548,40 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 241.0 Q 390.0 233.0 398.0 233.0 L 450.0 233.0",
+          "path": "M 700.0 103.0 L 752.0 103.0 Q 760.0 103.0 760.0 111.0 L 760.0 355.0 Q 760.0 363.0 768.0 363.0 L 820.0 363.0",
+          "label_at": {
+            "x": 760.0,
+            "y": 233.0
+          }
+        },
+        {
+          "from_node": "BRIDGE",
+          "to_node": "PARSER",
+          "label": "",
+          "arrow_type": "-->",
+          "dashed": false,
+          "bidirectional": false,
+          "thick": false,
+          "color": "#38bdf8",
+          "path": "M 700.0 103.0 L 820.0 103.0",
+          "label_at": {
+            "x": 760.0,
+            "y": 103.0
+          }
+        },
+        {
+          "from_node": "DISC",
+          "to_node": "BRIDGE",
+          "label": "reexporta default",
+          "arrow_type": "-->",
+          "dashed": false,
+          "bidirectional": false,
+          "thick": false,
+          "color": "#38bdf8",
+          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
           "label_at": {
             "x": 390.0,
-            "y": 493.0
+            "y": 428.0
           }
         }
       ]
@@ -2377,7 +2437,7 @@
       "invariants": [
         {
           "name": "Nunca toca repos no-opt-in",
-          "description": "`isProjectSuiteRepo()` es el guard en ambos entrypoints y el bridge opencode."
+          "description": "`isProjectSuiteRepo()` es el guard en ambos entrypoints, el bridge opencode (en `setup(ctx)` y `server()`) y en cada hook de sesión v2 (`context`/`compaction`)."
         },
         {
           "name": "Self-healing, no destructivo",
@@ -2402,7 +2462,7 @@
         "invariants": [
           {
             "name": "Nunca toca repos no-opt-in",
-            "description": "`isProjectSuiteRepo()` es el guard en ambos entrypoints y el bridge opencode."
+            "description": "`isProjectSuiteRepo()` es el guard en ambos entrypoints, el bridge opencode (en `setup(ctx)` y `server()`) y en cada hook de sesión v2 (`context`/`compaction`)."
           },
           {
             "name": "Self-healing, no destructivo",
@@ -2657,8 +2717,8 @@
           "description": "`.opencode/` y `opencode.json` se regeneran siempre; ediciones manuales se pierden en el próximo sync."
         },
         {
-          "name": "`.opencode/plugins/project-suite.mjs` es la excepción",
-          "description": "Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe."
+          "name": "`.opencode/plugins/*` (3 archivos) es la excepción",
+          "description": "`project-suite.mjs`, `index.js` y `project-suite-frontmatter.cjs` son hand-authored y checked-in: el sync nunca los sobreescribe ni borra (solo REGISTRA `project-suite.mjs` en `opencode.json`). `index.js` habilita el autodiscovery v2 y también se preserva si el usuario copia `.opencode/` a su config global (allí no se lee `opencode.json`)."
         },
         {
           "name": "Sin MCP global",
@@ -2686,8 +2746,8 @@
             "description": "`.opencode/` y `opencode.json` se regeneran siempre; ediciones manuales se pierden en el próximo sync."
           },
           {
-            "name": "`.opencode/plugins/project-suite.mjs` es la excepción",
-            "description": "Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe."
+            "name": "`.opencode/plugins/*` (3 archivos) es la excepción",
+            "description": "`project-suite.mjs`, `index.js` y `project-suite-frontmatter.cjs` son hand-authored y checked-in: el sync nunca los sobreescribe ni borra (solo REGISTRA `project-suite.mjs` en `opencode.json`). `index.js` habilita el autodiscovery v2 y también se preserva si el usuario copia `.opencode/` a su config global (allí no se lee `opencode.json`)."
           },
           {
             "name": "Sin MCP global",
@@ -3339,7 +3399,7 @@
       "name": "ADRs",
       "description": "Registro de Decisiones Arquitectónicas tomadas y descartadas",
       "diagram_type": "adrs_table",
-      "badge": "8",
+      "badge": "12",
       "components": [],
       "boundaries": [],
       "connections": []
@@ -3437,6 +3497,26 @@
       "decision": "Hooks de Claude Code + puente opencode compartiendo módulos CJS",
       "alternative": "Reimplementar la lógica de modo por herramienta",
       "rationale": "Una sola fuente de verdad; menos superficie de bugs"
+    },
+    {
+      "decision": "Contrato dual en el plugin opencode (`{ id, setup(ctx), server() }` en un único default export)",
+      "alternative": "Dos archivos de plugin separados, uno por versión de la API, o elegir solo v2",
+      "rationale": "Sin saber qué binario `opencode` tiene el usuario, v2 lee `id`+`setup(ctx)` (transforms de skill/command y hooks de sesión `context`/`compaction`) y v1 llama `server()` — un solo artefacto checked-in sirve a ambos sin branching en el registro"
+    },
+    {
+      "decision": "Autodiscovery v2 vía `.opencode/plugins/index.js` (reexport del default)",
+      "alternative": "Registrar la ruta del plugin también en la config global del usuario",
+      "rationale": "OpenCode v2 por convención descubre plugins locales buscando `index.js`; el reexport hace que instalar `.opencode/` a `~/.config/opencode/` funcione sin editar ningún JSON"
+    },
+    {
+      "decision": "Parser frontmatter CJS desacoplado (`project-suite-frontmatter.cjs`)",
+      "alternative": "Inline yaml-ish parsing dentro del `.mjs` con imports de segundo export",
+      "rationale": "Un único export por defecto en el `.mjs` carga limpio en el module loader de Node; el parser tolera CRLF y block scalars `>`/`"
+    },
+    {
+      "decision": "Orquestación Multi-Agente: Orquestador (delega, no codea) + subagentes Flash + especialistas OpenCode v2 vía Orca",
+      "alternative": "Hacer todo en el agente principal o disparar subagentes ad-hoc sin modelo ni dominio",
+      "rationale": "Separa pensamiento estratégico de ejecución, optimiza velocidad/retención de contexto con modelo ligero para tareas acotadas y mantiene especialistas persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`) reutilizables; suficiente para sesiones largas y paralelismo acotado con sufijos `{especialista}-2`"
     },
     {
       "decision": "Recordatorio ambiental liviano (texto estático por modo)",
@@ -3540,10 +3620,26 @@
     {
       "id": "comp-BRIDGE",
       "title": ".opencode/plugins/project-suite.mjs",
-      "subtitle": " · C4 Contenedor",
+      "subtitle": "(contrato dual v1/v2: id + setup(ctx) / server()) · C4 Contenedor",
       "category": "componente",
       "targetViewId": "c4-contenedor",
       "nodeId": "BRIDGE"
+    },
+    {
+      "id": "comp-DISC",
+      "title": ".opencode/plugins/index.js",
+      "subtitle": "(entrypoint de autodiscovery v2) · C4 Contenedor",
+      "category": "componente",
+      "targetViewId": "c4-contenedor",
+      "nodeId": "DISC"
+    },
+    {
+      "id": "comp-PARSER",
+      "title": ".opencode/plugins/project-suite-frontmatter.cjs",
+      "subtitle": "(frontmatter CJS) · C4 Contenedor",
+      "category": "componente",
+      "targetViewId": "c4-contenedor",
+      "nodeId": "PARSER"
     },
     {
       "id": "comp-CFG",
@@ -3991,7 +4087,7 @@
     {
       "id": "inv-Nunca toca repos no-opt-in",
       "title": "Nunca toca repos no-opt-in",
-      "subtitle": "`isProjectSuiteRepo()` es el guard en ambos entrypoints y el bridge opencode. · Flujo 3",
+      "subtitle": "`isProjectSuiteRepo()` es el guard en ambos entrypoints, el bridge opencode (en `setup(ctx)` y `server()`) y en cada hook de sesión v2 (`context`/`compaction`). · Flujo 3",
       "category": "invariante",
       "targetViewId": "flow-3"
     },
@@ -4100,9 +4196,9 @@
       "targetViewId": "flow-5"
     },
     {
-      "id": "inv-`.opencode/plugins/project-suite.mjs` es la excepción",
-      "title": "`.opencode/plugins/project-suite.mjs` es la excepción",
-      "subtitle": "Es hand-authored y checked-in, el sync solo lo REGISTRA en `opencode.json`, nunca lo sobreescribe. · Flujo 5",
+      "id": "inv-`.opencode/plugins/*` (3 archivos) es la excepción",
+      "title": "`.opencode/plugins/*` (3 archivos) es la excepción",
+      "subtitle": "`project-suite.mjs`, `index.js` y `project-suite-frontmatter.cjs` son hand-authored y checked-in: el sync nunca los sobreescribe ni borra (solo REGISTRA `project-suite.mjs` en `opencode.json`). `index.js` habilita el autodiscovery v2 y también se preserva si el usuario copia `.opencode/` a su config global (allí no se lee `opencode.json`). · Flujo 5",
       "category": "invariante",
       "targetViewId": "flow-5"
     },
@@ -4358,6 +4454,34 @@
       "id": "adr-Hooks de Claude Code + puente ",
       "title": "Hooks de Claude Code + puente opencode compartiendo módulos CJS",
       "subtitle": "Una sola fuente de verdad; menos superficie de bugs",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Contrato dual en el plugin ope",
+      "title": "Contrato dual en el plugin opencode (`{ id, setup(ctx), server() }` en un único default export)",
+      "subtitle": "Sin saber qué binario `opencode` tiene el usuario, v2 lee `id`+`setup(ctx)` (transforms de skill/command y hooks de sesión `context`/`compaction`) y v1 llama `server()` — un solo artefacto checked-in sirve a ambos sin branching en el registro",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Autodiscovery v2 vía `.opencod",
+      "title": "Autodiscovery v2 vía `.opencode/plugins/index.js` (reexport del default)",
+      "subtitle": "OpenCode v2 por convención descubre plugins locales buscando `index.js`; el reexport hace que instalar `.opencode/` a `~/.config/opencode/` funcione sin editar ningún JSON",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Parser frontmatter CJS desacop",
+      "title": "Parser frontmatter CJS desacoplado (`project-suite-frontmatter.cjs`)",
+      "subtitle": "Un único export por defecto en el `.mjs` carga limpio en el module loader de Node; el parser tolera CRLF y block scalars `>`/`",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Orquestación Multi-Agente: Orq",
+      "title": "Orquestación Multi-Agente: Orquestador (delega, no codea) + subagentes Flash + especialistas OpenCode v2 vía Orca",
+      "subtitle": "Separa pensamiento estratégico de ejecución, optimiza velocidad/retención de contexto con modelo ligero para tareas acotadas y mantiene especialistas persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`) reutilizables; suficiente para sesiones largas y paralelismo acotado con sufijos `{especialista}-2`",
       "category": "adr",
       "targetViewId": "adrs"
     },
