@@ -372,5 +372,103 @@ class TestScaffoldProjectIntegration(unittest.TestCase):
             self.assertTrue((target_path / "docs" / "db" / "diseno_db.html").exists())
 
 
+class TestScaffoldProject(unittest.TestCase):
+    """Pruebas unitarias para la configuración de orquestación de 3 niveles (Fase 11)."""
+
+    def test_orchestration_config_private_vs_public(self) -> None:
+        """Verifica build_orchestration_config para visibilidad private vs public y presencia de Orca."""
+        # Privado: siempre single-agent, incluso con variables ORCA presentes
+        cfg_private_orca = scaffold_project.build_orchestration_config(
+            visibility="private",
+            env={"ORCA_PANE_KEY": "1"},
+        )
+        self.assertEqual(cfg_private_orca["visibility"], "private")
+        self.assertEqual(cfg_private_orca["topology"], "single-agent")
+
+        cfg_private_no_orca = scaffold_project.build_orchestration_config(
+            visibility="private",
+            env={},
+        )
+        self.assertEqual(cfg_private_no_orca["visibility"], "private")
+        self.assertEqual(cfg_private_no_orca["topology"], "single-agent")
+
+        # Público con variables ORCA: multi-agent-orca
+        cfg_public_orca = scaffold_project.build_orchestration_config(
+            visibility="public",
+            env={"ORCA_PANE_KEY": "1"},
+        )
+        self.assertEqual(cfg_public_orca["visibility"], "public")
+        self.assertEqual(cfg_public_orca["topology"], "multi-agent-orca")
+
+        # Público sin variables ORCA: fallback a single-agent
+        cfg_public_no_orca = scaffold_project.build_orchestration_config(
+            visibility="public",
+            env={},
+        )
+        self.assertEqual(cfg_public_no_orca["visibility"], "public")
+        self.assertEqual(cfg_public_no_orca["topology"], "single-agent")
+
+    def test_orchestration_model_presets_all_agents(self) -> None:
+        """Verifica que build_orchestration_config genere los modelos exactos para cada agente y que scaffold_project escriba orchestration.json."""
+        expected_presets = {
+            "claude": {
+                "orchestrator": "opus",
+                "specialist": "sonnet",
+                "executor": "haiku",
+            },
+            "codex": {
+                "orchestrator": "sol",
+                "specialist": "terra",
+                "executor": "luna",
+            },
+            "antigravity": {
+                "orchestrator": "argon",
+                "specialist": "flash",
+                "executor": "flash_lite",
+            },
+            "opencode": {
+                "orchestrator": "primary",
+                "specialist": "specialist",
+                "executor": "small_model",
+            },
+        }
+
+        for agent, expected_models in expected_presets.items():
+            cfg = scaffold_project.build_orchestration_config(agent=agent)
+            self.assertEqual(cfg["agent"], agent)
+            self.assertEqual(cfg["models"], expected_models)
+            self.assertEqual(
+                cfg["specialists"],
+                ["front", "back", "db", "qa", "docs", "plugin"],
+            )
+            self.assertTrue(cfg["reuseSpecialists"])
+            self.assertEqual(cfg["parallelSuffix"], "-2")
+
+        # Verificar que scaffold_project() escriba .project-suite/orchestration.json en disco
+        with tempfile.TemporaryDirectory() as temp_dir:
+            target_path = Path(temp_dir)
+            result = scaffold_project.scaffold_project(
+                target_dir=target_path,
+                project_name="OrchestrationApp",
+                visibility="public",
+                agent="codex",
+                compile_companions=False,
+                plugin_root=ROOT,
+            )
+
+            orch_file = target_path / ".project-suite" / "orchestration.json"
+            self.assertTrue(orch_file.exists(), "orchestration.json debe existir en el disco")
+            data = json.loads(orch_file.read_text(encoding="utf-8"))
+            self.assertEqual(data["visibility"], "public")
+            self.assertEqual(data["agent"], "codex")
+            self.assertEqual(data["models"], expected_presets["codex"])
+            self.assertEqual(
+                data["specialists"],
+                ["front", "back", "db", "qa", "docs", "plugin"],
+            )
+            self.assertTrue(data["reuseSpecialists"])
+            self.assertEqual(data["parallelSuffix"], "-2")
+
+
 if __name__ == "__main__":
     unittest.main()

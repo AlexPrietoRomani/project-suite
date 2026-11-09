@@ -387,5 +387,110 @@ class TestCliAndHarnessIntegration(unittest.TestCase):
         self.assertIn("python scripts/log_index.py --check", verificar_dod_skill)
 
 
+class TestFase11Features(unittest.TestCase):
+    """Pruebas unitarias para las características de la Fase 11 (orquestación 3 niveles, auditoría en frío y Codex)."""
+
+    def test_orquestacion_3_niveles_reference_exists_and_documents_concepts(self) -> None:
+        """Verifica que orquestacion-3-niveles.md exista y documente roles, presets, topologías y configuración."""
+        ref_path = ROOT / "skills" / "construir" / "references" / "orquestacion-3-niveles.md"
+        self.assertTrue(ref_path.exists(), f"Falta {ref_path}")
+        content = ref_path.read_text(encoding="utf-8")
+
+        # 3 Niveles
+        self.assertIn("Orquestador", content)
+        self.assertIn("Especialista", content)
+        self.assertIn("Ejecutor", content)
+
+        # Presets por agente
+        for agent in ("claude", "codex", "antigravity", "opencode"):
+            self.assertIn(agent, content.lower())
+
+        # Topologías y configuración
+        self.assertIn("single-agent", content)
+        self.assertIn("multi-agent-orca", content)
+        self.assertIn("multi-agent-bridge", content)
+        self.assertIn(".project-suite/orchestration.json", content)
+
+    def test_auditoria_en_frio_reference_and_links(self) -> None:
+        """Verifica que auditoria-en-frio.md exista, documente las 3 lentes y triage, y esté referenciado en skills/comandos."""
+        ref_path = ROOT / "skills" / "especificar" / "references" / "auditoria-en-frio.md"
+        self.assertTrue(ref_path.exists(), f"Falta {ref_path}")
+        content = ref_path.read_text(encoding="utf-8")
+
+        # 3 Lentes
+        self.assertIn("zoom-out", content)
+        self.assertIn("comprehension", content)
+        self.assertIn("design-critic", content)
+
+        # Matriz de triage
+        self.assertIn("fix-now", content)
+        self.assertIn("fix-in-fase", content)
+        self.assertIn("descartar", content)
+
+        # Referencias cruzadas en skills y comandos
+        especificar_text = (ROOT / "skills" / "especificar" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("auditoria-en-frio.md", especificar_text)
+
+        planificar_text = (ROOT / "skills" / "planificar" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("auditoria-en-frio.md", planificar_text)
+
+        nueva_fase_text = (ROOT / "commands" / "nueva-fase.md").read_text(encoding="utf-8")
+        self.assertIn("auditoria-en-frio.md", nueva_fase_text)
+
+        review_text = (ROOT / "commands" / "review.md").read_text(encoding="utf-8")
+        self.assertIn("auditoria-en-frio.md", review_text)
+
+    def test_codex_manifests_exist_and_version_synced(self) -> None:
+        """Verifica que los manifiestos de Codex existan y estén sincronizados en la versión 1.8.0."""
+        claude_path = ROOT / ".claude-plugin" / "plugin.json"
+        codex_path = ROOT / ".codex-plugin" / "plugin.json"
+        market_path = ROOT / ".agents" / "plugins" / "marketplace.json"
+
+        self.assertTrue(claude_path.exists(), "Falta .claude-plugin/plugin.json")
+        self.assertTrue(codex_path.exists(), "Falta .codex-plugin/plugin.json")
+        self.assertTrue(market_path.exists(), "Falta .agents/plugins/marketplace.json")
+
+        claude_data = json.loads(claude_path.read_text(encoding="utf-8"))
+        codex_data = json.loads(codex_path.read_text(encoding="utf-8"))
+        market_data = json.loads(market_path.read_text(encoding="utf-8"))
+
+        self.assertEqual(claude_data.get("version"), "1.8.0")
+        self.assertEqual(codex_data.get("version"), "1.8.0")
+        self.assertEqual(codex_data.get("version"), claude_data.get("version"))
+        self.assertEqual(codex_data.get("skills"), "./skills/")
+        self.assertEqual(codex_data.get("commands"), "./commands/")
+
+        ps_plugins = [p for p in market_data.get("plugins", []) if p.get("name") == "project-suite"]
+        self.assertEqual(len(ps_plugins), 1, "Debe existir project-suite en marketplace.json")
+        self.assertEqual(ps_plugins[0].get("version"), "1.8.0")
+
+    def test_validate_plugin_detects_duplicate_opencode_plugin(self) -> None:
+        """Verifica que validate_plugin() detecte error si opencode.json declara redundante project-suite.mjs."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_root = Path(tmp_dir) / "copy"
+            shutil.copytree(
+                ROOT,
+                tmp_root,
+                ignore=shutil.ignore_patterns(".git", "__pycache__", "node_modules", "*.pyc"),
+            )
+
+            # Verificar que la copia limpia no reporte error de duplicado en opencode.json
+            clean_errs = [e for e in validate_plugin(tmp_root) if "opencode.json:" in e]
+            self.assertEqual(clean_errs, [])
+
+            # Inyectar la entrada duplicada en opencode.json
+            opencode_json_path = tmp_root / "opencode.json"
+            cfg = json.loads(opencode_json_path.read_text(encoding="utf-8"))
+            cfg["plugin"] = ["./.opencode/plugins/project-suite.mjs"]
+            opencode_json_path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+
+            # Ahora validate_plugin() debe detectar el error de duplicidad
+            errs = validate_plugin(tmp_root)
+            self.assertTrue(
+                any("redundantly declares ./.opencode/plugins/project-suite.mjs" in e for e in errs),
+                f"validate_plugin() debe detectar entrada de plugin duplicada: {errs}",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()

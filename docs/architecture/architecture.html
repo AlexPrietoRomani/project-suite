@@ -1,4 +1,4 @@
-<!-- source-sha256: 6509d0afff159717cde0156a94fb1e7770a7fc59c30fdea10954d2c6a9a45129 -->
+<!-- source-sha256: e03bb1eca83f8e7fde63825de6d1d58cf63db29a29006d6c87e85a50f9312130 -->
 <!DOCTYPE html>
 <html lang="es" data-theme="dark">
 <head>
@@ -1048,12 +1048,12 @@
   <script id="arch-data" type="application/json">
 {
   "meta": {
-    "title": "Arquitectura — project-suite",
+    "title": "Arquitectura — project-suite (v1.8.0)",
     "subtitle": "Este documento describe project-suite organizado por **flujos**: cómo un comando/skill produce un efecto real (archivos escritos, un visor HTML compilado, un hook disparado). Cuenta con su visor interactivo compañero en [`docs/architecture/architecture.html`](architecture.html) (compilado con `python scripts/render_arch_html.py`). El plan de construcción del plugin vive en `docs/plan/plan_maestro.md` y su tablero en `docs/task/tareas.md` (locales, gitignored, como en cualquier proyecto destino).",
     "flows_count": 8,
-    "components_count": 69,
-    "invariants_count": 19,
-    "adrs_count": 12
+    "components_count": 70,
+    "invariants_count": 20,
+    "adrs_count": 14
   },
   "views": [
     {
@@ -1066,7 +1066,7 @@
         {
           "id": "U1",
           "label": "👤 Desarrollador",
-          "sublabel": "(Claude Code / opencode / Antigravity)",
+          "sublabel": "(Claude Code / opencode / Antigravity / Codex)",
           "role": "frontend",
           "color": "#06b6d4",
           "icon": "👤",
@@ -1107,7 +1107,7 @@
         },
         {
           "id": "MODE",
-          "label": ".project-suite/mode",
+          "label": ".project-suite/mode + orchestration.json",
           "sublabel": "",
           "role": "database",
           "color": "#8b5cf6",
@@ -1150,7 +1150,7 @@
         },
         {
           "id": "Sistema",
-          "label": "🖥️ project-suite",
+          "label": "🖥️ project-suite v1.8.0",
           "color": "#4dabf7",
           "parent_id": null,
           "children": [
@@ -1285,7 +1285,7 @@
           "subgraph_id": "OC",
           "target_view_id": null,
           "x": 80.0,
-          "y": 710.0,
+          "y": 840.0,
           "width": 250,
           "height": 86
         },
@@ -1300,6 +1300,20 @@
           "target_view_id": null,
           "x": 820.0,
           "y": 60.0,
+          "width": 250,
+          "height": 86
+        },
+        {
+          "id": "CODEXPLUG",
+          "label": ".codex-plugin/plugin.json",
+          "sublabel": "+ .agents/plugins/marketplace.json",
+          "role": "backend",
+          "color": "#10b981",
+          "icon": "⚙️",
+          "subgraph_id": "CDX",
+          "target_view_id": null,
+          "x": 80.0,
+          "y": 190.0,
           "width": 250,
           "height": 86
         },
@@ -1355,7 +1369,7 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
-          "y": 450.0,
+          "y": 580.0,
           "width": 250,
           "height": 86
         },
@@ -1369,7 +1383,7 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
-          "y": 320.0,
+          "y": 450.0,
           "width": 250,
           "height": 86
         },
@@ -1383,7 +1397,7 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
-          "y": 190.0,
+          "y": 320.0,
           "width": 250,
           "height": 86
         },
@@ -1397,7 +1411,7 @@
           "subgraph_id": "COMP",
           "target_view_id": null,
           "x": 80.0,
-          "y": 580.0,
+          "y": 710.0,
           "width": 250,
           "height": 86
         }
@@ -1429,7 +1443,20 @@
           "x": 52.0,
           "y": 26.0,
           "width": 1046.0,
-          "height": 792.0
+          "height": 922.0
+        },
+        {
+          "id": "CDX",
+          "label": "OpenAI Codex",
+          "color": "#a855f7",
+          "parent_id": null,
+          "children": [
+            "CODEXPLUG"
+          ],
+          "x": 52.0,
+          "y": 156.0,
+          "width": 306.0,
+          "height": 142.0
         },
         {
           "id": "SHARED",
@@ -1458,7 +1485,7 @@
             "VAL"
           ],
           "x": 52.0,
-          "y": 156.0,
+          "y": 286.0,
           "width": 306.0,
           "height": 532.0
         }
@@ -1578,10 +1605,25 @@
           "bidirectional": false,
           "thick": false,
           "color": "#38bdf8",
-          "path": "M 330.0 753.0 L 382.0 753.0 Q 390.0 753.0 390.0 745.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
+          "path": "M 330.0 883.0 L 382.0 883.0 Q 390.0 883.0 390.0 875.0 L 390.0 111.0 Q 390.0 103.0 398.0 103.0 L 450.0 103.0",
           "label_at": {
             "x": 390.0,
-            "y": 428.0
+            "y": 493.0
+          }
+        },
+        {
+          "from_node": "CODEXPLUG",
+          "to_node": "CFG",
+          "label": "",
+          "arrow_type": "-->",
+          "dashed": false,
+          "bidirectional": false,
+          "thick": false,
+          "color": "#38bdf8",
+          "path": "M 330.0 233.0 L 820.0 233.0",
+          "label_at": {
+            "x": 575.0,
+            "y": 233.0
           }
         }
       ]
@@ -2597,7 +2639,7 @@
       "full_title": "6. Flujo 4 — Ejecución del plan (`construir`)",
       "is_flow": true,
       "flow_number": 4,
-      "description": "`plan_maestro.md` + `tareas.md` → subagente por Tarea → checkbox `[X]` solo si `verificar-dod` pasa.",
+      "description": "`plan_maestro.md` + `tareas.md` → subagente por Tarea (jerarquía de 3 niveles: Orquestador -> Especialista -> Ejecutor) → checkbox `[X]` solo si `verificar-dod` pasa.",
       "scripts": [],
       "invariants": [
         {
@@ -2605,17 +2647,25 @@
           "description": "Nunca se marca `[X]` sin que `verificar-dod` haya pasado en verde."
         },
         {
+          "name": "Jerarquía de 3 niveles",
+          "description": "El Orquestador delega Sub fases digeridas al Especialista persistente (`front`, `back`, etc.), quien lanza Ejecutores efímeros (N3) para cada Tarea atómica."
+        },
+        {
           "name": "Contexto acotado",
           "description": "Cada subagente recibe solo la Tarea + `*-standards` aplicables, no el plan completo."
         }
       ],
       "flow_meta": {
-        "pipeline": "`plan_maestro.md` + `tareas.md` → subagente por Tarea → checkbox `[X]` solo si `verificar-dod` pasa.",
+        "pipeline": "`plan_maestro.md` + `tareas.md` → subagente por Tarea (jerarquía de 3 niveles: Orquestador -> Especialista -> Ejecutor) → checkbox `[X]` solo si `verificar-dod` pasa.",
         "scripts": [],
         "invariants": [
           {
             "name": "El checkbox es sagrado",
             "description": "Nunca se marca `[X]` sin que `verificar-dod` haya pasado en verde."
+          },
+          {
+            "name": "Jerarquía de 3 niveles",
+            "description": "El Orquestador delega Sub fases digeridas al Especialista persistente (`front`, `back`, etc.), quien lanza Ejecutores efímeros (N3) para cada Tarea atómica."
           },
           {
             "name": "Contexto acotado",
@@ -3399,7 +3449,7 @@
       "name": "ADRs",
       "description": "Registro de Decisiones Arquitectónicas tomadas y descartadas",
       "diagram_type": "adrs_table",
-      "badge": "12",
+      "badge": "14",
       "components": [],
       "boundaries": [],
       "connections": []
@@ -3450,9 +3500,9 @@
       "id": "flow-4",
       "number": "4",
       "name": "6. Flujo 4 — Ejecución del plan (`construir`)",
-      "pipeline": "`plan_maestro.md` + `tareas.md` → subagente por Tarea → checkbox `[X]` solo si `verificar-dod` pasa.",
+      "pipeline": "`plan_maestro.md` + `tareas.md` → subagente por Tarea (jerarquía de 3 niveles: Orquestador -> Especialista -> Ejecutor) → checkbox `[X]` solo si `verificar-dod` pasa.",
       "scripts": [],
-      "invariants_count": 2
+      "invariants_count": 3
     },
     {
       "id": "flow-5",
@@ -3514,9 +3564,19 @@
       "rationale": "Un único export por defecto en el `.mjs` carga limpio en el module loader de Node; el parser tolera CRLF y block scalars `>`/`"
     },
     {
-      "decision": "Orquestación Multi-Agente: Orquestador (delega, no codea) + subagentes Flash + especialistas OpenCode v2 vía Orca",
-      "alternative": "Hacer todo en el agente principal o disparar subagentes ad-hoc sin modelo ni dominio",
-      "rationale": "Separa pensamiento estratégico de ejecución, optimiza velocidad/retención de contexto con modelo ligero para tareas acotadas y mantiene especialistas persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`) reutilizables; suficiente para sesiones largas y paralelismo acotado con sufijos `{especialista}-2`"
+      "decision": "Orquestación Jerárquica en 3 Niveles (`Orquestador -> Especialista -> Ejecutor`) con presets por agente y gobernanza en `.project-suite/orchestration.json`",
+      "alternative": "Ejecución plana en una sola sesión o subagentes sin especialización ni control de visibilidad",
+      "rationale": "Separa estrategia (N1) de implementación por dominio (N2) y ejecución ligera efímera (N3); optimiza cuotas de tokens con presets calibrados (`fable/opus->sonnet->haiku`, `sol->terra->luna`, `argon->flash->flash_lite`) y garantiza aislamiento en repos privados vs. distribución Orca en repos públicos"
+    },
+    {
+      "decision": "Auditoría en Frío (Zero-Context Review) con Ejecutores de Nivel 3 para specs, planes y diffs",
+      "alternative": "Autorevisión en la misma sesión cargada de contexto previo",
+      "rationale": "Elimina el sesgo de autor evaluando documentos y diffs con agentes limpios bajo 3 lentes (`zoom-out`, `comprehension`, `design-critic`) con matriz de triage determinista (`fix-now`, `fix-in-fase`, `descartar`)"
+    },
+    {
+      "decision": "Soporte nativo para OpenAI Codex vía `.codex-plugin/plugin.json` y `.agents/plugins/marketplace.json`",
+      "alternative": "Relegar Codex a reglas pasivas en `AGENTS.md` o depender de adaptadores externos",
+      "rationale": "Otorga paridad total a Codex para cargar skills, comandos y `.mcp.json` nativamente, validado por la suite de scripts y eliminando la duplicación de `\"plugin\"` en `opencode.json`"
     },
     {
       "decision": "Recordatorio ambiental liviano (texto estático por modo)",
@@ -3565,7 +3625,7 @@
     {
       "id": "comp-U1",
       "title": "👤 Desarrollador",
-      "subtitle": "(Claude Code / opencode / Antigravity) · C4 Contexto",
+      "subtitle": "(Claude Code / opencode / Antigravity / Codex) · C4 Contexto",
       "category": "componente",
       "targetViewId": "c4-contexto",
       "nodeId": "U1"
@@ -3588,7 +3648,7 @@
     },
     {
       "id": "comp-MODE",
-      "title": ".project-suite/mode",
+      "title": ".project-suite/mode + orchestration.json",
       "subtitle": " · C4 Contexto",
       "category": "componente",
       "targetViewId": "c4-contexto",
@@ -3640,6 +3700,14 @@
       "category": "componente",
       "targetViewId": "c4-contenedor",
       "nodeId": "PARSER"
+    },
+    {
+      "id": "comp-CODEXPLUG",
+      "title": ".codex-plugin/plugin.json",
+      "subtitle": "+ .agents/plugins/marketplace.json · C4 Contenedor",
+      "category": "componente",
+      "targetViewId": "c4-contenedor",
+      "nodeId": "CODEXPLUG"
     },
     {
       "id": "comp-CFG",
@@ -4115,7 +4183,7 @@
     {
       "id": "view-flow-4",
       "title": "Flujo 4",
-      "subtitle": "`plan_maestro.md` + `tareas.md` → subagente por Tarea → checkbox `[X]` solo si `verificar-dod` pasa.",
+      "subtitle": "`plan_maestro.md` + `tareas.md` → subagente por Tarea (jerarquía de 3 niveles: Orquestador -> Especialista -> Ejecutor) → checkbox `[X]` solo si `verificar-dod` pasa.",
       "category": "vista",
       "targetViewId": "flow-4"
     },
@@ -4147,6 +4215,13 @@
       "id": "inv-El checkbox es sagrado",
       "title": "El checkbox es sagrado",
       "subtitle": "Nunca se marca `[X]` sin que `verificar-dod` haya pasado en verde. · Flujo 4",
+      "category": "invariante",
+      "targetViewId": "flow-4"
+    },
+    {
+      "id": "inv-Jerarquía de 3 niveles",
+      "title": "Jerarquía de 3 niveles",
+      "subtitle": "El Orquestador delega Sub fases digeridas al Especialista persistente (`front`, `back`, etc.), quien lanza Ejecutores efímeros (N3) para cada Tarea atómica. · Flujo 4",
       "category": "invariante",
       "targetViewId": "flow-4"
     },
@@ -4479,9 +4554,23 @@
       "targetViewId": "adrs"
     },
     {
-      "id": "adr-Orquestación Multi-Agente: Orq",
-      "title": "Orquestación Multi-Agente: Orquestador (delega, no codea) + subagentes Flash + especialistas OpenCode v2 vía Orca",
-      "subtitle": "Separa pensamiento estratégico de ejecución, optimiza velocidad/retención de contexto con modelo ligero para tareas acotadas y mantiene especialistas persistentes por dominio (`front`, `back`, `db`, `qa`, `docs`, `plugin`) reutilizables; suficiente para sesiones largas y paralelismo acotado con sufijos `{especialista}-2`",
+      "id": "adr-Orquestación Jerárquica en 3 N",
+      "title": "Orquestación Jerárquica en 3 Niveles (`Orquestador -> Especialista -> Ejecutor`) con presets por agente y gobernanza en `.project-suite/orchestration.json`",
+      "subtitle": "Separa estrategia (N1) de implementación por dominio (N2) y ejecución ligera efímera (N3); optimiza cuotas de tokens con presets calibrados (`fable/opus->sonnet->haiku`, `sol->terra->luna`, `argon->flash->flash_lite`) y garantiza aislamiento en repos privados vs. distribución Orca en repos públicos",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Auditoría en Frío (Zero-Contex",
+      "title": "Auditoría en Frío (Zero-Context Review) con Ejecutores de Nivel 3 para specs, planes y diffs",
+      "subtitle": "Elimina el sesgo de autor evaluando documentos y diffs con agentes limpios bajo 3 lentes (`zoom-out`, `comprehension`, `design-critic`) con matriz de triage determinista (`fix-now`, `fix-in-fase`, `descartar`)",
+      "category": "adr",
+      "targetViewId": "adrs"
+    },
+    {
+      "id": "adr-Soporte nativo para OpenAI Cod",
+      "title": "Soporte nativo para OpenAI Codex vía `.codex-plugin/plugin.json` y `.agents/plugins/marketplace.json`",
+      "subtitle": "Otorga paridad total a Codex para cargar skills, comandos y `.mcp.json` nativamente, validado por la suite de scripts y eliminando la duplicación de `\"plugin\"` en `opencode.json`",
       "category": "adr",
       "targetViewId": "adrs"
     },

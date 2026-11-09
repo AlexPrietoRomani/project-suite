@@ -27,7 +27,9 @@ Produce la especificación técnica de un proyecto en tres documentos Markdown c
 
 8. **Referencias cruzadas.** Enlaza los tres documentos entre sí con las rutas exactas: `architecture.md` apunta al diccionario en `../db/diseno_db.md` y a su visor interactivo `architecture.html`; `diseno_db.md` apunta al flujo que genera cada base en `../architecture/architecture.md` y a su visor `diseno_db.html`; `description_proyecto.md` referencia `docs/architecture/architecture.md` cuando haya más de 3 flujos. Verifica que cada ruta relativa resuelve.
 
-9. **Terminal state.** Deja los tres documentos `.md` y sus dos visores `.html` compañeros escritos y sincronizados (`--check`), sin secciones en blanco, y sugiere continuar con la skill `planificar` para derivar el Plan Maestro y `tareas.md`.
+9. **Auditoría en Frío (gate de cierre).** Antes de dar por cerrada la especificación, el Orquestador lanza de 1 a 3 subagentes **Ejecutores** (Nivel 3: `haiku`, `luna`, `flash_lite`) **en frío** (cero contexto de la conversación) con los documentos escritos, siguiendo [`references/auditoria-en-frio.md`](references/auditoria-en-frio.md): lentes `zoom-out` (sobre-ingeniería), `comprehension` (lectura literal) y `design-critic` (fallas/bordes/invariantes). Clasifica cada hallazgo con la matriz de triage (`fix-now | fix-in-fase | descartar`) y corrige los `fix-now` en los documentos antes de continuar.
+
+10. **Terminal state.** Deja los tres documentos `.md` y sus dos visores `.html` compañeros escritos y sincronizados (`--check`), con la Auditoría en Frío aplicada y su triage resuelto, sin secciones en blanco; sugiere continuar con la skill `planificar` para derivar el Plan Maestro y `tareas.md`.
 
 ## Reglas / Salida
 

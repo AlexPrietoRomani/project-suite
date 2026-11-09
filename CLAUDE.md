@@ -14,10 +14,12 @@
 5. **LLM co-authorship:** Enabled by default with the active model's `Co-Authored-By` trailer unless explicitly disabled.
 
 ## Multi-Agent Orchestration
-- **Orchestrator:** The primary agent coordinates, reviews, and delegates; does not directly write code or documents.
-- **Own subagents (`invoke_subagent`):** Use fast/lightweight model (`flash` / Gemini Flash) for bounded editing, validation, or research tasks.
-- **OpenCode specialists (via `orca-cli` / `orchestration`):** Domain-specific sessions with short, identifiable names (`front`, `back`, `db`, `qa`, `docs`, `plugin`, etc.).
-- **Reuse & parallelism:** Reuse active domain sessions (continuing context or after clean). Only instantiate `{specialist}-2` (e.g. `front-2`) when parallelizing concurrent tasks within the same domain.
+Three-level hierarchy (`Orchestrator -> Specialist -> Executor`):
+- **Level 1 — Orchestrator:** coordinates, digests Fases/Sub fases, and validates; does not directly write code. Dispatches **Executors** for reports, validations, or Cold Audits without filling its own context.
+- **Level 2 — Specialists (`front`, `back`, `db`, `qa`, `docs`, `plugin`):** receive digested Fases/Sub fases. Always reuse the specialist's session; only create `{specialist}-2` when parallelizing concurrent tasks within the same domain.
+- **Level 3 — Executors:** fast subagents dispatched by the Specialist (small Tareas) or by the Orchestrator (reports/audits).
+- **Model presets (`L1 -> L2 -> L3`):** Claude (`fable/opus -> sonnet -> haiku`), Codex (`sol -> terra -> luna`), Antigravity (`argon -> flash -> flash_lite`), OpenCode (`model -> specialist -> small_model` per provider).
+- **Private vs. Public (`.project-suite/orchestration.json`):** private repos default to `single-agent`; public repos with Orca enable `multi-agent-orca` (specialists in `opencode2`/`claude`/`codex` via `orca`). Configurable at `/init` or in-session with `/modo orquestacion`.
 
 ## Keeping the plugin coherent
 6. After changing `skills/`, `commands/`, `agents/` (research-suite only), or `.mcp.json`: run `python scripts/sync_opencode.py`.

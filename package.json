@@ -1,8 +1,8 @@
 {
   "name": "@alexprietoromani/project-suite",
-  "version": "1.7.0",
-  "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 22 skills, 6 commands, works with Claude Code and opencode.",
-  "keywords": ["opencode-plugin", "claude-code-plugin", "spec-driven", "planning", "testing", "project-management", "skills"],
+  "version": "1.8.0",
+  "description": "Spec-driven project scaffolder/governor: plan first, build in phases, enforce quality gates. 22 skills, 6 commands, works with Claude Code, OpenAI Codex, and opencode.",
+  "keywords": ["opencode-plugin", "claude-code-plugin", "codex-plugin", "spec-driven", "planning", "testing", "project-management", "skills"],
   "license": "MIT",
   "author": {
     "name": "Alex Prieto Romani"
@@ -29,6 +29,8 @@
     "commands/",
     ".opencode/",
     ".claude-plugin/",
+    ".codex-plugin/",
+    ".agents/",
     "templates/",
     "LICENSE"
   ],

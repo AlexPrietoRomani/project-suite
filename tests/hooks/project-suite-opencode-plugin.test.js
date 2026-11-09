@@ -350,3 +350,165 @@ test("v1 'command.execute.before' persists the mode via 'modo' and ignores other
     assert.equal(fs.readFileSync(path.join(repo, '.project-suite', 'mode'), 'utf8'), 'relajado');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Fase 11: 3-tier orchestration, Orca topology, and Codex manifests
+// ---------------------------------------------------------------------------
+
+const {
+  MODEL_PRESETS,
+  getModelPreset,
+  isOrcaEnvironment,
+  resolveDefaultTopology,
+  getOrchestrationConfig,
+  setOrchestrationConfig,
+  getOrchestrationPath,
+} = require(path.join(REPO_ROOT, 'hooks', 'project-suite-config.js'));
+
+test('MODEL_PRESETS defines exact 3-tier models for claude, codex, antigravity and opencode', () => {
+  assert.deepEqual(MODEL_PRESETS.claude, {
+    orchestrator: 'opus',
+    specialist: 'sonnet',
+    executor: 'haiku',
+  });
+  assert.deepEqual(MODEL_PRESETS.codex, {
+    orchestrator: 'sol',
+    specialist: 'terra',
+    executor: 'luna',
+  });
+  assert.deepEqual(MODEL_PRESETS.antigravity, {
+    orchestrator: 'argon',
+    specialist: 'flash',
+    executor: 'flash_lite',
+  });
+  assert.deepEqual(MODEL_PRESETS.opencode, {
+    orchestrator: 'primary',
+    specialist: 'specialist',
+    executor: 'small_model',
+  });
+});
+
+test('getModelPreset maps opencode providers (anthropic, openai, google) and falls back to claude', () => {
+  assert.deepEqual(getModelPreset('opencode', 'anthropic'), MODEL_PRESETS.claude);
+  assert.deepEqual(getModelPreset('opencode', 'openai'), MODEL_PRESETS.codex);
+  assert.deepEqual(getModelPreset('opencode', 'google'), MODEL_PRESETS.antigravity);
+  assert.deepEqual(getModelPreset('claude'), MODEL_PRESETS.claude);
+  assert.deepEqual(getModelPreset('codex'), MODEL_PRESETS.codex);
+  assert.deepEqual(getModelPreset('antigravity'), MODEL_PRESETS.antigravity);
+  assert.deepEqual(getModelPreset('opencode'), MODEL_PRESETS.opencode);
+  assert.deepEqual(getModelPreset('unknown_agent'), MODEL_PRESETS.claude);
+});
+
+test('isOrcaEnvironment detects ORCA_PANE_KEY, ORCA_SERVER_PORT, ORCA_WORKSPACE_ID and returns false when empty', () => {
+  assert.equal(isOrcaEnvironment({}), false);
+  assert.equal(isOrcaEnvironment({ ORCA_PANE_KEY: '' }), false);
+  assert.equal(isOrcaEnvironment({ ORCA_PANE_KEY: 'pane-alpha' }), true);
+  assert.equal(isOrcaEnvironment({ ORCA_SERVER_PORT: '9000' }), true);
+  assert.equal(isOrcaEnvironment({ ORCA_WORKSPACE_ID: 'ws-42' }), true);
+});
+
+test('resolveDefaultTopology enforces single-agent for private and auto-detects multi-agent-orca for public', () => {
+  // 'private' always returns 'single-agent' even if ORCA_PANE_KEY is present
+  assert.equal(resolveDefaultTopology('private', {}), 'single-agent');
+  assert.equal(resolveDefaultTopology('private', { ORCA_PANE_KEY: 'pane-alpha' }), 'single-agent');
+  assert.equal(resolveDefaultTopology('private', { ORCA_SERVER_PORT: '9000' }), 'single-agent');
+
+  // 'public' returns 'multi-agent-orca' when Orca is detected and 'single-agent' when no Orca
+  assert.equal(resolveDefaultTopology('public', { ORCA_PANE_KEY: 'pane-alpha' }), 'multi-agent-orca');
+  assert.equal(resolveDefaultTopology('public', { ORCA_SERVER_PORT: '9000' }), 'multi-agent-orca');
+  assert.equal(resolveDefaultTopology('public', { ORCA_WORKSPACE_ID: 'ws-42' }), 'multi-agent-orca');
+  assert.equal(resolveDefaultTopology('public', {}), 'single-agent');
+  assert.equal(resolveDefaultTopology('public', { ORCA_PANE_KEY: '' }), 'single-agent');
+
+  // Fallback for unknown visibility
+  assert.equal(resolveDefaultTopology('unknown', { ORCA_PANE_KEY: 'pane-alpha' }), 'single-agent');
+});
+
+test('getOrchestrationConfig and setOrchestrationConfig manage .project-suite/orchestration.json with recalculation and preservation', () => {
+  const repo = mkPSRepo();
+  const configPath = getOrchestrationPath(repo);
+
+  // Initial read when file does not exist: defaults
+  const initial = getOrchestrationConfig(repo, {});
+  assert.equal(initial.visibility, 'private');
+  assert.equal(initial.agent, 'claude');
+  assert.equal(initial.topology, 'single-agent');
+  assert.deepEqual(initial.models, MODEL_PRESETS.claude);
+  assert.deepEqual(initial.specialists, ['front', 'back', 'db', 'qa', 'docs', 'plugin']);
+  assert.equal(initial.reuseSpecialists, true);
+  assert.equal(initial.parallelSuffix, '-2');
+
+  // Set visibility to public with Orca environment -> topology recalculates to 'multi-agent-orca'
+  const updated1 = setOrchestrationConfig({ visibility: 'public' }, repo, { ORCA_PANE_KEY: 'pane-1' });
+  assert.ok(updated1);
+  assert.equal(updated1.visibility, 'public');
+  assert.equal(updated1.topology, 'multi-agent-orca');
+  assert.ok(fs.existsSync(configPath));
+
+  // Switch agent to codex -> models recalculate to codex preset while specialists and flags are preserved
+  const updated2 = setOrchestrationConfig({ agent: 'codex' }, repo, { ORCA_PANE_KEY: 'pane-1' });
+  assert.ok(updated2);
+  assert.equal(updated2.agent, 'codex');
+  assert.deepEqual(updated2.models, MODEL_PRESETS.codex);
+  assert.equal(updated2.visibility, 'public');
+  assert.equal(updated2.topology, 'multi-agent-orca');
+  assert.deepEqual(updated2.specialists, ['front', 'back', 'db', 'qa', 'docs', 'plugin']);
+  assert.equal(updated2.reuseSpecialists, true);
+  assert.equal(updated2.parallelSuffix, '-2');
+
+  // Switch visibility back to private with Orca environment -> topology recalculates to 'single-agent'
+  const updated3 = setOrchestrationConfig({ visibility: 'private' }, repo, { ORCA_PANE_KEY: 'pane-1' });
+  assert.ok(updated3);
+  assert.equal(updated3.visibility, 'private');
+  assert.equal(updated3.topology, 'single-agent');
+  assert.equal(updated3.agent, 'codex');
+  assert.deepEqual(updated3.models, MODEL_PRESETS.codex);
+
+  // File on disk matches getOrchestrationConfig result
+  const readBack = getOrchestrationConfig(repo, { ORCA_PANE_KEY: 'pane-1' });
+  assert.deepEqual(readBack, updated3);
+  const diskData = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  assert.deepEqual(diskData, updated3);
+});
+
+test('opencode.json at repo root does not contain duplicate project-suite.mjs plugin when .opencode/plugins/index.js exists', () => {
+  const indexJs = path.join(REPO_ROOT, '.opencode', 'plugins', 'index.js');
+  const opencodeJsonPath = path.join(REPO_ROOT, 'opencode.json');
+  assert.ok(fs.existsSync(indexJs), '.opencode/plugins/index.js must exist for autodiscovery');
+  assert.ok(fs.existsSync(opencodeJsonPath), 'opencode.json must exist');
+
+  const content = JSON.parse(fs.readFileSync(opencodeJsonPath, 'utf8'));
+  if (Array.isArray(content.plugin)) {
+    assert.equal(
+      content.plugin.includes('./.opencode/plugins/project-suite.mjs'),
+      false,
+      'opencode.json must not redundantly declare project-suite.mjs when index.js exists'
+    );
+  }
+});
+
+test('Codex manifest .codex-plugin/plugin.json and .agents/plugins/marketplace.json match version 1.8.0', () => {
+  const codexPluginPath = path.join(REPO_ROOT, '.codex-plugin', 'plugin.json');
+  const marketplacePath = path.join(REPO_ROOT, '.agents', 'plugins', 'marketplace.json');
+  const claudePluginPath = path.join(REPO_ROOT, '.claude-plugin', 'plugin.json');
+
+  assert.ok(fs.existsSync(codexPluginPath), '.codex-plugin/plugin.json must exist');
+  assert.ok(fs.existsSync(marketplacePath), '.agents/plugins/marketplace.json must exist');
+  assert.ok(fs.existsSync(claudePluginPath), '.claude-plugin/plugin.json must exist');
+
+  const codexPlugin = JSON.parse(fs.readFileSync(codexPluginPath, 'utf8'));
+  const marketplace = JSON.parse(fs.readFileSync(marketplacePath, 'utf8'));
+  const claudePlugin = JSON.parse(fs.readFileSync(claudePluginPath, 'utf8'));
+
+  assert.equal(codexPlugin.name, 'project-suite');
+  assert.equal(codexPlugin.version, '1.8.0');
+  assert.equal(codexPlugin.skills, './skills/');
+  assert.equal(codexPlugin.commands, './commands/');
+
+  const suiteEntry = marketplace.plugins.find((p) => p.name === 'project-suite');
+  assert.ok(suiteEntry, 'project-suite must be present in marketplace.plugins');
+  assert.equal(suiteEntry.version, '1.8.0');
+
+  assert.equal(claudePlugin.version, '1.8.0');
+  assert.equal(codexPlugin.version, claudePlugin.version);
+});

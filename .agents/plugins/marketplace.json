@@ -1,0 +1,21 @@
+{
+  "name": "project-suite-marketplace",
+  "owner": {
+    "name": "Alex Prieto Romani"
+  },
+  "plugins": [
+    {
+      "name": "project-suite",
+      "version": "1.8.0",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Productivity",
+      "description": "Spec-driven project scaffolder/governor with 3-tier orchestration (Orchestrator -> Specialist -> Executor), zero-context cold audits, and full lifecycle quality gates."
+    }
+  ]
+}

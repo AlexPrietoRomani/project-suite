@@ -20,7 +20,14 @@ MINOR_FILE_PATTERNS = (
     re.compile(r"^commands/[^/]+\.md$"),
     re.compile(r"^agents/[^/]+\.md$"),
 )
-MINOR_MANIFEST_FILES = {".mcp.json", "package.json", "requirements.txt", "pyproject.toml"}
+MINOR_MANIFEST_FILES = {
+    ".mcp.json",
+    "package.json",
+    "requirements.txt",
+    "pyproject.toml",
+    ".codex-plugin/plugin.json",
+    ".agents/plugins/marketplace.json",
+}
 LEVEL_RANK = {"none": 0, "patch": 1, "minor": 2, "major": 3}
 
 
