@@ -256,16 +256,22 @@ def validate_plugin(root: Path = ROOT) -> list[str]:
         return data
 
     plugin = check_json(".claude-plugin/plugin.json", ["name", "version", "description"])
-    for other in ("package.json", "gemini-extension.json", "plugin.json"):
+    for other in ("package.json", "gemini-extension.json", "plugin.json", ".codex-plugin/plugin.json"):
         o = check_json(other, ["version"]) if (root / other).exists() else None
         if plugin and o and o.get("version") != plugin.get("version"):
             err(f"{other}: version {o.get('version')} != plugin.json {plugin.get('version')}")
 
     check_json(".claude-plugin/marketplace.json", ["name", "plugins"])
+    check_json(".codex-plugin/plugin.json", ["name", "version", "description", "skills", "commands"])
+    check_json(".agents/plugins/marketplace.json", ["name", "plugins"])
     if (root / ".mcp.json").exists():
         check_json(".mcp.json", ["mcpServers"])
     if (root / "opencode.json").exists():
-        check_json("opencode.json", ["mcp"])
+        opencode_cfg = check_json("opencode.json", ["mcp"])
+        if (root / ".opencode" / "plugins" / "index.js").exists() and opencode_cfg:
+            plugin_val = opencode_cfg.get("plugin")
+            if isinstance(plugin_val, list) and "./.opencode/plugins/project-suite.mjs" in plugin_val:
+                err("opencode.json: redundantly declares ./.opencode/plugins/project-suite.mjs when .opencode/plugins/index.js already exists")
 
     hooks_cfg = None
     if (root / "hooks" / "hooks.json").exists():

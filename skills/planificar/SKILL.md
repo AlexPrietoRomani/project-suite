@@ -48,7 +48,9 @@ Convierte la especificación técnica del proyecto en un plan de construcción a
 
 6. **Delega los diagramas del plan** (por ejemplo el árbol de Fases, un Gantt o un flujo de dependencias) en la skill `generar-diagramas` cuando aporten valor; usa Mermaid, nunca imágenes.
 
-7. **Estado terminal:** deja `docs/plan/plan_maestro.md` y `docs/task/tareas.md` escritos y coherentes entre sí (mismos IDs de Fase/Sub fase/Tarea), y sugiere continuar con la skill `construir` para ejecutar el plan por fases.
+7. **Auditoría en Frío del plan (gate previo al estado terminal).** Antes de cerrar, valida el plan con Ejecutores de Nivel 3 **sin contexto previo** según [`../especificar/references/auditoria-en-frio.md`](../especificar/references/auditoria-en-frio.md): verifica con la lente `comprehension` que cada Tarea sea autoexplicativa para un Especialista/Ejecutor sin contexto de la conversación, y con `zoom-out`/`design-critic` que el desglose no sobre-ingenierice ni deje invariantes sin test. Clasifica los hallazgos con el triage (`fix-now | fix-in-fase | descartar`) y corrige los `fix-now` en el plan antes de continuar.
+
+8. **Estado terminal:** deja `docs/plan/plan_maestro.md` y `docs/task/tareas.md` escritos y coherentes entre sí (mismos IDs de Fase/Sub fase/Tarea), con la Auditoría en Frío aplicada, y sugiere continuar con la skill `construir` para ejecutar el plan por fases.
 
 ## Reglas / Salida
 

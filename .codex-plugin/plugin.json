@@ -1,0 +1,28 @@
+{
+  "name": "project-suite",
+  "version": "1.8.0",
+  "description": "Spec-driven project scaffolder and governor: plan first in documents (description, architecture, DB design), build in phases (Fases/Sub fases/Tareas) via 3-tier orchestration (Orchestrator, Specialist, Executor), with cold-review gates, semantic commits, PRs, mandatory tests, incident log, and doc<->code coherence.",
+  "author": {
+    "name": "Alex Prieto Romani"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spec-driven",
+    "scaffolding",
+    "planning",
+    "tareas",
+    "architecture",
+    "testing",
+    "standards",
+    "orchestration",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Project Suite",
+    "shortDescription": "Spec-driven development, 3-tier multi-agent orchestration, and deterministic quality gates",
+    "category": "Productivity"
+  }
+}

@@ -26,6 +26,8 @@ Revisa los cambios recientes (diff) del repo contra el plan vigente y la spec de
    - **CONTRADICCION** — el cambio contradice una decision documentada en architecture.md o diseno_db.md (ej: cambio de esquema de DB sin actualizar diseno_db.md, o end-point nuevo sin actualizar architecture.md).
    - **TEST FALTANTE** — el cambio modifica logica de negocio pero no incluye tests asociados a la Tarea correspondiente.
 
+   *Opción Auditoría en Frío (Zero-Context Review):* El Orquestador puede lanzar un **Ejecutor de Nivel 3** (`haiku`, `luna`, `flash_lite`) sin contexto previo de la sesión (`skills/especificar/references/auditoria-en-frio.md`) con las lentes `comprehension` (para verificar que el diff sea comprensible y explícito sin supuestos ocultos) y `design-critic` (para cazar condiciones de carrera, rotura de invariantes o casos borde no cubiertos en los tests), contrastando el diff exclusivamente contra los contratos relevantes.
+
 4. **Reportar.** Lista los hallazgos agrupados por severidad:
    - **CRITICO** — contradicciones con la spec o cambios que rompen el contrato de datos.
    - **ALERTA** — codigo sin planificar o fuera de fase.

@@ -81,7 +81,10 @@ def gen_opencode_json():
     out = {"$schema": "https://opencode.ai/config.json", "mcp": {}}
     for name, cfg in mcp_src.get("mcpServers", {}).items():
         out["mcp"][name] = to_opencode_entry(cfg)
-    if (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists():
+    if (
+        (ROOT / ".opencode" / "plugins" / "project-suite.mjs").exists()
+        and not (ROOT / ".opencode" / "plugins" / "index.js").exists()
+    ):
         out["plugin"] = ["./.opencode/plugins/project-suite.mjs"]
     (ROOT / "opencode.json").write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
     return list(out["mcp"].keys())

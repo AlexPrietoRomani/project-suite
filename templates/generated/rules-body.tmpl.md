@@ -13,10 +13,12 @@
 4. Every Tarea needs unit + user-simulation tests (`testear`). Close it with `verificar-dod` before marking `[X]`. A checkbox `[X]` means its DoD passed.
 
 ## Orquestación multi-agente
-- **Orquestador:** El agente principal coordina, revisa y delega; normalmente no escribe código ni documentos directamente.
-- **Subagentes propios (`invoke_subagent`):** Usar modelo ligero/rápido (`flash` / Gemini Flash) para tareas acotadas de edición, validación o investigación.
-- **Especialistas OpenCode (vía `orca-cli` / `orchestration`):** Sesiones por dominio con nombres cortos e identificables (`front`, `back`, `db`, `qa`, `docs`, `plugin`, etc.).
-- **Reutilización y paralelismo:** Reutilizar el especialista activo del dominio (siguiendo contexto o tras limpieza). Solo instanciar `{especialista}-2` (ej. `front-2`) al paralelizar tareas simultáneas del mismo dominio.
+Jerarquía de 3 niveles (`Orquestador -> Especialista -> Ejecutor`):
+- **Nivel 1 — Orquestador:** coordina, digiere Fases/Sub fases y valida; no escribe código directo. Lanza **Ejecutores** para reportes, validaciones o Auditorías en Frío sin llenar su contexto.
+- **Nivel 2 — Especialistas (`front`, `back`, `db`, `qa`, `docs`, `plugin`):** reciben Fases/Sub fases digeridas. Reutilizar siempre el mismo chat del especialista; solo crear `{especialista}-2` al paralelizar tareas simultáneas del mismo dominio.
+- **Nivel 3 — Ejecutores:** subagentes rápidos lanzados por el Especialista (Tareas pequeñas) o por el Orquestador (reportes/auditorías).
+- **Presets de modelos (`N1 -> N2 -> N3`):** Claude (`fable/opus -> sonnet -> haiku`), Codex (`sol -> terra -> luna`), Antigravity (`argon -> flash -> flash_lite`), OpenCode (`model -> specialist -> small_model` según proveedor).
+- **Privado vs. Público (`.project-suite/orchestration.json`):** repos privados usan `single-agent` por defecto; repos públicos con Orca habilitan `multi-agent-orca` (especialistas en `opencode2`/`claude`/`codex` vía `orca`). Cambiable en `/init` o en sesión con `/modo orquestacion`.
 
 ## Committing & PRs (strict)
 5. **Every commit** goes through `/semantic-commit`. **Every PR** goes through `/pull-request`. Never bypass hooks or signing unless explicitly told. Commits use the **Author** above with LLM co-authorship for the active model unless the Authorship section disables it.

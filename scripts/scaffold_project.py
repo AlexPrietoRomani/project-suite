@@ -50,8 +50,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import re
+import subprocess
 import sys
 from typing import Any
 
@@ -148,6 +150,35 @@ BASE_IGNORES: list[str] = [
     ".env.local",
     ".env.*.local",
 ]
+
+# Presets de modelos de 3 niveles (Orquestrador -> Especialista -> Ejecutor)
+# por agente de código (Fase 11 — espejo de hooks/project-suite-config.js).
+MODEL_PRESETS: dict[str, dict[str, str]] = {
+    "claude": {
+        "orchestrator": "opus",
+        "specialist": "sonnet",
+        "executor": "haiku",
+    },
+    "codex": {
+        "orchestrator": "sol",
+        "specialist": "terra",
+        "executor": "luna",
+    },
+    "antigravity": {
+        "orchestrator": "argon",
+        "specialist": "flash",
+        "executor": "flash_lite",
+    },
+    "opencode": {
+        "orchestrator": "primary",
+        "specialist": "specialist",
+        "executor": "small_model",
+    },
+}
+
+DEFAULT_SPECIALISTS: list[str] = ["front", "back", "db", "qa", "docs", "plugin"]
+
+ORCA_ENV_KEYS: tuple[str, ...] = ("ORCA_PANE_KEY", "ORCA_SERVER_PORT", "ORCA_WORKSPACE_ID")
 
 
 def _normalize_stack_name(name: str) -> str | None:
@@ -346,6 +377,91 @@ def copy_doc_templates(
     return created_paths
 
 
+def detect_repo_visibility(target_dir: Path) -> str:
+    """Detecta si el repo es privado o publico via `gh repo view`.
+
+    Args:
+        target_dir (Path): Directorio raiz del repo a consultar.
+
+    Returns:
+        str: 'public' si `gh` responde `"isPrivate": false`; en cualquier otro
+        caso (sin gh, sin remoto, error o repo privado) retorna 'private'
+        como default seguro.
+    """
+    try:
+        result = subprocess.run(
+            ["gh", "repo", "view", "--json", "isPrivate"],
+            cwd=target_dir,
+            timeout=3,
+            capture_output=True,
+            text=True,
+        )
+        data = json.loads(result.stdout)
+        if data.get("isPrivate") is False:
+            return "public"
+    except (OSError, subprocess.SubprocessError, json.JSONDecodeError, ValueError):
+        pass
+    return "private"
+
+
+def _is_orca_environment(env: dict[str, str]) -> bool:
+    """True si alguna variable de entorno de Orca tiene valor no vacio."""
+    return any(env.get(key) for key in ORCA_ENV_KEYS)
+
+
+def build_orchestration_config(
+    visibility: str = "auto",
+    agent: str = "claude",
+    orchestration: str = "auto",
+    target_dir: Path | None = None,
+    env: dict[str, str] | None = None,
+) -> dict[str, Any]:
+    """Construye la configuracion de orquestacion de 3 niveles para el repo.
+
+    Args:
+        visibility (str, opcional): Visibilidad del repo ('auto', 'private' o 'public').
+        agent (str, opcional): Agente de codigo ('claude', 'codex', 'antigravity', 'opencode').
+        orchestration (str, opcional): Topologia ('auto', 'single-agent',
+            'multi-agent-orca' o 'multi-agent-bridge').
+        target_dir (Path | None, opcional): Directorio para detectar visibilidad real.
+        env (dict[str, str] | None, opcional): Entorno a inspeccionar (default: os.environ).
+
+    Returns:
+        dict[str, Any]: Configuracion lista para escribir en
+        `.project-suite/orchestration.json`.
+    """
+    resolved_env = env if env is not None else os.environ
+    norm_agent = agent.strip().lower()
+    if norm_agent not in MODEL_PRESETS:
+        norm_agent = "claude"
+
+    if visibility == "auto":
+        if target_dir is not None and Path(target_dir).exists():
+            resolved_visibility = detect_repo_visibility(target_dir)
+        else:
+            resolved_visibility = "private"
+    else:
+        resolved_visibility = visibility if visibility else "private"
+
+    if orchestration in ("single-agent", "multi-agent-orca", "multi-agent-bridge"):
+        topology = orchestration
+    else:  # 'auto' (o valor no reconocido): resolver por visibilidad + entorno
+        if resolved_visibility == "private":
+            topology = "single-agent"
+        else:
+            topology = "multi-agent-orca" if _is_orca_environment(resolved_env) else "single-agent"
+
+    return {
+        "visibility": resolved_visibility,
+        "topology": topology,
+        "agent": norm_agent,
+        "models": dict(MODEL_PRESETS.get(norm_agent, MODEL_PRESETS["claude"])),
+        "specialists": list(DEFAULT_SPECIALISTS),
+        "reuseSpecialists": True,
+        "parallelSuffix": "-2",
+    }
+
+
 def scaffold_project(
     target_dir: Path,
     project_name: str,
@@ -357,6 +473,9 @@ def scaffold_project(
     version_work: str = "no",
     stack: list[str] | None = None,
     mode: str = "estricto",
+    visibility: str = "private",
+    agent: str = "claude",
+    orchestration: str = "auto",
     compile_companions: bool = True,
     overwrite: bool = False,
     plugin_root: Path = ROOT,
@@ -375,6 +494,9 @@ def scaffold_project(
         version_work (str, opcional): Si versiona archivos de trabajo ('no' o 'yes').
         stack (list[str] | None, opcional): Lista de tecnologías base del proyecto.
         mode (str, opcional): Modo inicial de disciplina ('estricto', 'relajado', 'off').
+        visibility (str, opcional): Visibilidad del repo ('auto', 'private' o 'public').
+        agent (str, opcional): Agente de codigo para el preset de orquestacion.
+        orchestration (str, opcional): Topologia de orquestacion ('auto' o valida explicita).
         compile_companions (bool, opcional): Si compila visores HTML e índices.
         overwrite (bool, opcional): Si sobrescribe archivos existentes.
         plugin_root (Path, opcional): Raíz del plugin project-suite.
@@ -410,6 +532,19 @@ def scaffold_project(
     mode_dir.mkdir(parents=True, exist_ok=True)
     mode_file = mode_dir / "mode"
     mode_file.write_text(f"{mode.strip()}\n", encoding="utf-8")
+
+    # 3b. Configuracion de orquestacion de 3 niveles (.project-suite/orchestration.json)
+    orch_cfg = build_orchestration_config(
+        visibility=visibility,
+        agent=agent,
+        orchestration=orchestration,
+        target_dir=resolved_target,
+        env=os.environ,
+    )
+    orchestration_file = mode_dir / "orchestration.json"
+    orchestration_file.write_text(
+        json.dumps(orch_cfg, indent=2) + "\n", encoding="utf-8"
+    )
 
     # 4. Creación o actualización de .gitignore
     gitignore_file = resolved_target / ".gitignore"
@@ -488,6 +623,8 @@ def scaffold_project(
         "docs": [str(p) for p in docs_created],
         "rules": [str(p) for p in rules_created],
         "mode_file": str(mode_file),
+        "orchestration_file": str(orchestration_file),
+        "orchestration": orch_cfg,
         "gitignore": str(gitignore_file),
         "companions": [str(p) for p in companions_created],
     }
@@ -564,6 +701,24 @@ def build_argument_parser() -> argparse.ArgumentParser:
         help="Modo de recordatorio disciplinario inicial (por defecto: estricto).",
     )
     parser.add_argument(
+        "--visibility",
+        choices=["auto", "private", "public"],
+        default="private",
+        help="Visibilidad del repositorio para topología de orquestación (por defecto: private).",
+    )
+    parser.add_argument(
+        "--agent",
+        choices=["claude", "codex", "antigravity", "opencode"],
+        default="claude",
+        help="Agente de código primario para el preset de modelos (por defecto: claude).",
+    )
+    parser.add_argument(
+        "--orchestration",
+        choices=["auto", "single-agent", "multi-agent-orca", "multi-agent-bridge"],
+        default="auto",
+        help="Topología de orquestación multi-agente (por defecto: auto).",
+    )
+    parser.add_argument(
         "--no-companions",
         action="store_true",
         help="Omite la compilación inicial de visores HTML compañeros e índices.",
@@ -615,6 +770,9 @@ def main(argv: list[str] | None = None) -> int:
             version_work=args.version_work,
             stack=stack_list,
             mode=args.mode,
+            visibility=args.visibility,
+            agent=args.agent,
+            orchestration=args.orchestration,
             compile_companions=not args.no_companions,
             overwrite=args.overwrite,
             plugin_root=ROOT,
